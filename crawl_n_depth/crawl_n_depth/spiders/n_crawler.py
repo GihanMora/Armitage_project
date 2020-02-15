@@ -167,4 +167,4 @@ def run_crawler(search_results,depth_limit,crawl_limit):#method used to run the 
 
 
 #To run this scrpit individually use following line and run the script
-# run_crawler(list_of_urls,crawling_depth_crawling_limit)
+# run_crawler(list_of_urls,crawling_depth,crawling_limit)
