@@ -1,5 +1,8 @@
+import csv
 import json
 import re
+
+import scrapy
 from scrapy import signals
 from scrapy.exceptions import CloseSpider
 import pyap
@@ -15,10 +18,10 @@ class NCrawlerSpider(CrawlSpider):
     # name = "my-crawler"
 
     rules = [
-        Rule(LinkExtractor(), callback='parse_item', follow=True)]  # Follow any link scrapy finds (that is allowed) then pass to the parse_items func.
+        Rule(LinkExtractor(), callback='parse_items', follow=True)]  # Follow any link scrapy finds (that is allowed) then pass to the parse_items func.
     #initializing the spider for each case
     def __init__(self, crawled_links, header_text, paragraph_text, telephone_numbers, addresses, emails,
-                 social_media_links,iteration,crawl_limit, *args, **kwargs, ):
+                 social_media_links,iteration,crawl_limit,current_data, *args, **kwargs, ):
         """
 
         :param crawled_links: a list to store crawled links
@@ -43,6 +46,9 @@ class NCrawlerSpider(CrawlSpider):
         self.addresses = addresses
         self.iteration = iteration
         self.crawl_limit = crawl_limit
+        self.current_data = current_data
+
+        print('start ',self.start_urls)
 
 
     @classmethod
@@ -56,25 +62,52 @@ class NCrawlerSpider(CrawlSpider):
         print('spider is closed dumping data.....')
         data = {}
         data['attributes'] = []#preparing data to dump
-        data['attributes'].append({'crawled_links': self.crawled_links,
-                                   'header_text': self.header_text,
-                                   'paragraph_text': self.paragraph_text,
-                                   'emails': self.emails,
-                                   'addresses': self.addresses,
-                                   'social_media_links': self.social_media_links,
-                                   'telephone_numbers': self.telephone_numbers
+        data['attributes'].append({
+            'title': self.current_data['title'],
+            'link':self.current_data['link'],
+            'description': self.current_data['description'],
+             'crawled_links': self.crawled_links,
+            'header_text': self.header_text,
+            'paragraph_text': self.paragraph_text,
+            'emails': self.emails,
+            'addresses': self.addresses,
+            'social_media_links': self.social_media_links,
+            'telephone_numbers': self.telephone_numbers
                                    })
 
         json_name = self.allowed_domains[0] + "_" + str(self.iteration) + "_data.json"#give json file name as domain + iteration
-
+        # print('crawled_links',self.crawled_links)
+        # print('emails', self.emails)
+        # print('addresses', self.addresses)
+        # print('social_media_links', self.social_media_links)
+        # print('telephone_numbers', self.telephone_numbers)
+        # print('header_text', self.header_text)
+        # print('paragraph_text', self.paragraph_text)
         with open('extracted_json_files/' + json_name, 'w') as outfile:
             json.dump(data, outfile)#dumping data and save
-    def parse_item(self, response):#paring to n depth
+
+        # with open('csv_results/data.csv', mode='w',encoding='utf8') as results_file:  # store search results in to a csv file
+        #     results_writer = csv.writer(results_file, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
+        #     results_writer.writerow([
+        #         self.current_data['title'],
+        #         self.current_data['link'],
+        #         self.current_data['description'],
+        #         self.crawled_links,
+        #
+        #         self.emails,
+        #         self.addresses,
+        #         self.social_media_links,
+        #         self.telephone_numbers,
+        #         self.header_text,
+        #         self.paragraph_text,
+        #     ])
+        #     results_file.close()
+    def parse_items(self, response):#paring to n depth
+
         print(response.request.headers['User-Agent'])#shows the current random agent using
         print('Got a response from %s.' % response.url)#shows current url crawling
-
         extracted_paragraph_text = response.xpath('//p//text()').extract()  # extracting paragraph text
-
+        # print('from scrapy',extracted_paragraph_text)
         headers1 = response.xpath('//h1/text()').extract()  # extracting h1 text
         headers2 = response.xpath('//h2/text()').extract()  # extracting h2 text
         headers3 = response.xpath('//h3/text()').extract()  # extracting h3 text
@@ -88,6 +121,9 @@ class NCrawlerSpider(CrawlSpider):
         self.paragraph_text.extend(extracted_paragraph_text)#populating paragraph text list
         # print(extracted_header_text)
         soup = BeautifulSoup(response.body, "lxml")#get response body to extract further attributes
+        # soup1 = BeautifulSoup(response.body, "html")
+        # paras = soup1.find('p').getText()
+        # print('from bs4',paras)
         all_text_in_page = ''
         blacklist = [
             '[document]', 'noscript', 'header', 'html', 'meta', 'head', 'input', 'script', 'style'
@@ -127,6 +163,8 @@ class NCrawlerSpider(CrawlSpider):
 
 
 
+
+
 def run_crawler(search_results,depth_limit,crawl_limit):#method used to run the crawler
     """
 
@@ -156,12 +194,51 @@ def run_crawler(search_results,depth_limit,crawl_limit):#method used to run the 
         social_media_links = []
         addresses = []
         allowed_domains = each_search_result.split("/")[2]#getting allowed links from the starting urls itself
-
+        print(allowed_domains)
         custom_settings = {'DEPTH_LIMIT':#setting depth limit of crawling
                                str(depth_limit),
                            }
         crawl_limit = crawl_limit# setting crawl limit aka number of links going to crawl
         c.crawl(NCrawlerSpider,start_urls = [each_search_result,], allowed_domains = [allowed_domains,],custom_settings=custom_settings,crawled_links=crawled_links,header_text = header_text,paragraph_text=paragraph_text,telephone_numbers = telephone_numbers,addresses=addresses,social_media_links=social_media_links,emails=emails,iteration = i,crawl_limit = crawl_limit)
+
+    c.start()#letting all the crawlers to start and run simultaneously
+
+
+def run_multiple_crawlers(all_data,depth_limit,crawl_limit):#method used to run the crawler
+    """
+
+    :param search_results: links list of google search results
+    :param depth_limit: the depth want to crawl
+    :param crawl_limit: number of links want to crawl
+    :return: data will be dumped into json files
+    """
+
+    if not os.path.exists('extracted_json_files'):
+        os.makedirs('extracted_json_files')
+
+    c = CrawlerProcess(
+        get_project_settings()#get crawler settings as running from the script
+    )
+    for i,each_data in enumerate(all_data):#going for n depth for the each google search result
+        print("started",i,each_data[0]+"scraping in to n depth")
+
+        #configuring the crawlers
+
+        # lists for collecting crawling data
+        crawled_links = []
+        header_text = []
+        paragraph_text = []
+        telephone_numbers = []
+        emails = []
+        social_media_links = []
+        addresses = []
+        allowed_domains = each_data[0].split("/")[2]#getting allowed links from the starting urls itself
+
+        custom_settings = {'DEPTH_LIMIT':#setting depth limit of crawling
+                               str(depth_limit),
+                           }
+        crawl_limit = crawl_limit# setting crawl limit aka number of links going to crawl
+        c.crawl(NCrawlerSpider,start_urls = [each_data[0],], allowed_domains = [allowed_domains,],custom_settings=custom_settings,crawled_links=crawled_links,header_text = header_text,paragraph_text=paragraph_text,telephone_numbers = telephone_numbers,addresses=addresses,social_media_links=social_media_links,emails=emails,iteration = i,crawl_limit = crawl_limit,current_data=each_data[1])
 
     c.start()#letting all the crawlers to start and run simultaneously
 
