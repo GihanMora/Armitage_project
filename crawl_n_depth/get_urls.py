@@ -7,10 +7,10 @@ print(sites)
 
 searchResults = []
 f = open("links_file.txt",'w+')
-for each_l in sites[15:20]:
+for each_l in sites[90:]:
     sr = getGoogleLinksForSearchText(each_l,1)
     print(sr[0]['link'])
-    sleep(5)
+    sleep(3)
     f.write(sr[0]['link'])
     searchResults.append(sr[0]['link'])
 f.close()

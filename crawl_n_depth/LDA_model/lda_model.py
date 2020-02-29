@@ -32,6 +32,7 @@ def remove_stopwords(texts):#remove stopwords to do more effective extraction
 def lemmatization(texts, allowed_postags=['NOUN', 'ADJ', 'VERB', 'ADV']):#lemmatize words to get core word
     """https://spacy.io/api/annotation"""
     nlp = spacy.load('en', disable=['parser', 'ner'])
+    nlp.max_length = 150000000
     texts_out = []
     for sent in texts:
         doc = nlp(" ".join(sent))
@@ -43,7 +44,7 @@ def run_lda_model(path_to_json,number_of_topics):#this will extract paragraph an
     print("lda model started", path_to_json)
     with open(path_to_json) as json_file:
         data = json.load(json_file)
-        for p in data['attributes']:
+        for p in data:
             h_p_data = p["paragraph_text"] + p["header_text"]#do topic extraction on paragraph and header text
 
     print('Grabbing paragraph and header text from json file...')
@@ -59,15 +60,15 @@ def run_lda_model(path_to_json,number_of_topics):#this will extract paragraph an
 
     # Create Dictionary
     id2word = corpora.Dictionary(data_lemmatized)
-
+    print('id2word',id2word)
     # Create Corpus
     texts = data_lemmatized
 
     # Term Document Frequency
     corpus = [id2word.doc2bow(text) for text in texts]
-
+    print('corpus',corpus)
     # View
-    print('corpus is created')
+    print('corpus is created')#(word,frequency of occuring)
     topics = []
     try:
         lda_model = gensim.models.ldamodel.LdaModel(corpus=corpus,
@@ -82,7 +83,7 @@ def run_lda_model(path_to_json,number_of_topics):#this will extract paragraph an
         print("corpus is empty or not valid")
 
     print(topics)
-    data['attributes'][0]['lda_resutls'] = topics#dump the extracted topics back to the json file
+    data[0]['lda_resutls'] = topics#dump the extracted topics back to the json file
 
     with open(path_to_json, 'w') as outfile:
         json.dump(data, outfile)
@@ -91,3 +92,4 @@ def run_lda_model(path_to_json,number_of_topics):#this will extract paragraph an
 #To run this scrpit individually use following line and run the script
 # topics = run_lda_model(path to the json object,number_of_topics)
 # print(topics)
+# run_lda_model("F://Armitage_project/crawl_n_depth/extracted_json_files/www.axcelerate.com.au_0_data.json",3)

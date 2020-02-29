@@ -10,11 +10,11 @@ def key_phrase_extract(path_to_json,number_of_candidates):#this will extract par
     print("key_phrase extraction started",path_to_json)
     with open(path_to_json) as json_file:
         data = json.load(json_file)
-        for p in data['attributes']:
+        for p in data:
             # data = p["paragraph_text"]+p["header_text"]
             data_hp = p["header_text"]#getting only header text as it take lot of time
     data_hp = " ".join(data_hp)
-    with open('temp_text.txt', 'w', encoding='utf-8') as f:#write the extracted header and paragraph text to .txt as this lib only accepts .txt files
+    with open('temp_text.txt', 'w', encoding='utf-8') as f:#write the extracted header and paragraph text to .txt as this lib_guidedlda only accepts .txt files
         f.write(data_hp)
         f.close()
 
@@ -43,7 +43,7 @@ def key_phrase_extract(path_to_json,number_of_candidates):#this will extract par
     print("key phrase extraction completed")
     print(kpe_results)
 
-    data['attributes'][0]['kpe_resutls'] = kpe_results
+    data[0]['kpe_resutls'] = kpe_results
     with open(path_to_json, 'w') as outfile:
         json.dump(data, outfile)
 

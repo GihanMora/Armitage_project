@@ -19,7 +19,7 @@ NEWSPIDER_MODULE = 'crawl_n_depth.spiders'
 #USER_AGENT = 'crawl_n_depth (+http://www.yourdomain.com)'
 
 # Obey robots.txt rules
-ROBOTSTXT_OBEY = False
+ROBOTSTXT_OBEY = True
 # PROXY_POOL_ENABLED = True
 # Configure maximum concurrent requests performed by Scrapy (default: 16)
 #CONCURRENT_REQUESTS = 32
