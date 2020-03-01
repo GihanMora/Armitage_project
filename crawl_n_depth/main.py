@@ -25,17 +25,23 @@ Check path_to_jsons in main.py
 # ## searchResults = getGoogleLinksForSearchText(text_to_search,number_of_results_required)
 # # searchResults = getGoogleLinksForSearchText("Information Systems Australia",1)
 
-
+import re
+def sorted_alphanumeric(data):
+    convert = lambda text: int(text) if text.isdigit() else text.lower()
+    alphanum_key = lambda key: [ convert(c) for c in re.split('([0-9]+)', key) ]
+    return sorted(data, key=alphanum_key)
 #reading stored jsons to be given to LDA and Key phrase extraction
 json_paths = [os.path.abspath(x) for x in os.listdir("data/extracted_json_files/")]
 path_to_jsons = "F:/Armitage_project/crawl_n_depth/data/extracted_json_files/"#specify the path for json files
 json_list = os.listdir(path_to_jsons)
+sorted_json_list = sorted_alphanumeric(json_list)
 j_list = [(path_to_jsons+each_path) for each_path in json_list]
-print(j_list)
 
+sorted_j_list = sorted_alphanumeric(j_list)
+print(sorted_j_list)
 #
 
-for i,each_json in enumerate(json_list[:100]):#for each search result
+for i,each_json in enumerate(sorted_json_list[0:50]):#for each search result
     path_f = path_to_jsons+each_json
     with open(path_f) as json_file:
         data_o = json.load(json_file)
@@ -53,7 +59,7 @@ for i,each_json in enumerate(json_list[:100]):#for each search result
     data = []  # preparing data to dump
     data.append(data_dict)
     domain = sr[0]['link'].split("/")[2]  # getting allowed links from the starting urls itself
-    json_name = str(i) + "_" + domain + "_data.json"  # give json file name as domain + iteration
+    json_name = str(i+51) + "_" + domain + "_data.json"  # give json file name as domain + iteration
     with open('extracted_json_files/' + json_name, 'w') as outfile:
         json.dump(data, outfile)  # dumping data and save
     sleep(randint(5, 50))
