@@ -238,7 +238,9 @@ def run_multiple_crawlers(json_list,depth_limit,crawl_limit):#method used to run
         with open(path_to_json) as json_file:
             data = json.load(json_file)
         json_file.close()
-        print("started",i,data[0]['link']+"scraping in to n depth")
+        print(data)
+        print(data[0]['link'])
+        print("started",i,data[0]['link']+" scraping in to n depth")
 
         #configuring the crawlers
 
@@ -251,7 +253,7 @@ def run_multiple_crawlers(json_list,depth_limit,crawl_limit):#method used to run
         social_media_links = []
         addresses = []
         allowed_domains = data[0]['link'].split("/")[2]#getting allowed links from the starting urls itself
-
+        print('allowed_dm',allowed_domains)
         custom_settings = {'DEPTH_LIMIT':#setting depth limit of crawling
                                str(depth_limit),
                            }

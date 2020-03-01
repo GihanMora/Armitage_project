@@ -125,11 +125,11 @@ print(j_list)
 
 for each_json in json_list:#for each search result
     path_f = path_to_jsons+each_json
-    # run_lda_model(path to the json object,number_of_topics)
-    run_lda_model(path_f,10)#run LDA
-    # key_phrase_extract(path to the json object,number_of_candidates)
-    key_phrase_extract(path_f,10)#run Key Phrase extraction
-    run_rake_model(path_f, 50)
-    run_guided_lda_model(path_f,5)
+    # # run_lda_model(path to the json object,number_of_topics)
+    # run_lda_model(path_f,10)#run LDA
+    # # key_phrase_extract(path to the json object,number_of_candidates)
+    # key_phrase_extract(path_f,10)#run Key Phrase extraction
+    # run_rake_model(path_f, 50)
+    # run_guided_lda_model(path_f,5)
     run_textrank_model(path_f,50,5)
-    run_wordcloud_model(path_f)
+    # run_wordcloud_model(path_f)
