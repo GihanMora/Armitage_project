@@ -18,15 +18,45 @@ Check path of chrome driver
 Check path_to_jsons in main.py
 """
 # link_s = ['https://getatomi.com/','https://www.beautycoursesonline.com/','https://www.modernstar.com.au/','https://www.negotiations.com/']
-f = open('evaluation/links.txt','r')
-sites = [item[:-1] for item in f.readlines()]
-print(sites)
+# f = open('evaluation/links.txt','r')
+# sites = [item[:-1] for item in f.readlines()]
+# print(sites)
 # ## get search results
 # ## searchResults = getGoogleLinksForSearchText(text_to_search,number_of_results_required)
 # # searchResults = getGoogleLinksForSearchText("Information Systems Australia",1)
 
 
+#reading stored jsons to be given to LDA and Key phrase extraction
+json_paths = [os.path.abspath(x) for x in os.listdir("data/extracted_json_files/")]
+path_to_jsons = "F:/Armitage_project/crawl_n_depth/data/extracted_json_files/"#specify the path for json files
+json_list = os.listdir(path_to_jsons)
+j_list = [(path_to_jsons+each_path) for each_path in json_list]
+print(j_list)
 
+#
+
+for i,each_json in enumerate(json_list[:100]):#for each search result
+    path_f = path_to_jsons+each_json
+    with open(path_f) as json_file:
+        data_o = json.load(json_file)
+
+
+    data_dict = data_o[0]
+    search_text = data_o[0]['search_text']
+    sr = getGoogleLinksForSearchText(search_text, 1)
+    search_data = {
+        'title': sr[0]['title'],
+        'link_corrected': sr[0]['link'],
+        'description': sr[0]['description']
+    }
+    data_dict.update(search_data)
+    data = []  # preparing data to dump
+    data.append(data_dict)
+    domain = sr[0]['link'].split("/")[2]  # getting allowed links from the starting urls itself
+    json_name = str(i) + "_" + domain + "_data.json"  # give json file name as domain + iteration
+    with open('extracted_json_files/' + json_name, 'w') as outfile:
+        json.dump(data, outfile)  # dumping data and save
+    sleep(randint(5, 50))
 
 
 
@@ -109,11 +139,11 @@ if not os.path.exists('extracted_json_files'):
 # run_crawler(list_of_urls,crawling_depth,crawling_limit)
 
 #reading stored jsons to be given to LDA and Key phrase extraction
-json_paths = [os.path.abspath(x) for x in os.listdir("extracted_json_files/")]
-path_to_jsons = "F:/Armitage_project/crawl_n_depth/extracted_json_files/"#specify the path for json files
-json_list = os.listdir(path_to_jsons)
-j_list = [(path_to_jsons+each_path) for each_path in json_list]
-print(j_list)
+# json_paths = [os.path.abspath(x) for x in os.listdir("extracted_json_files/")]
+# path_to_jsons = "F:/Armitage_project/crawl_n_depth/extracted_json_files/"#specify the path for json files
+# json_list = os.listdir(path_to_jsons)
+# j_list = [(path_to_jsons+each_path) for each_path in json_list]
+# print(j_list)
 # run_multiple_crawlers(j_list,3,100)
 
 
@@ -122,14 +152,14 @@ print(j_list)
 
 
 #
-
-for each_json in json_list:#for each search result
-    path_f = path_to_jsons+each_json
-    # # run_lda_model(path to the json object,number_of_topics)
-    # run_lda_model(path_f,10)#run LDA
-    # # key_phrase_extract(path to the json object,number_of_candidates)
-    # key_phrase_extract(path_f,10)#run Key Phrase extraction
-    # run_rake_model(path_f, 50)
-    # run_guided_lda_model(path_f,5)
-    run_textrank_model(path_f,50,5)
-    # run_wordcloud_model(path_f)
+#
+# for each_json in json_list:#for each search result
+#     path_f = path_to_jsons+each_json
+#     # # run_lda_model(path to the json object,number_of_topics)
+#     # run_lda_model(path_f,10)#run LDA
+#     # # key_phrase_extract(path to the json object,number_of_candidates)
+#     # key_phrase_extract(path_f,10)#run Key Phrase extraction
+#     # run_rake_model(path_f, 50)
+#     # run_guided_lda_model(path_f,5)
+#     run_textrank_model(path_f,50,5)
+#     # run_wordcloud_model(path_f)
