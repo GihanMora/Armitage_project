@@ -31,38 +31,38 @@ def sorted_alphanumeric(data):
     alphanum_key = lambda key: [ convert(c) for c in re.split('([0-9]+)', key) ]
     return sorted(data, key=alphanum_key)
 #reading stored jsons to be given to LDA and Key phrase extraction
-json_paths = [os.path.abspath(x) for x in os.listdir("data/extracted_json_files/")]
-path_to_jsons = "F:/Armitage_project/crawl_n_depth/data/extracted_json_files/"#specify the path for json files
+json_paths = [os.path.abspath(x) for x in os.listdir("extracted_json_files/")]
+path_to_jsons = "F:/Armitage_project/crawl_n_depth/extracted_json_files/"#specify the path for json files
 json_list = os.listdir(path_to_jsons)
 sorted_json_list = sorted_alphanumeric(json_list)
 j_list = [(path_to_jsons+each_path) for each_path in json_list]
 
 sorted_j_list = sorted_alphanumeric(j_list)
-print(sorted_j_list)
+# print(sorted_j_list)
 #
 
-for i,each_json in enumerate(sorted_json_list[0:50]):#for each search result
-    path_f = path_to_jsons+each_json
-    with open(path_f) as json_file:
-        data_o = json.load(json_file)
-
-
-    data_dict = data_o[0]
-    search_text = data_o[0]['search_text']
-    sr = getGoogleLinksForSearchText(search_text, 1)
-    search_data = {
-        'title': sr[0]['title'],
-        'link_corrected': sr[0]['link'],
-        'description': sr[0]['description']
-    }
-    data_dict.update(search_data)
-    data = []  # preparing data to dump
-    data.append(data_dict)
-    domain = sr[0]['link'].split("/")[2]  # getting allowed links from the starting urls itself
-    json_name = str(i+51) + "_" + domain + "_data.json"  # give json file name as domain + iteration
-    with open('extracted_json_files/' + json_name, 'w') as outfile:
-        json.dump(data, outfile)  # dumping data and save
-    sleep(randint(5, 50))
+# for i,each_json in enumerate(sorted_json_list[1903:2000]):#for each search result
+#     path_f = path_to_jsons+each_json
+#     with open(path_f) as json_file:
+#         data_o = json.load(json_file)
+#
+#
+#     data_dict = data_o[0]
+#     search_text = data_o[0]['search_text']
+#     sr = getGoogleLinksForSearchText(search_text, 3)
+#     search_data = {
+#         'title': sr[0]['title'],
+#         'link_corrected': sr[0]['link'],
+#         'description': sr[0]['description']
+#     }
+#     data_dict.update(search_data)
+#     data = []  # preparing data to dump
+#     data.append(data_dict)
+#     domain = sr[0]['link'].split("/")[2]  # getting allowed links from the starting urls itself
+#     json_name = str(i) + "_" + domain + "_data.json"  # give json file name as domain + iteration
+#     with open('extracted_json_files/' + each_json, 'w') as outfile:
+#         json.dump(data, outfile)  # dumping data and save
+#     sleep(randint(20, 40))
 
 
 
@@ -145,14 +145,17 @@ if not os.path.exists('extracted_json_files'):
 # run_crawler(list_of_urls,crawling_depth,crawling_limit)
 
 #reading stored jsons to be given to LDA and Key phrase extraction
-# json_paths = [os.path.abspath(x) for x in os.listdir("extracted_json_files/")]
-# path_to_jsons = "F:/Armitage_project/crawl_n_depth/extracted_json_files/"#specify the path for json files
-# json_list = os.listdir(path_to_jsons)
-# j_list = [(path_to_jsons+each_path) for each_path in json_list]
-# print(j_list)
-# run_multiple_crawlers(j_list,3,100)
-
-
+    # json_paths = [os.path.abspath(x) for x in os.listdir("extracted_json_files/")]
+    # path_to_jsons = "F:/Armitage_project/crawl_n_depth/extracted_json_files/"#specify the path for json files
+    # json_list = os.listdir(path_to_jsons)
+    # j_list = [(path_to_jsons+each_path) for each_path in json_list]
+    # print(j_list)
+# for each in sorted_j_list[121:300]:
+#     print(each)
+run_multiple_crawlers([sorted_j_list[742]],3,100)
+#
+# la = ['F:\Armitage_project\crawl_n_depth\extracted_json_files\\585_Expressway_Spares_data.json']
+# run_multiple_crawlers(la,3,100)
 
 
 

@@ -39,4 +39,4 @@ def run_textrank_model(path_to_json,phrase_limit,summery_limit):  # this will ex
     with open(path_to_json, 'w') as outfile:
         json.dump(data, outfile)
 
-run_textrank_model("F://Armitage_project//crawl_n_depth//extracted_json_files//4_australianassignmenthelp.com_data.json",50,5)
+# run_textrank_model("F://Armitage_project//crawl_n_depth//extracted_json_files//4_australianassignmenthelp.com_data.json",50,5)

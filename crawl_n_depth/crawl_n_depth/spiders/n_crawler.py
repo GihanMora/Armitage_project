@@ -252,13 +252,14 @@ def run_multiple_crawlers(json_list,depth_limit,crawl_limit):#method used to run
         emails = []
         social_media_links = []
         addresses = []
-        allowed_domains = data[0]['link'].split("/")[2]#getting allowed links from the starting urls itself
+        print(data[0])
+        allowed_domains = data[0]['link_corrected'].split("/")[2]#getting allowed links from the starting urls itself
         print('allowed_dm',allowed_domains)
         custom_settings = {'DEPTH_LIMIT':#setting depth limit of crawling
                                str(depth_limit),
                            }
         crawl_limit = crawl_limit# setting crawl limit aka number of links going to crawl
-        c.crawl(NCrawlerSpider,start_urls = [data[0]['link'],], allowed_domains = [allowed_domains,],custom_settings=custom_settings,crawled_links=crawled_links,header_text = header_text,paragraph_text=paragraph_text,telephone_numbers = telephone_numbers,addresses=addresses,social_media_links=social_media_links,emails=emails,iteration = i,crawl_limit = crawl_limit,path_to_json=path_to_json)
+        c.crawl(NCrawlerSpider,start_urls = [data[0]['link_corrected'],], allowed_domains = [allowed_domains,],custom_settings=custom_settings,crawled_links=crawled_links,header_text = header_text,paragraph_text=paragraph_text,telephone_numbers = telephone_numbers,addresses=addresses,social_media_links=social_media_links,emails=emails,iteration = i,crawl_limit = crawl_limit,path_to_json=path_to_json)
 
     c.start()#letting all the crawlers to start and run simultaneously
 
