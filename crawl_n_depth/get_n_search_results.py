@@ -5,7 +5,7 @@ from bs4 import BeautifulSoup
 from bs4.element import Tag
 import csv
 from fake_useragent import UserAgent
-
+import time
 
 def getGoogleLinksForSearchText(searchText,number_of_results):#given a search query get first n results from google
     """
@@ -15,11 +15,11 @@ def getGoogleLinksForSearchText(searchText,number_of_results):#given a search qu
     :return: save resulted links to csv along with title and description
     """
     print("searching on google",searchText)
-
+    searchText=searchText+' -site:businessnews.com -site:facebook.com -site:bloomberg.com -site:asic.hkcorporationsearch.com -site:abnlookup.net -site:aubiz.net -site:auscompanies.com -site:google.com -site:whitepages.com.au -site:abn-lookup.com -site:au.mycompanydetails.com -site:infobel.com -site:truelocal.com.au -site:realestate.com.au -site:localsearch.com.au -site:linkedin.com -site:www.dnb.com -site:wikipedia.org'
     options = webdriver.ChromeOptions()#use headless version of chrome to avoid getting blocked
     options.add_argument('headless')
     # options.add_argument("-user-data-dir=C:\Users\Gihan Gamage\AppData\Local\Google\Chrome\User Data\Default")
-    browser = webdriver.Chrome(options=options,#give the path to selenium executable
+    browser = webdriver.Chrome(chrome_options=options,#give the path to selenium executable
             # executable_path='F://Armitage_lead_generation_project//chromedriver.exe'
             executable_path = 'utilities//chromedriver.exe'
 
@@ -28,7 +28,8 @@ def getGoogleLinksForSearchText(searchText,number_of_results):#given a search qu
 
     # random_proxy_us = api.get_proxy(country="US")
     #buildingsearch query
-    searchGoogle = URL = f"https://google.com/search?q={searchText}"+"&num=" + str(number_of_results)
+    searchGoogle = f"https://google.com/search?q={searchText}"+""+"&num=" + str(number_of_results)
+    # print(searchGoogle)
     ua = UserAgent()
     userAgent = ua.random
     # print(userAgent)
@@ -39,11 +40,24 @@ def getGoogleLinksForSearchText(searchText,number_of_results):#given a search qu
 
     # requests.get("http://example.org", proxies=proxies)
     browser.get(searchGoogle)
-    # headers = {'User-Agent': 'Mozilla/5.0'}
-    # r = requests.get(searchGoogle, headers=headers)
+    # print(browser.page_source)
+    headers = {'User-Agent': userAgent}
+    r = requests.get(searchGoogle, headers=headers)
     pageSource = browser.page_source
     # print(pageSource)
     soup = BeautifulSoup(pageSource, 'html.parser')#bs4
+    is_captcha_on_page = soup.find("div", id="recaptcha") is not None
+    count = 0
+    while(is_captcha_on_page):
+        count=count+1
+        print("captch is detected "+str(count)+" times")
+        print("waiting more time",count*300)
+        time.sleep(count*300)
+        soup = BeautifulSoup(pageSource, 'html.parser')  # bs4
+        is_captcha_on_page = soup.find("div", id="recaptcha") is not None
+
+
+
     results = []
     result_div = soup.find_all('div', attrs={'class': 'g'})
     # print(result_div)
@@ -82,12 +96,12 @@ def getGoogleLinksForSearchText(searchText,number_of_results):#given a search qu
 
 
 
-    with open('first_n_results.csv', mode='w', encoding='utf8') as results_file:#store search results in to a csv file
-        results_writer = csv.writer(results_file, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
-
-        for each_item in results:
-            results_writer.writerow([each_item['title'], each_item['link'], each_item['description']])
-        results_file.close()
+    # with open('first_n_results.csv', mode='w', encoding='utf8') as results_file:#store search results in to a csv file
+    #     results_writer = csv.writer(results_file, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
+    #
+    #     for each_item in results:
+    #         results_writer.writerow([each_item['title'], each_item['link'], each_item['description']])
+    #     results_file.close()
     print("got "+str(len(results))+" results")
     return results
 
@@ -96,9 +110,9 @@ def getGoogleLinksForSearchText(searchText,number_of_results):#given a search qu
 # for searchResult in searchResults:
 #     print(searchResult)
 
-
-# searchResults = getGoogleLinksForSearchText("gampaha srilanka",3)
-# for searchResult in searchResults:
-#     print(searchResult)
+# #
+searchResults = getGoogleLinksForSearchText("gampaha srilanka",3)
+for searchResult in searchResults:
+    print(searchResult)
 
 
