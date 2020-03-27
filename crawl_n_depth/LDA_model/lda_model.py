@@ -27,7 +27,11 @@ def sent_to_words(sentences):#split sentences to words and remove punctuations
 def remove_stopwords(texts):#remove stopwords to do more effective extraction
     return [[word for word in simple_preprocess(str(doc)) if word not in stop_words] for doc in texts]
 
+def make_bigrams(texts,bigram_mod):
+    return [bigram_mod[doc] for doc in texts]
 
+def make_trigrams(texts,bigram_mod,trigram_mod):
+    return [trigram_mod[bigram_mod[doc]] for doc in texts]
 def lemmatization(texts, allowed_postags=['NOUN', 'ADJ', 'VERB', 'ADV']):#lemmatize words to get core word
     """https://spacy.io/api/annotation"""
     nlp = spacy.load('en', disable=['parser', 'ner'])

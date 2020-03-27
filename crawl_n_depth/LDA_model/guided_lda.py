@@ -19,7 +19,7 @@ stop_words.extend(['from', 'subject', 're', 'edu', 'use'])
 from sklearn.feature_extraction.text import CountVectorizer
 
 
-print(stop_words)
+
 
 def sent_to_words(sentences):#split sentences to words and remove punctuations
     for sentence in sentences:
@@ -68,9 +68,27 @@ def run_guided_lda_model(path_to_json,number_of_topics):#this will extract parag
     # print('w2id',word2id)
 
 
-    seed_topic_list = [['about', 'vision', 'mission','approach','team','clients'],
-                            ['course', 'service', 'work','task'],
-                            ['address', 'australia','contact','email','location','call','social']]
+    seed_topic_list = [['Healthcare']
+,['Finance','insurance']
+,['professional','scientific','technical']
+,['Wholesale trade']
+,['IT','Software']
+,['Education']
+,['Construction']
+,['Manufacturing']
+,['Transport']
+,['Arts','entertainment','recreation']
+,['Retail trade']
+,['Real estate']
+,['Agriculture']
+,['accommodation','food']
+,['Utilities']
+,['IT,Hardware']
+,['Mining','oil','gas']
+,['Telecommunications']
+,['administrative','support']
+,['Public administration']]
+    number_of_topics=20
 
     model = guidedlda.GuidedLDA(n_topics=number_of_topics, n_iter=100, random_state=7, refresh=20)
         # seed_topics = {'NASA': 0, 'SpaceX': 0, 'Apple': 1, 'Google': 1, 'Physics': 2, 'Chemistry': 2, }

@@ -13,7 +13,9 @@ BOT_NAME = 'crawl_n_depth'
 
 SPIDER_MODULES = ['crawl_n_depth.spiders']
 NEWSPIDER_MODULE = 'crawl_n_depth.spiders'
-
+EXTENSIONS = {
+   'scrapy.telnet.TelnetConsole': None
+}
 
 # Crawl responsibly by identifying yourself (and your website) on the user-agent
 #USER_AGENT = 'crawl_n_depth (+http://www.yourdomain.com)'

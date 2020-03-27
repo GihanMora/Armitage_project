@@ -1,3 +1,5 @@
+from random import choice
+
 import requests
 
 from selenium import webdriver
@@ -6,7 +8,7 @@ from bs4.element import Tag
 import csv
 from fake_useragent import UserAgent
 import time
-
+from selenium.webdriver.firefox.options import Options
 def getGoogleLinksForSearchText(searchText,number_of_results):#given a search query get first n results from google
     """
 
@@ -15,16 +17,37 @@ def getGoogleLinksForSearchText(searchText,number_of_results):#given a search qu
     :return: save resulted links to csv along with title and description
     """
     print("searching on google",searchText)
-    searchText=searchText+' -site:businessnews.com -site:facebook.com -site:bloomberg.com -site:asic.hkcorporationsearch.com -site:abnlookup.net -site:aubiz.net -site:auscompanies.com -site:google.com -site:whitepages.com.au -site:abn-lookup.com -site:au.mycompanydetails.com -site:infobel.com -site:truelocal.com.au -site:realestate.com.au -site:localsearch.com.au -site:linkedin.com -site:www.dnb.com -site:wikipedia.org'
+    # searchText=searchText+' -site:businessnews.com -site:facebook.com -site:bloomberg.com -site:asic.hkcorporationsearch.com -site:abnlookup.net -site:aubiz.net -site:auscompanies.com -site:google.com -site:whitepages.com.au -site:abn-lookup.com -site:au.mycompanydetails.com -site:infobel.com -site:truelocal.com.au -site:realestate.com.au -site:localsearch.com.au -site:linkedin.com -site:www.dnb.com -site:wikipedia.org'
+
+    proxies = ['54.213.66.208', "43.250.242.251", "192.248.15.153"]
     options = webdriver.ChromeOptions()#use headless version of chrome to avoid getting blocked
     options.add_argument('headless')
+    # options.add_argument('--proxy-server=%s' % proxies[0])
+
     # options.add_argument("-user-data-dir=C:\Users\Gihan Gamage\AppData\Local\Google\Chrome\User Data\Default")
     browser = webdriver.Chrome(chrome_options=options,#give the path to selenium executable
             # executable_path='F://Armitage_lead_generation_project//chromedriver.exe'
-            executable_path = 'utilities//chromedriver.exe'
-
-                               )
+            executable_path = 'utilities//chromedriver.exe')
      # initiate the class (you can pass an apikey if you have one)
+
+    # profile = webdriver.FirefoxProfile()
+    # profile.set_preference("browser.privatebrowsing.autostart", True)
+    # proxies = ['54.213.66.208', "43.250.242.251", "192.248.15.153"
+    #
+    #            ]
+    # prx = choice(proxies)
+    # print(prx)
+    # profile.set_preference("network.proxy.type", 1)
+    # profile.set_preference("network.proxy.http", prx)
+    # profile.set_preference("network.proxy.http_port", 80)
+    # options = Options()
+    # options.headless = True
+    #
+    # profile.update_preferences()
+    # browser = webdriver.Firefox(firefox_options=options, firefox_profile=profile,
+    #                             # executable_path='utilities//geckodriver.exe'
+    #                             executable_path = 'F://Armitage_project/crawl_n_depth/utilities/geckodriver.exe'
+    #                             )
 
     # random_proxy_us = api.get_proxy(country="US")
     #buildingsearch query
@@ -48,13 +71,15 @@ def getGoogleLinksForSearchText(searchText,number_of_results):#given a search qu
     soup = BeautifulSoup(pageSource, 'html.parser')#bs4
     is_captcha_on_page = soup.find("div", id="recaptcha") is not None
     count = 0
-    while(is_captcha_on_page):
-        count=count+1
-        print("captch is detected "+str(count)+" times")
-        print("waiting more time",count*300)
-        time.sleep(count*300)
-        soup = BeautifulSoup(pageSource, 'html.parser')  # bs4
-        is_captcha_on_page = soup.find("div", id="recaptcha") is not None
+    if(is_captcha_on_page):return 'captcha'
+    # while(is_captcha_on_page):
+    #     count=count+1
+    #     print("captch is detected "+str(count)+" times")
+    #     print("waiting more time",count*1200)
+    #     time.sleep(count*1200)
+    #     browser.get(searchGoogle)
+    #     soup = BeautifulSoup(pageSource, 'html.parser')  # bs4
+    #     is_captcha_on_page = soup.find("div", id="recaptcha") is not None
 
 
 
@@ -111,8 +136,8 @@ def getGoogleLinksForSearchText(searchText,number_of_results):#given a search qu
 #     print(searchResult)
 
 # #
-searchResults = getGoogleLinksForSearchText("gampaha srilanka",3)
-for searchResult in searchResults:
-    print(searchResult)
+# searchResults = getGoogleLinksForSearchText("gampaha srilanka",3)
+# for searchResult in searchResults:
+#     print(searchResult)
 
 

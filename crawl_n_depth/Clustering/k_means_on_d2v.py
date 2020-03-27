@@ -123,12 +123,12 @@ for i in range(len(model.docvecs)):
 # print('docvecs',model.docvecs)
 # print('X',X)
 
-kmeans = KMeans(n_clusters=10, random_state=0).fit(X)
+kmeans = KMeans(n_clusters=15, random_state=0).fit(X)
 print(len(kmeans.labels_))
 # print('kmeans_lab',kmeans.labels_)
 print(len(train_names))
 #craete a dictionary to get cluster data
-clusters={0:[],1:[],2:[],3:[],4:[],5:[],6:[],7:[],8:[],9:[]}
+clusters={0:[],1:[],2:[],3:[],4:[],5:[],6:[],7:[],8:[],9:[],10:[],11:[],12:[],13:[],14:[],15:[],16:[],17:[],18:[],19:[]}
 for i in range(len(kmeans.labels_)):
     print(i)
     # print(kmeans.labels_[i])
