@@ -163,7 +163,7 @@ def initial_crawl():
 def initial_quality_crawl():
     with open("data/private_comp/Australian Private Company.csv", "r") as f:
         reader = csv.reader(f, delimiter="\t")
-        for i in range(2210):  # count from 0 to 7
+        for i in range(2254):  # count from 0 to 7
             next(reader)  # and discard the rows
         # reader = next(reader)
         with open('private_qualty_comp_urls.csv', 'a+', newline='', encoding='utf-8') as file:
@@ -219,7 +219,7 @@ def initial_quality_crawl():
                         print(line + ["None","None","None"])
                         writer.writerow(line + ["None","None","None"])
 
-initial_quality_crawl()
+# initial_quality_crawl()
 """
 Check path of chrome driver
 Check path_to_jsons in main.py
@@ -341,14 +341,14 @@ def update_jsons_with_search_results(path_to_jsons,sorted_json_list):
 # for each in sorted_j_list[121:300]:
 #     print(each)
 
+# F:\Armitage_project\crawl_n_depth\quality_json_files\1158_11006839087_PRV_MONDAN_PTY._LTD..json
 
 
 
-
-json_paths = ['F:\Armitage_project\crawl_n_depth\data\public_comp_extracted_json_files\\'+x for x in os.listdir("F:\Armitage_project\crawl_n_depth\data\public_comp_extracted_json_files")]
+json_paths = ['F:\Armitage_project\crawl_n_depth\quality_json_files\\'+x for x in os.listdir("F:\Armitage_project\crawl_n_depth\quality_json_files")]
 print(json_paths)
 sorted_j_list = sorted_alphanumeric(json_paths)
-# conf_runf(sorted_j_list[0:5],3,5)
+conf_runf(sorted_j_list[1131:1132],10,50)
 # run_multiple_crawlers(sorted_j_list[0:5],3,5)
 print('aassasa')
 #
