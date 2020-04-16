@@ -56,7 +56,7 @@ def run_wordcloud_model(path_to_json,mode):  # this will extract paragraph and h
     # data_lemmatized = lemmatization(data_words_nostops, allowed_postags=['NOUN', 'ADJ'])
     # print(data_lemmatized)
     all_tokens = [j for i in data_lemmatized for j in i]
-    print('all', all_tokens)
+    # print('all', all_tokens)
     all_tokens = [value for value in all_tokens if
                   (value != 'other' and value != 'day' and value != 'thing' and value != 'last')]
 
@@ -112,14 +112,14 @@ def run_wordcloud_model(path_to_json,mode):  # this will extract paragraph and h
         word_cloud_results.append([each_res,wordcloud.words_[each_res]])
         wordcloud_words.append(each_res)
     # print('words', wordcloud_words)
-    plt.imshow(wordcloud, interpolation='bilinear')
-    plt.axis("off")
+    # plt.imshow(wordcloud, interpolation='bilinear')
+    # plt.axis("off")
     name_j = path_to_json.split("/")[-1]
-    plt.savefig(name_j[:-4]+"png")
-    plt.show()
+    # plt.savefig(name_j[:-4]+"png")
+    # plt.show()
     print(word_cloud_results)
     # return wordcloud_words
-    tag = 'wordcloud_results'+mode
+    tag = 'wordcloud_results_'+mode
     data[0][tag] = wordcloud_words
     with open(path_to_json, 'w') as outfile:
         json.dump(data, outfile)

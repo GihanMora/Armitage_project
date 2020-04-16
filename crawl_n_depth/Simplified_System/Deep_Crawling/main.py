@@ -10,7 +10,7 @@ def sorted_alphanumeric(data):
     alphanum_key = lambda key: [ convert(c) for c in re.split('([0-9]+)', key) ]
     return sorted(data, key=alphanum_key)
 
-json_paths = ['F:\Armitage_project\crawl_n_depth\Simplified_system\Deep_crawling\json_files\\'+x for x in os.listdir("F:\Armitage_project\crawl_n_depth\Simplified_system\Deep_crawling\json_files")]
+json_paths = ['F:\Armitage_project\crawl_n_depth\Simplified_system\Json_files\\'+x for x in os.listdir("F:\Armitage_project\crawl_n_depth\Simplified_system\Json_files")]
 print(json_paths)
 sorted_j_list = sorted_alphanumeric(json_paths)
 

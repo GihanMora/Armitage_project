@@ -21,7 +21,7 @@ def run_rake_model(path_to_json,rake_limit):
     #        "to determine key phrases in a body of text by analyzing the frequency " \
     #        "of word appearance and its co-occurance with other words in the text."]
 
-    r = Rake(max_length=10,min_length=1,ranking_metric=Metric.DEGREE_TO_FREQUENCY_RATIO)
+    r = Rake(max_length=3,min_length=1,ranking_metric=Metric.DEGREE_TO_FREQUENCY_RATIO)
     # print('lemmatized',data_lemmatized)
     # total_data = []
     # for each in data_lemmatized:
@@ -32,9 +32,10 @@ def run_rake_model(path_to_json,rake_limit):
     # print('combined',text)
     r.extract_keywords_from_text(combined_text)
      # To get keyword phrases ranked highest to lowest.
-    res = r.get_ranked_phrases_with_scores()
-    # print(res)
-    data[0]['rake_resutls'] = res[:rake_limit]  # dump the extracted topics back to the json file
+    # res = r.get_ranked_phrases_with_scores()
+    res_words = r.get_ranked_phrases()
+    print(res_words[:rake_limit])
+    data[0]['rake_resutls'] = res_words[:rake_limit]  # dump the extracted topics back to the json file
 
     with open(path_to_json, 'w') as outfile:
         json.dump(data, outfile)

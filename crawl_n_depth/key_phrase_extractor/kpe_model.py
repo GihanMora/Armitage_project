@@ -41,9 +41,10 @@ def key_phrase_extract(path_to_json,number_of_candidates):#this will extract par
     for (keyphrase, score) in extractor.get_n_best(n=number_of_candidates, stemming=True):
         kpe_results.append([keyphrase, score])
     print("key phrase extraction completed")
-    print(kpe_results)
-
-    data[0]['kpe_resutls'] = kpe_results
+    # print(kpe_results)
+    kpe_words = [i[0] for i in kpe_results]
+    # print(kpe_words)
+    data[0]['kpe_resutls'] = kpe_words
     with open(path_to_json, 'w') as outfile:
         json.dump(data, outfile)
 

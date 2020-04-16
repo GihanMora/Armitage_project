@@ -44,7 +44,7 @@ def lemmatization(texts, allowed_postags=['NOUN', 'ADJ', 'VERB', 'ADV']):#lemmat
 
 
 def run_guided_lda_model(path_to_json,number_of_topics):#this will extract paragraph and header text from given json file and extract the topics from that
-    print("lda model started", path_to_json)
+    print("guided lda model started", path_to_json)
     with open(path_to_json) as json_file:
         data = json.load(json_file)
         for p in data:
@@ -68,27 +68,10 @@ def run_guided_lda_model(path_to_json,number_of_topics):#this will extract parag
     # print('w2id',word2id)
 
 
-    seed_topic_list = [['Healthcare']
-,['Finance','insurance']
-,['professional','scientific','technical']
-,['Wholesale trade']
-,['IT','Software']
-,['Education']
-,['Construction']
-,['Manufacturing']
-,['Transport']
-,['Arts','entertainment','recreation']
-,['Retail trade']
-,['Real estate']
-,['Agriculture']
-,['accommodation','food']
-,['Utilities']
-,['IT,Hardware']
-,['Mining','oil','gas']
-,['Telecommunications']
-,['administrative','support']
-,['Public administration']]
-    number_of_topics=20
+    seed_topic_list =  [['about', 'vision', 'mission','approach','team','clients'],
+                        ['course', 'service', 'work','task'],
+                        ['address', 'australia','contact','email','location','call','social']]
+    number_of_topics=number_of_topics
 
     model = guidedlda.GuidedLDA(n_topics=number_of_topics, n_iter=100, random_state=7, refresh=20)
         # seed_topics = {'NASA': 0, 'SpaceX': 0, 'Apple': 1, 'Google': 1, 'Physics': 2, 'Chemistry': 2, }

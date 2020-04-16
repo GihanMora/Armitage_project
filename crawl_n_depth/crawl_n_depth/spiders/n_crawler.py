@@ -32,6 +32,7 @@ class NCrawlerSpider(CrawlSpider):
         :param telephone_numbers: a list to store crawled telephone numbers
         :param addresses: a list to store crawled addresses
         :param emails: a list to store crawled emails
+        :param emails: a list to store crawled emails
         :param social_media_links: a list to store crawled social media links
         :param iteration: iteration indicates which search result we are crawling
         :param crawl_limit: a limit on number of links to crawl
@@ -526,7 +527,7 @@ def run_sequential_crawlers(json_list,depth_limit,crawl_limit):#method used to r
     reactor.stop()
 
 
-def conf_runf(json_list, depth_limit, crawl_limit):
+def run_crawlers(json_list, depth_limit, crawl_limit):
     run_sequential_crawlers(json_list, depth_limit, crawl_limit)
     reactor.run()
 #

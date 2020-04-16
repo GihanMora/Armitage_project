@@ -26,4 +26,4 @@ def build_jsons_given_csv(csv_path,json_destination):
             with open(json_destination + j_name, 'w+') as outfile:
                 json.dump(data, outfile)
 
-build_jsons_given_csv("F:\Armitage_project\crawl_n_depth\Simplified_System\Initial_Crawling\search_results.csv",'json_files')
+build_jsons_given_csv("F:\Armitage_project\crawl_n_depth\Simplified_System\Initial_Crawling\search_results.csv",'F:\Armitage_project\crawl_n_depth\Simplified_System\Json_files')

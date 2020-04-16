@@ -5,6 +5,9 @@ import gensim.corpora as corpora
 from gensim.utils import simple_preprocess
 # spacy for lemmatization
 import spacy
+import os
+
+os.environ.update({'MALLET_HOME': r'C:/new_mallet/mallet-2.0.8/'})
 
 # Enable logging for gensim
 import logging
@@ -43,7 +46,7 @@ def lemmatization(texts, allowed_postags=['NOUN', 'ADJ', 'VERB', 'ADV']):#lemmat
     return texts_out
 
 
-def run_lda_model(path_to_json,number_of_topics):#this will extract paragraph and header text from given json file and extract the topics from that
+def run_mallet_model(path_to_json,number_of_topics):#this will extract paragraph and header text from given json file and extract the topics from that
     print("lda model started", path_to_json)
     with open(path_to_json) as json_file:
         data = json.load(json_file)
@@ -76,32 +79,22 @@ def run_lda_model(path_to_json,number_of_topics):#this will extract paragraph an
     topics = []
     mallet_list = []
     try:
-        lda_model = gensim.models.ldamodel.LdaModel(corpus=corpus,
-                                                id2word=id2word,
-                                                num_topics=number_of_topics,
-                                                passes=5,
-                                                alpha='auto')
-        print('topics are extracting')
-        topics = lda_model.print_topics()
-        # import os
-        # os.environ.update({'MALLET_HOME': r'C:/new_mallet/mallet-2.0.8/'})
-        # mallet_path = 'C:/new_mallet/mallet-2.0.8/bin/mallet'  # update this path
-        # ldamallet = gensim.models.wrappers.LdaMallet(mallet_path, corpus=corpus, num_topics=10, id2word=id2word)
-        # print('mallet', ldamallet.show_topics(formatted=False))
-        words_list = {'Topic_' + str(i): [word for word, prob in lda_model.show_topic(i, topn=10)] for i in
-                      range(0, lda_model.num_topics)}
-        # mallet_list = {'Topic_' + str(i): [word for word, prob in ldamallet.show_topic(i, topn=10)] for i in
-        #                range(0, ldamallet.num_topics)}
-        # print("lda", words_list)
-        # print("mallet", mallet_list)
+        print("Mallet model is running")
+        mallet_path = 'C:/new_mallet/mallet-2.0.8/bin/mallet'  # update this path
+        ldamallet = gensim.models.wrappers.LdaMallet(mallet_path, corpus=corpus, num_topics=number_of_topics, id2word=id2word)
+        print('mallet', ldamallet.show_topics(formatted=False))
+        mallet_list = {'Topic_' + str(i): [word for word, prob in ldamallet.show_topic(i, topn=10)] for i in
+                       range(0, ldamallet.num_topics)}
+
+        print("mallet", mallet_list)
 
     except ValueError:#handling exceptions if corpus is empty
         print("corpus is empty or not valid")
 
-    print(words_list)
+    print(mallet_list)
 
-    data[0]['lda_resutls'] = words_list#dump the extracted topics back to the json file
-    # data[0]['lda_mallet_resutls'] = mallet_list
+    # data[0]['lda_resutls'] = words_list#dump the extracted topics back to the json file
+    data[0]['lda_mallet_resutls'] = mallet_list
     with open(path_to_json, 'w') as outfile:
         json.dump(data, outfile)
 
