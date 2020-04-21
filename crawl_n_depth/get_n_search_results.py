@@ -16,6 +16,7 @@ def proxy_generator():
 def use_chrome():
     ua = UserAgent()
     userAgent = ua.random #get a random user agent
+    PROXY =proxy_generator()
     options = webdriver.ChromeOptions()  # use headless version of chrome to avoid getting blocked
     options.add_argument('headless')
     options.add_argument(f'user-agent={userAgent}')
@@ -24,6 +25,7 @@ def use_chrome():
     options.add_argument("--disable-extensions")# // disabling extensions
     options.add_argument("--disable-gpu")# // applicable to windows os only
     options.add_argument("--disable-dev-shm-usage")# // overcome limited resource problems
+
     browser = webdriver.Chrome(chrome_options=options,  # give the path to selenium executable
                                # executable_path='F://Armitage_lead_generation_project//chromedriver.exe'
                                executable_path='utilities/chromedriver.exe'
@@ -125,6 +127,7 @@ def getGoogleLinksForSearchText(searchText,number_of_results):#given a search qu
     #         results_writer.writerow([each_item['title'], each_item['link'], each_item['description']])
     #     results_file.close()
     print("got "+str(len(results))+" results")
+    # browser.quit()
     return results
 
 #To run this scrpit individually use following line and run the script
