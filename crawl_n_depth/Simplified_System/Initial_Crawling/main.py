@@ -3,7 +3,12 @@ import csv
 import json
 import os
 import time
-def search_a_company(comp_name):
+import pymongo
+
+from crawl_n_depth.Simplified_System.Database.db_connect import refer_collection
+
+
+def search_a_company(comp_name, db_collection):
     sr = getGoogleLinksForSearchText(comp_name, 3)
     count = 0
     while (sr == 'captcha'):
@@ -25,15 +30,24 @@ def search_a_company(comp_name):
         if each not in black_list:
             filtered_sr.append(sr[i])
 
-    with open('search_results.csv', mode='w',encoding='utf8') as results_file:  # store search results in to a csv file
-        results_writer = csv.writer(results_file, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
+    if(len(filtered_sr)):
+        record_entry=db_collection.insert_one(filtered_sr[0])
+        print(filtered_sr[0])
+        print("search record stored in db: ",record_entry.inserted_id)
+    else:
+        print("No results found!")
 
-        for each_item in filtered_sr:
-            results_writer.writerow([each_item['title'], each_item['link'], each_item['description']])
-        results_file.close()
+    #store data in a csv file
+    # with open('search_results.csv', mode='w',encoding='utf8') as results_file:  # store search results in to a csv file
+    #     results_writer = csv.writer(results_file, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
+    #     # print(filtered_sr[0])
+    #     for each_item in filtered_sr:
+    #         results_writer.writerow([each_item['title'], each_item['link'], each_item['description']])
+    #         break
+    #     results_file.close()
 
 
-def search_a_query(comp_name,number_of_results):
+def search_a_query(comp_name,number_of_results,db_collection):
     sr = getGoogleLinksForSearchText(comp_name, number_of_results)
     count = 0
     while (sr == 'captcha'):
@@ -42,14 +56,26 @@ def search_a_query(comp_name,number_of_results):
         time.sleep(1200 * count)
         sr = getGoogleLinksForSearchText(comp_name, 3)
 
+    if (len(sr)):
+        # print(sr)
+        record_entry = db_collection.insert_many(sr)
+        for each_sr in sr:
+            print(each_sr)
+        print("search records stored in db: ", record_entry.inserted_ids)
+    else:
+        print("No results found!")
+    #store file to a csv file
+    # with open('search_results.csv', mode='w',encoding='utf8') as results_file:  # store search results in to a csv file
+    #     results_writer = csv.writer(results_file, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
+    #
+    #     for each_item in sr:
+    #         results_writer.writerow([each_item['title'], each_item['link'], each_item['description']])
+    #     results_file.close()
 
 
-    with open('search_results.csv', mode='w',encoding='utf8') as results_file:  # store search results in to a csv file
-        results_writer = csv.writer(results_file, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
 
-        for each_item in sr:
-            results_writer.writerow([each_item['title'], each_item['link'], each_item['description']])
-        results_file.close()
 
-search_a_company('caltex australia')
-# search_a_query('Education Systems Australia',3)
+mycol = refer_collection()
+search_a_company('TOOHEYS PTY LIMITED',mycol)
+search_a_company('CALTEX PETROLEUM PTY LTD',mycol)
+# search_a_query('Education Systems Australia',3,mycol)

@@ -1,8 +1,7 @@
 import csv
 import json
 import re
-
-import scrapy
+import pymongo
 from scrapy import signals
 from scrapy.exceptions import CloseSpider
 import pyap
@@ -15,15 +14,19 @@ import os
 from twisted.internet import reactor, defer
 from scrapy.crawler import CrawlerRunner
 from scrapy.utils.log import configure_logging
+import sys
+sys.path.insert(0, 'F:/Armitage_project/')
+from Simplified_System.Database.db_connect import refer_collection
+
+
+
 class NCrawlerSpider(CrawlSpider):
     name = 'n_crawler' # Spider name
-    # name = "my-crawler"
-
     rules = [
         Rule(LinkExtractor(), callback='parse_items', follow=True)]  # Follow any link scrapy finds (that is allowed) then pass to the parse_items func.
     #initializing the spider for each case
     def __init__(self, crawled_links, header_text, paragraph_text, telephone_numbers, addresses, emails,
-                 social_media_links,iteration,crawl_limit,path_to_json, *args, **kwargs, ):
+                 social_media_links,crawl_limit,entry_id, *args, **kwargs, ):
         """
 
         :param crawled_links: a list to store crawled links
@@ -32,10 +35,9 @@ class NCrawlerSpider(CrawlSpider):
         :param telephone_numbers: a list to store crawled telephone numbers
         :param addresses: a list to store crawled addresses
         :param emails: a list to store crawled emails
-        :param emails: a list to store crawled emails
         :param social_media_links: a list to store crawled social media links
-        :param iteration: iteration indicates which search result we are crawling
         :param crawl_limit: a limit on number of links to crawl
+        :param entry_id: id of the current data record
         :param args: from super class
         :param kwargs: from super class
         """
@@ -47,11 +49,8 @@ class NCrawlerSpider(CrawlSpider):
         self.telephone_numbers = telephone_numbers
         self.emails = emails
         self.addresses = addresses
-        self.iteration = iteration
         self.crawl_limit = crawl_limit
-        self.path_to_json=path_to_json
-
-
+        self.entry_id=entry_id
         print('start ',self.start_urls)
 
 
@@ -64,20 +63,6 @@ class NCrawlerSpider(CrawlSpider):
     def spider_closed(self, spider):#once spider done with crawling dump data to json files
         spider.logger.info('Spider closed dumping data: %s', spider.name)
         print('spider is closed dumping data.....')
-        with open(self.path_to_json) as json_file:
-            data_o = json.load(json_file)
-        print(data_o)
-        print('c l',self.crawled_links)
-        # data_o[0]['crawled_links']= self.crawled_links,
-        # data_o[0]['header_text'] = self.header_text,
-        # data_o[0]['paragraph_text'] = self.paragraph_text,
-        # data_o[0]['emails'] = self.emails,
-        # data_o[0]['addresses'] = self.addresses,
-        # data_o[0]['social_media_links'] = self.social_media_links,
-        # data_o[0]['telephone_numbers'] = self.telephone_numbers,
-        print(data_o)
-        data_dict = data_o[0]
-        # data = []#preparing data to dump
         n_depth_data={
              'crawled_links': self.crawled_links,
             'header_text': self.header_text,
@@ -87,45 +72,17 @@ class NCrawlerSpider(CrawlSpider):
             'social_media_links': self.social_media_links,
             'telephone_numbers': self.telephone_numbers
                                    }
-        data_dict.update(n_depth_data)
-        data = []#preparing data to dump
-        data.append(data_dict)
-        # json_name = self.allowed_domains[0] + "_" + str(self.iteration) + "_data.json"#give json file name as domain + iteration
-        # print('crawled_links',self.crawled_links)
-        # print('emails', self.emails)
-        # print('addresses', self.addresses)
-        # print('social_media_links', self.social_media_links)
-        # print('telephone_numbers', self.telephone_numbers)
-        # print('header_text', self.header_text)
-        # print('paragraph_text', self.paragraph_text)
-        with open(self.path_to_json, 'w') as outfile:
-            json.dump(data, outfile)
 
-        # with open('extracted_json_files/' + json_name, 'w') as outfile:
-        #     json.dump(data, outfile)#dumping data and save
+        mycol = refer_collection()
+        mycol.update_one({'_id': self.entry_id},
+                         {'$set': n_depth_data})
+        print("Successfully extended the data entry",self.entry_id)
 
-        # with open('csv_results/data.csv', mode='w',encoding='utf8') as results_file:  # store search results in to a csv file
-        #     results_writer = csv.writer(results_file, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
-        #     results_writer.writerow([
-        #         self.current_data['title'],
-        #         self.current_data['link'],
-        #         self.current_data['description'],
-        #         self.crawled_links,
-        #
-        #         self.emails,
-        #         self.addresses,
-        #         self.social_media_links,
-        #         self.telephone_numbers,
-        #         self.header_text,
-        #         self.paragraph_text,
-        #     ])
-        #     results_file.close()
     def parse_items(self, response):#paring to n depth
 
         print(response.request.headers['User-Agent'])#shows the current random agent using
         print('Got a response from %s.' % response.url)#shows current url crawling
         extracted_paragraph_text = response.xpath('//p//text()').extract()  # extracting paragraph text
-        # print('from scrapy',extracted_paragraph_text)
         headers1 = response.xpath('//h1/text()').extract()  # extracting h1 text
         headers2 = response.xpath('//h2/text()').extract()  # extracting h2 text
         headers3 = response.xpath('//h3/text()').extract()  # extracting h3 text
@@ -137,11 +94,7 @@ class NCrawlerSpider(CrawlSpider):
         self.crawled_links.append(response.url)#populating crawled link list
         self.header_text.extend(extracted_header_text)#populating header text list
         self.paragraph_text.extend(extracted_paragraph_text)#populating paragraph text list
-        # print(extracted_header_text)
         soup = BeautifulSoup(response.body, "lxml")#get response body to extract further attributes
-        # soup1 = BeautifulSoup(response.body, "html")
-        # paras = soup1.find('p').getText()
-        # print('from bs4',paras)
         all_text_in_page = ''
         blacklist = [
             '[document]', 'noscript', 'header', 'html', 'meta', 'head', 'input', 'script', 'style'
@@ -151,8 +104,6 @@ class NCrawlerSpider(CrawlSpider):
         for t in text:
             if t.parent.name not in blacklist:
                 all_text_in_page += '{} '.format(t)
-
-        pattern = '(?:(?:\+?61 )?(?:0|\(0\))?)?[2378] \d{4}[ -]?\d{4}'
 
         extracted_tp_numbers = re.findall(r'[\+\(]?[1-9][0-9 .\-\(\)]{8,}[0-9]', all_text_in_page)#extracting tp numbers
         self.telephone_numbers.extend(extracted_tp_numbers)
@@ -180,329 +131,30 @@ class NCrawlerSpider(CrawlSpider):
             raise CloseSpider('maximum crawling limit exeeded')
 
 
-def run_crawler_given_csv(csv_path,depth_limit,crawl_limit):#method used to run the crawler
-    """
-
-    :param search_results: links list of google search results
-    :param depth_limit: the depth want to crawl
-    :param crawl_limit: number of links want to crawl
-    :return: data will be dumped into json files
-    """
-
-    if not os.path.exists('F:\Armitage_project\crawl_n_depth\data\public_comp_extracted_json_files'):
-        os.makedirs('F:\Armitage_project\crawl_n_depth\data\public_comp_extracted_json_files')
-
-    c = CrawlerProcess(
-        get_project_settings()#get crawler settings as running from the script
-    )
-    with open(csv_path, "r") as f:
-        reader = csv.reader(f, delimiter="\t")
-        for i,line in enumerate(reader):#going for n depth for the each google search result
-            line = line[0].split(',')
-            if (i == 0): print(line)
-            print("started",i,line[2]+" scraping in to n depth")
-
-            #configuring the crawlers
-
-            # lists for collecting crawling data
-            crawled_links = []
-            header_text = []
-            paragraph_text = []
-            telephone_numbers = []
-            emails = []
-            social_media_links = []
-            addresses = []
-            allowed_domains = line[2].split("/")[2]#getting allowed links from the starting urls itself
-            print(allowed_domains)
-            custom_settings = {'DEPTH_LIMIT':#setting depth limit of crawling
-                                   str(depth_limit),
-                               }
-            crawl_limit = crawl_limit# setting crawl limit aka number of links going to crawl
-            c.crawl(NCrawlerSpider,start_urls = [each_search_result,], allowed_domains = [allowed_domains,],custom_settings=custom_settings,crawled_links=crawled_links,header_text = header_text,paragraph_text=paragraph_text,telephone_numbers = telephone_numbers,addresses=addresses,social_media_links=social_media_links,emails=emails,iteration = i,crawl_limit = crawl_limit)
-
-    c.start()#letting all the crawlers to start and run simultaneously
-def start_sequentially(process: CrawlerProcess, crawlers: list):
-    print('start crawler {}'.format(crawlers[0].__name__))
-    deferred = process.crawl(crawlers[0])
-    if len(crawlers) > 1:
-        deferred.addCallback(lambda _: start_sequentially(process, crawlers[1:]))
-
-
-
-
-def run_crawler(search_results,depth_limit,crawl_limit):#method used to run the crawler
-    """
-
-    :param search_results: links list of google search results
-    :param depth_limit: the depth want to crawl
-    :param crawl_limit: number of links want to crawl
-    :return: data will be dumped into json files
-    """
-
-    if not os.path.exists('extracted_json_files'):
-        os.makedirs('extracted_json_files')
-
-    c = CrawlerProcess(
-        get_project_settings()#get crawler settings as running from the script
-    )
-    for i,each_search_result in enumerate(search_results):#going for n depth for the each google search result
-        print("started",i,each_search_result+"scraping in to n depth")
-
-        #configuring the crawlers
-
-        # lists for collecting crawling data
-        crawled_links = []
-        header_text = []
-        paragraph_text = []
-        telephone_numbers = []
-        emails = []
-        social_media_links = []
-        addresses = []
-        allowed_domains = each_search_result.split("/")[2]#getting allowed links from the starting urls itself
-        print(allowed_domains)
-        custom_settings = {'DEPTH_LIMIT':#setting depth limit of crawling
-                               str(depth_limit),
-                           }
-        crawl_limit = crawl_limit# setting crawl limit aka number of links going to crawl
-        c.crawl(NCrawlerSpider,start_urls = [each_search_result,], allowed_domains = [allowed_domains,],custom_settings=custom_settings,crawled_links=crawled_links,header_text = header_text,paragraph_text=paragraph_text,telephone_numbers = telephone_numbers,addresses=addresses,social_media_links=social_media_links,emails=emails,iteration = i,crawl_limit = crawl_limit)
-
-    c.start()#letting all the crawlers to start and run simultaneously
-
-
-def run_multiple_crawlers(json_list,depth_limit,crawl_limit):#method used to run the crawler
-    """
-
-    :param search_results: links list of google search results
-    :param depth_limit: the depth want to crawl
-    :param crawl_limit: number of links want to crawl
-    :return: data will be dumped into json files
-    """
-
-    # if not os.path.exists('extracted_json_files'):
-    #     os.makedirs('extracted_json_files')
-
-    c = CrawlerProcess(
-        get_project_settings()#get crawler settings as running from the script
-    )
-    configure_logging()
-    runner = CrawlerRunner(get_project_settings())
-    for i,path_to_json in enumerate(json_list):#going for n depth for the each google search result
-        with open(path_to_json) as json_file:
-            data = json.load(json_file)
-        json_file.close()
-        print(i)
-        if(data[0]['link']=='None'):continue
-        print(data[0]['link'])
-        print("started",i,data[0]['link']+" scraping in to n depth")
-
-        #configuring the crawlers
-
-        # lists for collecting crawling data
-        crawled_links = []
-        header_text = []
-        paragraph_text = []
-        telephone_numbers = []
-        emails = []
-        social_media_links = []
-        addresses = []
-        print(data[0])
-        allowed_domains = data[0]['link'].split("/")[2]#getting allowed links from the starting urls itself
-        print('allowed_dm',allowed_domains)
-
-        custom_settings = {'DEPTH_LIMIT':#setting depth limit of crawling
-                               str(depth_limit),
-                           }
-        crawl_limit = crawl_limit# setting crawl limit aka number of links going to crawl
-        c.crawl(NCrawlerSpider,start_urls = [data[0]['link'],], allowed_domains = [allowed_domains,],custom_settings=custom_settings,crawled_links=crawled_links,header_text = header_text,paragraph_text=paragraph_text,telephone_numbers = telephone_numbers,addresses=addresses,social_media_links=social_media_links,emails=emails,iteration = i,crawl_limit = crawl_limit,path_to_json=path_to_json)
-        # yield runner.crawl(NCrawlerSpider,start_urls = [data[0]['link'],], allowed_domains = [allowed_domains,],custom_settings=custom_settings,crawled_links=crawled_links,header_text = header_text,paragraph_text=paragraph_text,telephone_numbers = telephone_numbers,addresses=addresses,social_media_links=social_media_links,emails=emails,iteration = i,crawl_limit = crawl_limit,path_to_json=path_to_json)
-        # reactor.run()
-
-        print("done")
-    c.start()#letting all the crawlers to start and run simultaneously
-    reactor.run()
-
-
-
-
-
-
-
-# @defer.inlineCallbacks
-# def run_multiple_crawlers_seq(json_list,depth_limit,crawl_limit):#method used to run the crawler
-#     """
-#
-#     :param search_results: links list of google search results
-#     :param depth_limit: the depth want to crawl
-#     :param crawl_limit: number of links want to crawl
-#     :return: data will be dumped into json files
-#     """
-#
-#     # if not os.path.exists('extracted_json_files'):
-#     #     os.makedirs('extracted_json_files')
-#
-#     # c = CrawlerProcess(
-#     #     get_project_settings()#get crawler settings as running from the script
-#     # )
-#     configure_logging()
-#     runner = CrawlerRunner()
-#     for i,path_to_json in enumerate(json_list):#going for n depth for the each google search result
-#         with open(path_to_json) as json_file:
-#             data = json.load(json_file)
-#         json_file.close()
-#         print(data)
-#         print(data[0]['link'])
-#         print("started",i,data[0]['link']+" scraping in to n depth")
-#
-#         #configuring the crawlers
-#
-#         # lists for collecting crawling data
-#         crawled_links = []
-#         header_text = []
-#         paragraph_text = []
-#         telephone_numbers = []
-#         emails = []
-#         social_media_links = []
-#         addresses = []
-#         print(data[0])
-#         allowed_domains = data[0]['link_corrected'].split("/")[2]#getting allowed links from the starting urls itself
-#         print('allowed_dm',allowed_domains)
-#         if (allowed_domains == "www.dnb.com"):
-#             print("dnb")
-#             continue
-#         custom_settings = {'DEPTH_LIMIT':#setting depth limit of crawling
-#                                str(depth_limit),}
-#         crawl_limit = crawl_limit# setting crawl limit aka number of links going to crawl
-#         # c.crawl(NCrawlerSpider,start_urls = [data[0]['link_corrected'],], allowed_domains = [allowed_domains,],custom_settings=custom_settings,crawled_links=crawled_links,header_text = header_text,paragraph_text=paragraph_text,telephone_numbers = telephone_numbers,addresses=addresses,social_media_links=social_media_links,emails=emails,iteration = i,crawl_limit = crawl_limit,path_to_json=path_to_json)
-#         yield runner.crawl(NCrawlerSpider,start_urls = [data[0]['link_corrected'],], allowed_domains = [allowed_domains,],custom_settings=custom_settings,crawled_links=crawled_links,header_text = header_text,paragraph_text=paragraph_text,telephone_numbers = telephone_numbers,addresses=addresses,social_media_links=social_media_links,emails=emails,iteration = i,crawl_limit = crawl_limit,path_to_json=path_to_json)
-#     # c.start()#letting all the crawlers to start and run simultaneously
-
-#To run this scrpit individually use following line and run the script
-# run_crawler(list_of_urls,crawling_depth,crawling_limit)
-# run_crawler(['https://www.axcelerate.com.au/','https://getatomi.com/','https://www.beautycoursesonline.com/','https://www.modernstar.com.au/','https://www.negotiations.com/'],5,5000)
-# reactor.stop()
-# reactor.run()
-
-
-# run_crawler_given_csv('F:\Armitage_project\crawl_n_depth\data\public_comp\Public_companies.csv',3,100)
-# class MySpider2(scrapy.Spider):
-#     # Your second spider definition
-#     name = "dmoz"
-#     allowed_domains = ["dmoz.org"]
-#     start_urls = [
-#                 "http://www.dmoz.org/Computers/Programming/Languages/Python/Resources/"
-#     ]
-#
-#     def parse(self, response):
-#         print ("second spider")
-# configure_logging()
-# runner = CrawlerRunner()
-# c = CrawlerProcess(
-#             get_project_settings()#get crawler settings as running from the script
-#         )
-# @defer.inlineCallbacks
-# def crawl():
-#     start= ['https://www.qbe.com/']
-#     depth_limit=2
-#     crawled_links = []
-#     header_text = []
-#     paragraph_text = []
-#     telephone_numbers = []
-#     emails = []
-#     social_media_links = []
-#     addresses = []
-#     allowed_domains = ['www.qbe.com']
-#     custom_settings = {'DEPTH_LIMIT':  # setting depth limit of crawling
-#                            str(depth_limit),
-#                        }
-#     crawl_limit = 50
-#             # configuring the crawlers
-#
-#             # lists for collecting crawling data
-#
-#             # allowed_domains = line[11].split("/")[2]  # getting allowed links from the starting urls itself
-#             # print(allowed_domains)
-#
-#             # setting crawl limit aka number of links going to crawl
-#
-#             # c.crawl(NCrawlerSpider, start_urls=[line[2], ], allowed_domains=[allowed_domains, ],
-#             #         custom_settings=custom_settings, crawled_links=crawled_links, header_text=header_text,
-#             #         paragraph_text=paragraph_text, telephone_numbers=telephone_numbers, addresses=addresses,
-#             #         social_media_links=social_media_links, emails=emails, iteration=i, crawl_limit=crawl_limit)
-#
-#     # yield runner.crawl(NCrawlerSpider, start_urls=['https://www.qbe.com/'], allowed_domains=[allowed_domains, ],
-#     #                 custom_settings=custom_settings, crawled_links=crawled_links, header_text=header_text,
-#     #                 paragraph_text=paragraph_text, telephone_numbers=telephone_numbers, addresses=addresses,
-#     #                 social_media_links=social_media_links, emails=emails, iteration=1, crawl_limit=crawl_limit)
-#     #         # if i==3:break
-#     # c = CrawlerProcess(
-#     #         get_project_settings()#get crawler settings as running from the script
-#     #     )
-#     c.crawl(NCrawlerSpider, start_urls=['https://www.qbe.com/'], allowed_domains=[allowed_domains, ],
-#                     custom_settings=custom_settings, crawled_links=crawled_links, header_text=header_text,
-#                     paragraph_text=paragraph_text, telephone_numbers=telephone_numbers, addresses=addresses,
-#                     social_media_links=social_media_links, emails=emails, iteration=1, crawl_limit=crawl_limit, path_to_json='/data/')
-#     yield c.crawl(MySpider2)
-#     # yield runner.crawl(MySpider2)
-#     reactor.stop()
-# # c.start()
-# crawl()
-# c.start()
-#
-# reactor.run()
-
-
-# depth_limit=2
-# crawled_links = []
-# header_text = []
-# paragraph_text = []
-# telephone_numbers = []
-# emails = []
-# social_media_links = []
-# addresses = []
-# allowed_domains = ['www.qbe.com']
-# custom_settings = {'DEPTH_LIMIT':  # setting depth limit of crawling
-#                            str(depth_limit),
-#                        }
-# configure_logging()
-# runner = CrawlerRunner(get_project_settings())
-# links = [['https://www.qbe.com/'],['https://www.fed.com/']]
-# @defer.inlineCallbacks
-# def crawl_this():
-#     for k in links:
-#         yield runner.crawl(NCrawlerSpider, start_urls=k, allowed_domains=['www.qbe.com'],
-#                     custom_settings=custom_settings, crawled_links=crawled_links, header_text=header_text,
-#                     paragraph_text=paragraph_text, telephone_numbers=telephone_numbers, addresses=addresses,
-#                     social_media_links=social_media_links, emails=emails, iteration=1, crawl_limit=20, path_to_json='/data/')
-#
-#     reactor.stop()
-# def conf_runf():
-#     crawl_this()
-#     reactor.run()
-
-
 
 configure_logging()
 runner = CrawlerRunner(get_project_settings())
 @defer.inlineCallbacks
-def run_sequential_crawlers(json_list,depth_limit,crawl_limit):#method used to run the crawler
-    """
-    :param search_results: links list of google search results
-    :param depth_limit: the depth want to crawl
-    :param crawl_limit: number of links want to crawl
-    :return: data will be dumped into json files
+def run_sequential_crawlers_m(id_list,depth_limit,crawl_limit):#method used to run the crawler
     """
 
-    for i,path_to_json in enumerate(json_list):#going for n depth for the each google search result
-        with open(path_to_json) as json_file:
-            data = json.load(json_file)
-        json_file.close()
-        print(i)
+    :param id_list: list of id in the database entries wanted to crawl further
+    :param depth_limit: max depth want to crawl
+    :param crawl_limit: max page count want to crawl
+    :return:
+    """
+    mycol = refer_collection()
+
+    for entry_id in id_list:#going for n depth for the each google search result
+
+        comp_data_entry = mycol.find({"_id": entry_id})
+        data=[i for i in comp_data_entry]
+        print(data)
         if(data[0]['link']=='None'):continue
         print(data[0]['link'])
-        print("started",i,data[0]['link']+" scraping in to n depth")
+        print("started",data[0]['_id'],data[0]['link']+" scraping in to n depth")
 
         #configuring the crawlers
-
         # lists for collecting crawling data
         crawled_links = []
         header_text = []
@@ -511,7 +163,6 @@ def run_sequential_crawlers(json_list,depth_limit,crawl_limit):#method used to r
         emails = []
         social_media_links = []
         addresses = []
-        print(data[0])
         allowed_domains = data[0]['link'].split("/")[2]#getting allowed links from the starting urls itself
         print('allowed_dm',allowed_domains)
 
@@ -522,32 +173,10 @@ def run_sequential_crawlers(json_list,depth_limit,crawl_limit):#method used to r
         yield runner.crawl(NCrawlerSpider,start_urls = [data[0]['link'],], allowed_domains = [allowed_domains,],
                            custom_settings=custom_settings,crawled_links=crawled_links,header_text = header_text,
                            paragraph_text=paragraph_text,telephone_numbers = telephone_numbers,addresses=addresses,
-                           social_media_links=social_media_links,emails=emails,iteration = i,crawl_limit = crawl_limit,
-                           path_to_json=path_to_json)
+                           social_media_links=social_media_links,emails=emails,crawl_limit = crawl_limit,
+                           entry_id=entry_id)
     reactor.stop()
 
-
-def run_crawlers(json_list, depth_limit, crawl_limit):
-    run_sequential_crawlers(json_list, depth_limit, crawl_limit)
+def run_crawlers_m(id_list, depth_limit, crawl_limit):
+    run_sequential_crawlers_m(id_list, depth_limit, crawl_limit)
     reactor.run()
-#
-#         print("done")
-#     # c.start()#letting all the crawlers to start and run simultaneously
-#     reactor.run()
-
-
-
-
-
-#
-#
-# runner = CrawlerRunner(get_project_settings())
-#
-#
-#
-# runner.crawl(NCrawlerSpider, start_urls=['https://www.qbe.com/'], allowed_domains=['www.qbe.com'],
-#                     custom_settings=custom_settings, crawled_links=crawled_links, header_text=header_text,
-#                     paragraph_text=paragraph_text, telephone_numbers=telephone_numbers, addresses=addresses,
-#                     social_media_links=social_media_links, emails=emails, iteration=1, crawl_limit=20, path_to_json='/data/')
-# # )
-#

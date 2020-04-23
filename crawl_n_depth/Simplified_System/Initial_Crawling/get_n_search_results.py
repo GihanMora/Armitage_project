@@ -105,6 +105,7 @@ def getGoogleLinksForSearchText(searchText,number_of_results):#given a search qu
             # Check to make sure everything is present before appending
             if (link not in ['',None]) and (title not in ['',None]) and (description not in ['',None]):#remove links if information is not available
                 item = {
+                    "search_text":searchText,
                     "title": title.replace(',','_'),
                     "link": link,
                     "description": description.replace(',','_'),

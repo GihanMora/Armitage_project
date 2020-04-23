@@ -1,17 +1,10 @@
 
-import re
-import os
 import sys
+from bson import ObjectId
 sys.path.insert(0, 'F:/Armitage_project/crawl_n_depth/')
-from crawl_n_depth.spiders.n_crawler import run_crawlers
+from crawl_n_depth.spiders.n_crawler import run_crawlers_m
 
-def sorted_alphanumeric(data):
-    convert = lambda text: int(text) if text.isdigit() else text.lower()
-    alphanum_key = lambda key: [ convert(c) for c in re.split('([0-9]+)', key) ]
-    return sorted(data, key=alphanum_key)
-
-json_paths = ['F:\Armitage_project\crawl_n_depth\Simplified_system\Json_files\\'+x for x in os.listdir("F:\Armitage_project\crawl_n_depth\Simplified_system\Json_files")]
-print(json_paths)
-sorted_j_list = sorted_alphanumeric(json_paths)
-
-run_crawlers(sorted_j_list,5,5)
+#This executes the deep crawling for the initial search results collected
+#run_crawlers_m(list of objectt ids,crawling depth,crawling limit)
+#Example
+run_crawlers_m([ObjectId('5ea16524448198da7f949494'),ObjectId('5ea16529448198da7f949495')],3,10)
