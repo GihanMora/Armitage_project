@@ -10,8 +10,8 @@ def get_li_emp(entry_id):
     mycol = refer_collection()
     comp_data_entry = mycol.find({"_id": entry_id})
     data = [i for i in comp_data_entry]
-    comp_name = data[0]['search_text']
-
+    # comp_name = data[0]['search_text']
+    comp_name = data[0]['comp_name']
     sr = getGoogleLinksForSearchText('"' + comp_name + '"' + " manager linkedin", 10)
     filtered_li = []
     for p in sr:

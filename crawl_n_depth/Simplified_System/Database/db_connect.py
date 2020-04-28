@@ -18,6 +18,14 @@ def display_all_records():
     print(k)
 # display_all_records()
 
+def get_all_ids():
+    lst = []
+    y = mycol.find()
+    for k in y:
+        lst.append(k['_id'])
+        # print(k['_id'])
+    print(lst)
+get_all_ids()
 def clear_the_collection():
   mycol = refer_collection()
   mycol.delete_many({})

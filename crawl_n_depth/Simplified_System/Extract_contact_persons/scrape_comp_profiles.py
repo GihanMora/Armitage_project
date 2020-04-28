@@ -29,7 +29,7 @@ def get_browser():
     PROXY = proxy_generator()
     userAgent = ua.random #get a random user agent
     options = webdriver.ChromeOptions()  # use headless version of chrome to avoid getting blocked
-    options.add_argument('headless')
+    # options.add_argument('headless')
     options.add_argument(f'user-agent={userAgent}')
     options.add_argument("start-maximized")# // open Browser in maximized mode
     options.add_argument("disable-infobars")# // disabling infobars
@@ -112,7 +112,8 @@ def get_cp_oc(entry_id):
     mycol = mydb["comp_data"]  # refer the collection
     comp_data_entry = mycol.find({"_id": entry_id})
     data = [i for i in comp_data_entry]
-    comp_name = data[0]['search_text']
+    # comp_name = data[0]['search_text']
+    comp_name = data[0]['comp_name']
     det=[comp_name]
     sr = getGoogleLinksForSearchText(comp_name + " opencorporates", 3)
     filtered_oc = []
@@ -136,9 +137,11 @@ def get_cp_oc(entry_id):
 def get_cp_dnb(entry_id):
     mycol = refer_collection()
     comp_data_entry = mycol.find({"_id": entry_id})
+    # print(comp_data_entry)
     data = [i for i in comp_data_entry]
-    comp_name = data[0]['search_text']
-
+    # comp_name = data[0]['search_text']
+    # print(data)
+    comp_name = data[0]['comp_name']
     det = [comp_name]
     sr = getGoogleLinksForSearchText(comp_name + " dnb.com", 3)
     filtered_dnb = []

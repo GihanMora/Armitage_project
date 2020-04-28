@@ -89,8 +89,8 @@ def run_mallet_model(entry_id,number_of_topics):#this will extract paragraph and
                          {'$set': {'mallet_results': mallet_list}})
         print("Successfully extended the data entry with mallet results", entry_id)
 
-    except ValueError:#handling exceptions if corpus is empty
-        print("corpus is empty or not valid")
+    except Exception:#handling exceptions if corpus is empty
+        print("corpus is empty or not valid/ mallet model cannot continue")
         mycol.update_one({'_id': entry_id},
                          {'$set': {'mallet_results': []}})
 
