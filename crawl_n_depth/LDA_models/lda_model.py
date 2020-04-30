@@ -9,7 +9,7 @@ import spacy
 # Enable logging for gensim
 import logging
 
-from crawl_n_depth.Simplified_System.Database.db_connect import refer_collection
+from Simplified_System.Database.db_connect import refer_collection
 
 logging.basicConfig(format='%(asctime)s : %(levelname)s : %(message)s', level=logging.ERROR)
 import warnings
@@ -50,29 +50,30 @@ def run_lda_model(entry_id,number_of_topics):#this will extract paragraph and he
     mycol = refer_collection()
     comp_data_entry = mycol.find({"_id": entry_id})
     data = [i for i in comp_data_entry]
-    h_p_data = data[0]["paragraph_text"]+data[0]["header_text"]#do topic extraction on paragraph and header text
-    print("lda model started "+str(data[0]['_id']),data[0]['link'])
-    print('Grabbing paragraph and header text from database...')
-    # print(h_p_data)
-    data_words = list(sent_to_words(h_p_data))
-    # print("data_words",data_words)
-    print('remove_punctuations...')
-    # Remove Stop Words
-    data_words_nostops = remove_stopwords(data_words)
-
-    # Do lemmatization keeping only noun, adj, vb, adv
-    data_lemmatized = lemmatization(data_words_nostops, allowed_postags=['NOUN', 'ADJ', 'VERB', 'ADV'])
-    # print('data_lemmatized...')
-
-    # Create Dictionary
-    id2word = corpora.Dictionary(data_lemmatized)
-    # Create Corpus
-    texts = data_lemmatized
-    # Term Document Frequency
-    corpus = [id2word.doc2bow(text) for text in texts]
-    # View
-    print('corpus is created')#(word,frequency of occuring)
     try:
+        h_p_data = data[0]["paragraph_text"]+data[0]["header_text"]#do topic extraction on paragraph and header text
+        print("lda model started "+str(data[0]['_id']),data[0]['link'])
+        print('Grabbing paragraph and header text from database...')
+        # print(h_p_data)
+        data_words = list(sent_to_words(h_p_data))
+        # print("data_words",data_words)
+        print('remove_punctuations...')
+        # Remove Stop Words
+        data_words_nostops = remove_stopwords(data_words)
+
+        # Do lemmatization keeping only noun, adj, vb, adv
+        data_lemmatized = lemmatization(data_words_nostops, allowed_postags=['NOUN', 'ADJ', 'VERB', 'ADV'])
+        # print('data_lemmatized...')
+
+        # Create Dictionary
+        id2word = corpora.Dictionary(data_lemmatized)
+        # Create Corpus
+        texts = data_lemmatized
+        # Term Document Frequency
+        corpus = [id2word.doc2bow(text) for text in texts]
+        # View
+        print('corpus is created')#(word,frequency of occuring)
+
         lda_model = gensim.models.ldamodel.LdaModel(corpus=corpus,
                                                 id2word=id2word,
                                                 num_topics=number_of_topics,
@@ -86,11 +87,10 @@ def run_lda_model(entry_id,number_of_topics):#this will extract paragraph and he
                          {'$set': {'lda_results':words_list}})
         print("Successfully extended the data entry with lda results", entry_id)
 
-    except ValueError:#handling exceptions if corpus is empty
+    except Exception:#handling exceptions if corpus is empty
         print("corpus is empty or not valid")
         mycol.update_one({'_id': entry_id},
                          {'$set': {'lda_results': []}})
-
 
 #To run this scrpit individually use following line and run the script
 # topics = run_lda_model(data entry id,number_of_topics)

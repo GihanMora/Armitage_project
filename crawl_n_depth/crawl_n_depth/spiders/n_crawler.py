@@ -1,6 +1,11 @@
 import csv
 import json
 import re
+import threading
+import time
+
+import twisted
+
 import pymongo
 from scrapy import signals
 from scrapy.exceptions import CloseSpider
@@ -15,7 +20,7 @@ from twisted.internet import reactor, defer
 from scrapy.crawler import CrawlerRunner
 from scrapy.utils.log import configure_logging
 import sys
-sys.path.insert(0, 'F:/Armitage_project/')
+sys.path.insert(0, 'F:/Armitage_project/crawl_n_depth/')
 from Simplified_System.Database.db_connect import refer_collection
 
 
@@ -63,6 +68,15 @@ class NCrawlerSpider(CrawlSpider):
     def spider_closed(self, spider):#once spider done with crawling dump data to json files
         spider.logger.info('Spider closed dumping data: %s', spider.name)
         print('spider is closed dumping data.....')
+        #remove duplicates
+        self.crawled_links = list(set(self.crawled_links))
+        self.header_text = list(set(self.header_text))
+        self.paragraph_text = list(set(self.paragraph_text))
+        self.emails = list(set(self.emails))
+        self.addresses = list(set(self.addresses))
+        self.social_media_links = list(set(self.social_media_links))
+        self.telephone_numbers = list(set(self.telephone_numbers))
+        print(self.social_media_links)
         n_depth_data={
              'crawled_links': self.crawled_links,
             'header_text': self.header_text,
@@ -72,11 +86,21 @@ class NCrawlerSpider(CrawlSpider):
             'social_media_links': self.social_media_links,
             'telephone_numbers': self.telephone_numbers
                                    }
+        print("size", len(self.paragraph_text))
+        try:
+            mycol = refer_collection()
+            mycol.update_one({'_id': self.entry_id},
+                             {'$set': n_depth_data})
 
-        mycol = refer_collection()
-        mycol.update_one({'_id': self.entry_id},
-                         {'$set': n_depth_data})
-        print("Successfully extended the data entry",self.entry_id)
+            print("Successfully extended the data entry",self.entry_id)
+        except Exception:
+            print("Max document size reached..data is truncated!")
+            n_depth_data['paragraph_text'] = self.paragraph_text[:5000]
+            mycol = refer_collection()
+            mycol.update_one({'_id': self.entry_id},
+                             {'$set': n_depth_data})
+
+            print("Successfully extended the data entry", self.entry_id)
 
     def parse_items(self, response):#paring to n depth
 
@@ -120,10 +144,12 @@ class NCrawlerSpider(CrawlSpider):
 
         all_links = soup.find_all('a', href=True)#extracting social media links
 
-        for sm_site in sm_sites:
-            for link in all_links:
-                if sm_site in link:
-                    extracted_sm_sites.append(link)
+        for link_i in all_links:
+            link_s = link_i['href']
+            if('twitter' in link_s or 'facebook' in link_s or 'linkedin' in link_s or 'youtube' in link_s or 'instagram' in link_s):
+                extracted_sm_sites.append(link_s)
+                print(link_s)
+
 
         self.social_media_links.extend(extracted_sm_sites)
 
@@ -146,7 +172,6 @@ def run_sequential_crawlers_m(id_list,depth_limit,crawl_limit):#method used to r
     mycol = refer_collection()
 
     for entry_id in id_list:#going for n depth for the each google search result
-
         comp_data_entry = mycol.find({"_id": entry_id})
         data=[i for i in comp_data_entry]
         print(data)
@@ -175,8 +200,28 @@ def run_sequential_crawlers_m(id_list,depth_limit,crawl_limit):#method used to r
                            paragraph_text=paragraph_text,telephone_numbers = telephone_numbers,addresses=addresses,
                            social_media_links=social_media_links,emails=emails,crawl_limit = crawl_limit,
                            entry_id=entry_id)
+    # print("reactor is stopping")
+    # reactor.callFromThread(reactor.stop)
+    # print(' reactor stops',threading.currentThread().ident)
     reactor.stop()
 
 def run_crawlers_m(id_list, depth_limit, crawl_limit):
     run_sequential_crawlers_m(id_list, depth_limit, crawl_limit)
+    # print(reactor.running)
+
     reactor.run()
+    # try:
+    #
+    #     reactor.run()
+    # except Exception:
+    #     print("cannot restart")
+    # time.sleep(0.5)
+    # os.execl(sys.executable, sys.executable, *sys.argv)
+        # reactor.stop()
+    # except twisted.internet.error.ReactorNotRestartable:
+    # print("twisted")
+
+    # run_sequential_crawlers_m(id_list, depth_limit, crawl_limit)
+    # run_sequential_crawlers_m(id_list, depth_limit, crawl_limit)
+    # reactor.run()
+    # print(reactor.running)

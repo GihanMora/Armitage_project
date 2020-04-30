@@ -1,0 +1,127 @@
+Appearance Tab Kyle Wiens Save the Dishwasher, Save the World iFixit Table of Contents Inviting Users to a Team Forwarding of Data to Recipients 
+      /guides/releases                
+                                  Cookies Add Comment Brendon Parker Managing Users Parts 
+      /guides                Custom Guide PDF CSS Required Tools 
+      /stories/{storyid}                Announcement Queue Apple Watch (42 mm Series 3 GPS) Replacement Battery 
+      /wikis/CATEGORY/{title}/parent                Dare To Repair Reputation Here are some pictures of my recent adventures that will hopefully make you think I'm cool: Contact Form Release Notes How Can I See my Reputation? Choice For wiki articles, use: 
+      /users/{userid}/badges                            Big Letters 
+      /guides/{guideid}/tag                
+         Content Licensing    For Q&A posts, use: 
+          How to Clean the Dyson DC14 Internal Channels Search Teams Dispute Resolution Sending a Message 
+            One Comment          Jeff Suovanen Newsletter Left Joy-Con Joystick Replacement User Management Licensing kiril dimanov 
+      /user/media/images/{imageids}                Helpful Resources for Repair Guides 
+      /guides/{guideid}/steps/{stepid}                Hi, I'm Paige 1. Stuck on You MacBook Pro 13" Unibody (Mid 2009) Memory Maxxer RAM Upgrade Kit Rich Media Product Links How Can I Earn More Reputation? 
+         Where we are coming from    Content Management Team Summary Think Like a Physician, Not an Engineer Why We're Doing This Timing and Data Capture What happens to e-waste? Hosting 
+      /guides/releases/{releaseid}                Children’s Privacy Writing Prerequisite Only Request Page Deletion 
+                              Samsung Galaxy Note5 Teardown                            Diversity Never Released iFixit is a small company with a big goal: we want to show the world how to fix everything. Springy Demand for Used Devices 
+      /user/media/images/{imageid/guid}                
+                     Original post by:         
+                              
+          P2 Pentalobe Screwdriver iPhone Wikilist Major/Minor Button Writing repair manuals Better Introduction iPhone 7 Home/Touch ID Sensor Replacement Raw and Rendered Text 
+      /guides/{guideid}/steps                Bridge the Digital Divide Overview Inconsistent Images 
+            iPhone 7/7 Plus/8/8 Plus Replacement Home Button                      Moderating Users Videos Parts & Tools Store Appearance Links International Use 
+                         New iPhone XR Teardown Wallpapers Are Here Adonay David What's new at iFixit? MacBook Pro Fix Kits Right to Use iFixit Content  Guide Step Edit Keyboard Shortcuts:  Improve your life
+ Contribute Data Recovery Broken iPhone Manta Driver Kit FAQ Teach us May I embed your guides on my website? Email Links Getting Started Confusing Text 
+                            Join the crusade Contact Summaries MacBook Air 13" Mid 2011 Logic Board Replacement Content A simple example Image Size 
+      /users/searchnames/{search} (Deprecated)                            Guide Ownership Creating a New Approval Process Earth Day: Go Green, Save Green, Fix Stuff Current Release In California       Five Years of Apple Watches: A Look Inside Wiki Formatting And Syntax Custom Footer HTML angelventura Third-party Libraries 
+         Steps                
+      /stories                Theme Status: 
+      /user/token                            Repair Smarter: 5 More Tips for Electronics Repair 
+      /store/user/cart                Logo Everyone Maya Blue 
+      /guides/{guideid}                            Teams Authentication Device: 
+      /user                Store Image Captions  Edit History: iPhone 7 Plus Home/Touch ID Sensor Replacement Can I translate your manuals into my language? 
+      /users/search/{search}                            Editing Profiles Electronics Recycling Is All But Paused iFixit API v2.0 Documentation Q & A Termination 
+      /user/token                Team Reports Items Paragraphs Missing Prerequisites Grammar Police Answers 
+      /wikis/{namespace}/{title}                Overview of Permissions and Patrolling No Category Rights of Data Subjects Nintendo Switch Joy-Con Joystick Stay in the loop Press eCommerce Integration Stages 5. Share Your Story Action Shots 
+                Approvals Processes Tab 
+            67 Comments          Delete a Team Hakko Microsoldering Starter Bundle 2 Answers Access to Data and Log Files 
+         Terms of Use    Bullets! MacBook Pro 13" Unibody Mid 2009 RAM Replacement Categories Incorrect Information EU-US Privacy Shield Samsung Galaxy Note7 Teardown Needs Better Images Potentially Deadly User Plan 
+      /tags                            
+      /guides/{guideid}/users                Stores Image Alignment What, Why, Who Else and You 99          #FixAtHome: Repair Culture Is Alive And Defying Quarantine Guide Content and Photographs 
+      /users                            
+      /guides/{guideid}/releases                Wiki Flags Team How do I apply? 
+      /guides/{guideid}/users/{userid}                Current openings in San Luis Obispo Repair Kits Agustin Leon What is a Theme? View Which Approvals Need Your Signature Account Creation 
+            iOpener                      Right to Repair Slice and Dice Completed Guides 
+      /users/email/{email}                            
+            19 Comments          Reputation over time Guide Links 
+      /guides/{guideid}/steporder                Repair tip of the day Guidelist Featured Student Guide Repairability Score Why does my turn signal oonly work on one side? 
+      /store/user/order                
+      /stories/{storyid}                            
+            18 Comments          Disabling Users Limit & Offset  
+Free Yourself From Outlets
+ Incorrect Tools Eoin 1989-1994 Toyota Pickup Oil Change (2.4L I4) Circuits, Necromancy, and Solder: Board Repair School, Part 1 Great Answer Repair Is the New Green Student In Progress 
+      /guides                            John Madden Fix your broken stuff Working on a story about iFixit? Approvals Processes How to fix leak Apology What's differences between note 5 and note 7 tear down? Viewing the Version Status of Your Guides Disassembling Nokia 3560 Logic Board 
+      /users/{userid}                Looking for photos or logos to go with your story? 1 Answer 
+            iFixit Precision 4 mm Screwdriver Bit                      Flagrantly Important Student-Contributed Wiki Standard Users User Submissions CSS Official Apps How we started 
+            6 Comments          Missed a Step Potentially Dangerous 
+      /users/{userid}                            API Versions 
+      /store/user/cart/product/{$itemcode}                
+      /user/media/images                Approval Process Status 3 Answers 
+      /users/{userid}/completions                            Notifications 
+      /wikis/{namespace}/{title}/tags                            
+            4 Comments          Apple Watch Series 3 Teardown Images No Image Questions or Complaints Get more out of your MacBook Pro. Rules and Conduct Export .CSV File Report for All Entries Repairability How to Set Permissions 
+         Steps                      Android, Serial Numbers, and China: Board Repair School, Part 3 Edit Permission Privileges 
+               Final Thoughts             Allowing a User to Sign Multiple Stages How Quarantine Is Affecting Recyclers, Refurbishers, and Repair Shops 4. Enjoy Yourself 
+            8 Comments          Version Control Management Page How Do I Customize my Headers and Footers? Recommended Tools 
+      /user/badges                Linking to a Step Authors Third-party Apps Adding New Users 
+      /guides/featured                            Tangerine Orange 
+         Developed Step Trimmer Trouble with cartridge slot Reputation From Guides Step Type: Roadside Speaker Repair Preview Basic Image Tag 
+            iFixit Opening Picks (Set of 6)                      Wikis keeps telling me that my password is wrong? Unpublished Custom CSS Major & Minor Releases 
+      /media/videos/{videoid/GUID}                            Jimmy Users 
+      /user/flags                Needs More Images History Unreleased Changes Quick facts about iFixit Your vote has been recorded. What's next Permissions 101 2. Using Force: Tame Your Inner Wookiee 
+            P2 Pentalobe Screwdriver iPhone                      Accepted Certifications Community and Registration Right Joy-Con Joystick Replacement Don't see what you're looking for? 
+         questions       Image Links Response What's fun to do in San Luis Obispo? R L Why we're cool It looks like this user hasn't gained any reputation yet. Guides Product Video Publish Date iPhone 7/7 Plus/8/8 Plus Replacement Home Button Making an Approval Process a Guide Default 
+Improve your laptop battery, improve your life
+ 
+                              Samsung Galaxy Note7 Teardown                            Guide Embeds Font Styles Announcement Manager The problem with e-waste Contract Data Wassim Jabi Indemnification 
+      /wikis                Advertising 
+             9 Answers iPhone 8 Home/Touch ID Sensor Replacement Related Products 
+         iFixit Media Information    Guide Flags Digital Millennium Copyright Act Notice General Information Miscellaneous 
+         Accessibility    
+      /users/reset_password                            Medical Equipment 
+            Suction Handle                      View or Join an Existing Team Title: Rachelle 
+                     CompTIA A+                                        Disassembling Nokia 3560 LCD Display My Favorite Guides Quotes Answers Stats Reputation Breakdown Pokit Multimeter and Oscilloscope Client Errors 
+      /guides/{guideid}/public                User Sign-off History Needs a Better Image Platinum White 
+         Privacy Policy    Cross Origin Resource Sharing Who we are Team Name & Avatar Tools  Edit History: Opening Procedure 
+      /user/guides                Answers Privileges No Warranties Leaf Green 
+      /wikis/{namespace}/{title}/revert                Tags Comments Create a New Team iPhone 4 Repair Guides Reputation From Answers Advocacy Introduction Clear Reverting to an Old Version 
+                                 We're hiring!                            Apple Watch Teardown 5 Answers iPhone 11, 11 Pro, and 11 Pro Max Teardown Wallpapers No Summary Wiki Formatting Help Team Location 
+      /wikis/{namespace}?display=titles                            Attached Documents 
+      /badges/{badgeid}                            iPhone 7 & iPhone 7 Plus Repair Guides Now Available Willy Thiessen Thien Chau 
+            0 Comments          Teams Page HTTP Request Methods Use devices as long as possible Text: What if I want to improve your guides? 
+      /user/token/impersonate                Signing off on an Approvals Request Custom Header HTML 
+                   OnePlus 8 Pro Teardown: Flagship Specs, Flagship Repairability? 
+                      Individual Processing Operations About Section 
+      /wikis/{namespace}/{title}/tag                Third Party Sites Copy Article URL Most helpful Nintendo Game Boy Advance SP questions 
+      /wikis/{namespace}                            Header and Footer Styling Banning Users Tools Featured in this Teardown Scenic Route Apple Watch (42 mm, Original & Series 1) Replacement Battery Member-Contributed Guide iFixit Insight iPhone 8 Case 
+      /guides/{guideid}/teams                How Can I Lose Reputation? Service Manager Flagship Toolkits Votes 
+         Flags    ,  In Progress Kickstarter  
+Freedom From Outlets 
+ 
+      /wikis/{namespace}/{title}                            iPhone 7 Plus Home/Touch ID Sensor Replacement Taking Photos Rickshaw Repair in Dheli Finding a User 
+            Tweezers                      Request Body 
+      /users/sso/{sso_userid}                            screen gone blank after reassemble iFixit Online Accessibility Statement 
+            Spudger                      Wiki Links smahar My Guides Browse past guide revisions iPhone 4 Wallpapers: Gyro and Internals 
+            iPhone 7/7 Plus Home Button Bracket                      Archived Guide The Usual Suspects Victor Rodriguez Need a toolkit right now? Find your nearest iFixit tool retailer. Embed this guide Query Parameters Rehome your old electronics iPhone 5 and iPhone 5s Teardown Wallpapers Page Stub Acceptance of Terms Request Guide Deletion Resist the urge to upgrade Job Applications What’s Creative Commons? How you can save the planet Here Are the Parts You Can Swap Between the New iPhone SE and iPhone 8 Video Size & Alignment iliketurtuls Footer HTML 3. Don’t Get Screwed Repair Shops Are Essential (and Tricky) More iFixit Information Content Generally Page Redirects Headings Lists Essential Electronics Toolkit Raw Route Parameters A Simple Example Creating a New Version What Privileges Can Reputation Earn Me? Headings and Paragraphs Posting a New Announcement Media Registration What can I do with the API? 
+      /user/favorites/guides/{guideid}                
+            46 Comments          Guides I've Contributed To Fix Your Stuff Choose Category  Missing Details 
+      /users/{userid}/guides                            casee bracket Power connector Title 4 Easy Ways to Save the World (and Your Electronics) on Earth Day Featured Guide The EU Green Deal Could Be A Big Deal For Repair 
+      /user/media/videos                
+      /wikis/CATEGORY?display=hierarchy                            Editing a Team Using the Search Bar Header HTML        Guide Comments Pending Invitations And finally, recycle 
+      /media/images/{imageid/GUID}                            Digital Multimeter 
+      /user/completions                Paige Reisman 
+      /guides/{guideid}                Talon Enabling the Approvals Process Commercial US FTC Enforcement Manual Line Breaks 
+                                 About iFixit                            Unlisted Browsing by Privilege Product Reviews Reference Implementations What we do now User Types About Us Admins Importing Ads Video Overview Individual Entry Reports Sending User Invitations 
+      /guides/{guideid}/tags                            Code Other things that need fixing iPod 5th Generation (Video) Battery Replacement 
+      /badges                            Line Breaks Moderators Team Exclusivity Basic Video Tag What's iFixit? 
+      /guides/{guideid}/completed                Questions Comments and Contributions 
+       The Fine Print Apple Watch Teardown Wallpapers Dynamic Lists Foundation Contact Information Losing Reputation from Answers Recyclers Assert Their Right to Repair and Reuse iBook G3 12" Display Replacement Reports How to Repair an Apple Magsafe Charger Magnetic End Mark Cousins Tenderfoot 
+            iPhone 7/7 Plus Bottom Screws                      Revisionids 
+         Fix the planet    Mismatched Prerequisites Donate Device How we got here What Happens When I Join a Team? Guides I've Helped Translate Redyak Add your answer Site Customization Assigning an Approvals Process to a Guide Parts & Tools Namespaces 
+            5 Comments          Permissions and Patrolling Carbon Black 
+      /guides/{guideid}/teams/{teamid}                Limitation of Liability Approval Process Name Stories Administrator Actions Editing Privileges Liability for Transfers Screencast Embedding 
+      /wikis/CATEGORY/{title}/children                            Guide/Wiki Privileges Markup Mishap Guide Products 
+      /user/favorites/guides                Suction Handle What is Reputation all about? iPhone SE 2020 Wallpapers Are Definitely Not iPhone 8 Wallpapers, Absolutely Not, Get Out of Here With That Wild, Unfounded Speculation, You Ridiculous Weirdo iPhone SE 2020 Teardown: The Best Kind of Throwback Worn Wear Badges Repair that Matters 
+      /users/{userid}/favorites/guides                            Sometimes, we write things 
+      /stories                            Teardowns I've Worked On kishore.k kishore.k Repair Manuals in Progress 
+Improve your laptop battery  Escaping Wiki Formatting iPhone SE 2020 First Look: Not Just an iPhone 8 with iPhone 11 Brains Want to use one of our tech photos? Content You Provide Store Locator iPhone 8 Plus Home/Touch ID Sensor Replacement Pro Tech Toolkit

@@ -9,7 +9,7 @@ import spacy
 import os
 import sys
 
-from crawl_n_depth.Simplified_System.Database.db_connect import refer_collection
+from Simplified_System.Database.db_connect import refer_collection
 
 sys.path.insert(0, 'F:/Armitage_project/')
 os.environ.update({'MALLET_HOME': r'F:/Armitage_project/crawl_n_depth/utilities/new_mallet/mallet-2.0.8/'})
@@ -55,30 +55,30 @@ def run_mallet_model(entry_id,number_of_topics):#this will extract paragraph and
     data = [i for i in comp_data_entry]
     print("lda mallet model started", str(data[0]['_id']), data[0]['link'])
     print('Grabbing paragraph and header text from database...')
-    h_p_data = data[0]["paragraph_text"] + data[0]["header_text"]  # do topic extraction on paragraph and header text
-    # print(h_p_data)
-    data_words = list(sent_to_words(h_p_data))
-    # print("data_words",data_words)
-    print('remove_punctuations...')
-    # Remove Stop Words
-    data_words_nostops = remove_stopwords(data_words)
-
-    # Do lemmatization keeping only noun, adj, vb, adv
-    data_lemmatized = lemmatization(data_words_nostops, allowed_postags=['NOUN', 'ADJ', 'VERB', 'ADV'])
-    # print('data_lemmatized...')
-    # Create Dictionary
-    id2word = corpora.Dictionary(data_lemmatized)
-    # print('id2word',id2word)
-    # Create Corpus
-    texts = data_lemmatized
-    # Term Document Frequency
-    corpus = [id2word.doc2bow(text) for text in texts]
-    # print('corpus',corpus)
-    # View
-    print('corpus is created')#(word,frequency of occuring)
-    topics = []
-    mallet_list = []
     try:
+        h_p_data = data[0]["paragraph_text"] + data[0]["header_text"]  # do topic extraction on paragraph and header text
+        # print(h_p_data)
+        data_words = list(sent_to_words(h_p_data))
+        # print("data_words",data_words)
+        print('remove_punctuations...')
+        # Remove Stop Words
+        data_words_nostops = remove_stopwords(data_words)
+
+        # Do lemmatization keeping only noun, adj, vb, adv
+        data_lemmatized = lemmatization(data_words_nostops, allowed_postags=['NOUN', 'ADJ', 'VERB', 'ADV'])
+        # print('data_lemmatized...')
+        # Create Dictionary
+        id2word = corpora.Dictionary(data_lemmatized)
+        # print('id2word',id2word)
+        # Create Corpus
+        texts = data_lemmatized
+        # Term Document Frequency
+        corpus = [id2word.doc2bow(text) for text in texts]
+        # print('corpus',corpus)
+        # View
+        print('corpus is created')#(word,frequency of occuring)
+        topics = []
+        mallet_list = []
         mallet_path = 'F:/Armitage_project/crawl_n_depth/utilities/new_mallet/mallet-2.0.8/bin/mallet'  # update this path
         ldamallet = gensim.models.wrappers.LdaMallet(mallet_path, corpus=corpus, num_topics=number_of_topics, id2word=id2word)
         print('topics are extracting')
@@ -87,6 +87,7 @@ def run_mallet_model(entry_id,number_of_topics):#this will extract paragraph and
 
         mycol.update_one({'_id': entry_id},
                          {'$set': {'mallet_results': mallet_list}})
+        print(mallet_list)
         print("Successfully extended the data entry with mallet results", entry_id)
 
     except Exception:#handling exceptions if corpus is empty
@@ -94,7 +95,7 @@ def run_mallet_model(entry_id,number_of_topics):#this will extract paragraph and
         mycol.update_one({'_id': entry_id},
                          {'$set': {'mallet_results': []}})
 
-    print(mallet_list)
+
 
 
 #To run this scrpit individually use following line and run the script

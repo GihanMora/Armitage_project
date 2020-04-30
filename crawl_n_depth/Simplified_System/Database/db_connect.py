@@ -1,6 +1,6 @@
 import pymongo
 from bson import ObjectId
-
+import csv
 
 
 def refer_collection():
@@ -8,6 +8,12 @@ def refer_collection():
   mydb = myclient["CompanyDatabase"]  # creates a database
   mycol = mydb["comp_data"]  # creates a collection
   return mycol
+
+def refer_query_col():
+    myclient = pymongo.MongoClient("mongodb://localhost:27017/")
+    mydb = myclient["CompanyDatabase"]  # creates a database
+    mycol = mydb["search_queries"]  # creates a collection
+    return mycol
 mycol = refer_collection()
 # mycol.delete_many({})
 
@@ -25,11 +31,30 @@ def get_all_ids():
         lst.append(k['_id'])
         # print(k['_id'])
     print(lst)
-get_all_ids()
+# get_all_ids()
 def clear_the_collection():
-  mycol = refer_collection()
+  mycol = refer_query_col()
   mycol.delete_many({})
   print("collection is cleared!")
+# clear_the_collection()
+
+
+def export_profiles(id_list,query_id):
+    # store data in a csv file
+    dump_name = 'F:\Armitage_project\crawl_n_depth\Simplified_System\end_to_end\data_dump\\'+str(query_id)+'_company_dump.csv'
+    with open(dump_name, mode='w',encoding='utf8', newline='') as results_file:  # store search results in to a csv file
+        results_writer = csv.writer(results_file, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
+        results_writer.writerow(['id','search_text','title', 'link', 'description', 'Company Name', 'addresses', 'emails',
+                                 'social_media_links','telephone_numbers','tokens',
+                                 'contact_persons_dnb','contact_persons_opencorporates','contact_persons_li','company type'])
+        for entry_id in id_list:
+            comp_data_entry = mycol.find({"_id": entry_id})
+            data = [i for i in comp_data_entry]
+            results_writer.writerow([data[0]['_id'], data[0]['search_text'], data[0]['title'], data[0]['link'], data[0]['description'],data[0]['comp_name'],data[0]['addresses'][:3],data[0]['emails'][:3],data[0]['social_media_links'][:5],
+                                     data[0]['telephone_numbers'],data[0]['wordcloud_results_tri'][:10],data[0]['dnb_cp_info'],data[0]['oc_cp_info'],data[0]['linkedin_cp_info'],data[0]['comp_type_pred']])
+        results_file.close()
+    print("Data dumping completed!")
+# export_profiles([ObjectId('5ea6ca6aa27a31ef12ce1208')],ObjectId('5ea6ca6aa27a31ef12ce1208'))
 
 # clear_the_collection()
 

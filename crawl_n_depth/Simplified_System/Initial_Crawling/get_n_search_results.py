@@ -1,3 +1,5 @@
+import time
+
 import requests
 from selenium.webdriver.firefox.options import Options
 from selenium import webdriver
@@ -63,6 +65,7 @@ def getGoogleLinksForSearchText(searchText,number_of_results):#given a search qu
 
     browser = use_chrome()#get a chrome instance
     browser.get(searchGoogle)
+    time.sleep(5)
     pageSource = browser.page_source
 
     soup = BeautifulSoup(pageSource, 'html.parser')#bs4

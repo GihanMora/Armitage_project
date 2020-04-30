@@ -1,14 +1,17 @@
-from get_n_search_results import getGoogleLinksForSearchText
+import sys
+sys.path.insert(0, 'F:/Armitage_project/crawl_n_depth/')
+from Simplified_System.Initial_Crawling.get_n_search_results import getGoogleLinksForSearchText
+
 import csv
 import json
 import os
 import time
 import pymongo
+from Simplified_System.Database.db_connect import refer_collection
+# from ..Database.db_connect import refer_collection
 
-from crawl_n_depth.Simplified_System.Database.db_connect import refer_collection
 
-
-def search_a_company(comp_name, db_collection):
+def search_a_company(comp_name, db_collection, query_entry):
     sr = getGoogleLinksForSearchText(comp_name, 3)
     count = 0
     while (sr == 'captcha'):
@@ -17,7 +20,7 @@ def search_a_company(comp_name, db_collection):
         time.sleep(1200 * count)
         sr = getGoogleLinksForSearchText(comp_name, 3)
 
-    b_list_file = open('black_list.txt','r')
+    b_list_file = open('F:\Armitage_project\crawl_n_depth\Simplified_System\Initial_Crawling\\black_list.txt','r')
     black_list = b_list_file.read().splitlines()
     # 'www.dnb.com'
     received_links = [i['link'] for i in sr]
@@ -31,12 +34,15 @@ def search_a_company(comp_name, db_collection):
             filtered_sr.append(sr[i])
 
     if(len(filtered_sr)):
+        filtered_sr[0]['comp_name'] = filtered_sr[0]['search_text']
+        filtered_sr[0]['query_id'] = query_entry
         record_entry=db_collection.insert_one(filtered_sr[0])
         print(filtered_sr[0])
         print("search record stored in db: ",record_entry.inserted_id)
+        return record_entry.inserted_id
     else:
         print("No results found!")
-
+        return None
     #store data in a csv file
     # with open('search_results.csv', mode='w',encoding='utf8') as results_file:  # store search results in to a csv file
     #     results_writer = csv.writer(results_file, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
@@ -47,7 +53,7 @@ def search_a_company(comp_name, db_collection):
     #     results_file.close()
 
 
-def search_a_query(search_query,number_of_results,db_collection):
+def search_a_query(search_query,number_of_results,db_collection,query_entry):
     sr = getGoogleLinksForSearchText(search_query, number_of_results)
     count = 0
     while (sr == 'captcha'):
@@ -89,15 +95,18 @@ def search_a_query(search_query,number_of_results,db_collection):
                 elif ('.edu' in c_name):
                     sr[0]['comp_name'] = c_name.split(".edu")[0]
                 print(sr[0])
+                sr[0]['query_id'] = query_entry
                 record_entry = db_collection.insert_one(sr[0])
                 print("search record stored in db: ", record_entry.inserted_id)
                 ids_list.append(record_entry.inserted_id)
             else:
                 print("try again")
         print(ids_list)
+        return ids_list
         # print("search records stored in db: ", record_entry.inserted_ids)
     else:
         print("No results found!")
+        return None
     #store file to a csv file
     # with open('search_results.csv', mode='w',encoding='utf8') as results_file:  # store search results in to a csv file
     #     results_writer = csv.writer(results_file, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
@@ -109,7 +118,7 @@ def search_a_query(search_query,number_of_results,db_collection):
 
 
 
-mycol = refer_collection()
+# mycol = refer_collection()
 # search_a_company('TOOHEYS PTY LIMITED',mycol)
 # search_a_company('CALTEX PETROLEUM PTY LTD',mycol)
-search_a_query('Digital advertisement and marketing analytics services company',5,mycol)
+# search_a_query('Digital advertisement and marketing analytics services company',5,mycol)

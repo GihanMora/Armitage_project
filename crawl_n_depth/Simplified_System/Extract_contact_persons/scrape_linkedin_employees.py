@@ -1,17 +1,20 @@
 import pymongo
 
-from crawl_n_depth.Simplified_System.Database.db_connect import refer_collection
-from crawl_n_depth.Simplified_System.Initial_Crawling.get_n_search_results import getGoogleLinksForSearchText
+from Simplified_System.Database.db_connect import refer_collection
+from Simplified_System.Initial_Crawling.get_n_search_results import getGoogleLinksForSearchText
 
 
 
 
-def get_li_emp(entry_id):
+def get_li_emp(entry_id,mode):
     mycol = refer_collection()
     comp_data_entry = mycol.find({"_id": entry_id})
     data = [i for i in comp_data_entry]
     # comp_name = data[0]['search_text']
-    comp_name = data[0]['comp_name']
+    if mode=='comp':
+        comp_name = data[0]['search_text']
+    elif mode == 'query':
+        comp_name = data[0]['comp_name']
     sr = getGoogleLinksForSearchText('"' + comp_name + '"' + " manager linkedin", 10)
     filtered_li = []
     for p in sr:

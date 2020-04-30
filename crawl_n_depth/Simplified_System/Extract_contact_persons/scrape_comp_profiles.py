@@ -1,7 +1,7 @@
 import time
 import sys
 
-from crawl_n_depth.Simplified_System.Database.db_connect import refer_collection
+from Simplified_System.Database.db_connect import refer_collection
 
 sys.path.insert(0, 'F:/Armitage_project/')
 import pymongo
@@ -13,7 +13,7 @@ from bs4 import BeautifulSoup
 from bs4.element import Tag
 from fake_useragent import UserAgent
 from random import choice
-from crawl_n_depth.Simplified_System.Initial_Crawling.get_n_search_results import getGoogleLinksForSearchText
+from Simplified_System.Initial_Crawling.get_n_search_results import getGoogleLinksForSearchText
 
 # from crawl_n_depth.get_n_search_results import getGoogleLinksForSearchText
 from selenium.webdriver.support.wait import WebDriverWait
@@ -29,7 +29,7 @@ def get_browser():
     PROXY = proxy_generator()
     userAgent = ua.random #get a random user agent
     options = webdriver.ChromeOptions()  # use headless version of chrome to avoid getting blocked
-    # options.add_argument('headless')
+    #options.add_argument('headless')
     options.add_argument(f'user-agent={userAgent}')
     options.add_argument("start-maximized")# // open Browser in maximized mode
     options.add_argument("disable-infobars")# // disabling infobars
@@ -44,8 +44,15 @@ def get_browser():
     return browser
 
 def scrape_opencorporates(comp_url):
+
     browser = get_browser()
-    browser.get(comp_url)
+    browser.set_page_load_timeout(60)
+    try:
+        browser.get(comp_url)
+        # time.sleep(5)
+    except TimeoutException:
+        print("browser timeout")
+        return []
     pageSource = browser.page_source
     # print(pageSource)
     results=[]
@@ -71,6 +78,7 @@ def scrape_dnb(comp_url):
     browser.set_page_load_timeout(60)
     try:
         browser.get(comp_url)
+        # time.sleep(5)
     except TimeoutException:
         print("browser timeout")
         return []
@@ -106,14 +114,17 @@ def scrape_dnb(comp_url):
 # ,'PIONEER QUARRIES (SYDNEY) PTY LTD','DIWING PTY LTD','ASHCROFT FREEHOLDS PTY LTD','JAC AND JACK PTY LTD','TAHA WAGERING SYSTEMS PTY LTD'
 # ,'BRADFORD INSULATION INDUSTRIES PTY. LIMITED','GOCUP PASTORAL PTY LTD']
 
-def get_cp_oc(entry_id):
+def get_cp_oc(entry_id,mode):
     myclient = pymongo.MongoClient("mongodb://localhost:27017/")
     mydb = myclient["CompanyDatabase"]  # refer the database
     mycol = mydb["comp_data"]  # refer the collection
     comp_data_entry = mycol.find({"_id": entry_id})
     data = [i for i in comp_data_entry]
     # comp_name = data[0]['search_text']
-    comp_name = data[0]['comp_name']
+    if mode=='comp':
+        comp_name = data[0]['search_text']
+    elif mode == 'query':
+        comp_name = data[0]['comp_name']
     det=[comp_name]
     sr = getGoogleLinksForSearchText(comp_name + " opencorporates", 3)
     filtered_oc = []
@@ -134,14 +145,17 @@ def get_cp_oc(entry_id):
                          {'$set': {'oc_cp_info': det}})
 
 
-def get_cp_dnb(entry_id):
+def get_cp_dnb(entry_id,mode):
     mycol = refer_collection()
     comp_data_entry = mycol.find({"_id": entry_id})
     # print(comp_data_entry)
     data = [i for i in comp_data_entry]
     # comp_name = data[0]['search_text']
     # print(data)
-    comp_name = data[0]['comp_name']
+    if mode=='comp':
+        comp_name = data[0]['search_text']
+    elif mode == 'query':
+        comp_name = data[0]['comp_name']
     det = [comp_name]
     sr = getGoogleLinksForSearchText(comp_name + " dnb.com", 3)
     filtered_dnb = []
