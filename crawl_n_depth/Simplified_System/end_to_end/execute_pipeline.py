@@ -108,7 +108,7 @@ queries = ['Medical equipment repair','Digital advertisement and marketing analy
             'Veterinary diagnostics','Medical equipment repair']
 from multiprocessing import Process
 if __name__ == '__main__':
-    for k in queries:
+    for k in queries[:1]:
         p = Process(target=execute_for_a_query, args=(k, ))
         p.start()
         p.join() # this blocks until the process terminates
