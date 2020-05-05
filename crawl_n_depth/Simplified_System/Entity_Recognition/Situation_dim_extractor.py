@@ -6,7 +6,7 @@ import pandas as pd
 from nltk.corpus import stopwords
 from nltk.tokenize import word_tokenize
 import string
-import nlp.Entity_feature_extraction as ENTITY_EXT
+import Entity_feature_extraction as ENTITY_EXT
 import tqdm
 
 
@@ -14,19 +14,25 @@ def extract_dimesions(df, search_phrase):
 
     clause_entity_info = []
     for row in tqdm.tqdm(df.itertuples(index=False), total=df.shape[0]):
+        print(row)
         sent = row.sent
         p_id = 'P_' + str(row.para_id)
         sent_index = row.sent_index
 
         if type(row.subject) == str:
+
             subject = row.subject
             verb = row.verb
             object = str(row.object).strip()
+
             stopwords_list = stopwords.words('english')
             stopwords_list.extend(['The', 'A', 'An'])
-
+            print("object.....", object)
+            print(subject in stopwords_list)
+            # print("subject.....", subject)
             if object not in stopwords_list and subject not in stopwords_list:
-
+                print("object.....", object)
+                print("subject.....", subject)
                 entities_spacy = ENTITY_EXT.get_enitites_spacy(subject)
                 date = []
                 location = []
@@ -94,3 +100,22 @@ def extract_dimesions(df, search_phrase):
     clause_df = pd.DataFrame(clause_entity_info, columns=['para_id', 'sent_index', 'subject', 'verb', 'object', 'entity_type', 'clause', 'date', 'nouns', 'location', 'fac', 'loc', 'product', 'event', 'art','sent'])
     clause_df.to_csv('output/'+search_phrase+'/situation_dims.csv')
     return clause_df
+
+
+
+cars = {'object': ['Honda Civic john leanord price level is dropped no idea',
+                 'Toyota Corolla situation in the lockdon srilanka is  date',
+                 'Ford Focus has gone he did went come she  about releasing',
+                 'Audi A4 has john gone want write not so convinceing and '],
+'para_id': [22000,25000,27000,35000],
+'sent_index': [22,25,27,35],
+'subject': ['Honda Civic john leanord price level is dropped no idea',
+                 'Toyota Corolla situation in the lockdon srilanka is  date',
+                 'Ford Focus has gone he did went come she  about releasing',
+                 'Audi A4 has john gone want write not so convinceing and '],
+'verb': ['go','come','write','play'],
+'sent': ['paper','pen','home','car']}
+
+df = pd.DataFrame(cars, columns = ['object', 'para_id', 'sent_index', 'subject','verb','sent'])
+
+extract_dimesions(df,'idk')

@@ -42,28 +42,28 @@ def execute_for_a_company(comp_name):
     else:
         print("entry id received ",entry_id)
         print("***Deep Crawling Phrase***")
-        deep_crawl([entry_id],3,2)
+        deep_crawl([entry_id],3,100)
         print("Deep crawling completed and record extended with crawled_links,header_text,paragraph_text,social_media_links,telephone numbers,emails,addresses")
-        # print("***Feature Extraction Phrase***")
-        # extract_features([entry_id])
-        # print("***Contact Person Extraction Phrase***")
-        # extract_contact_persons([entry_id],'comp')
-        # print(("***Predict the company type***"))
-        # predict_class_tags([entry_id])
-        # print(("***Dumping the results***"))
-        # export_profiles([entry_id],record_entry.inserted_id)
-        # ended = time.time()
-        # duration = ended - started
-        # dateTimeObj_e = datetime.now()
-        # completion_data = {'completed_time_stamp': dateTimeObj_e,'elapsed_time': duration}
-        # print(completion_data)
-        # query_collection.update_one({'_id': record_entry.inserted_id},
-        #                  {'$set': completion_data})
-        # print("Pipeline execution completed, elapsed time:", duration)
+        print("***Feature Extraction Phrase***")
+        extract_features([entry_id])
+        print("***Contact Person Extraction Phrase***")
+        extract_contact_persons([entry_id],'comp')
+        print(("***Predict the company type***"))
+        predict_class_tags([entry_id])
+        print(("***Dumping the results***"))
+        export_profiles([entry_id],record_entry.inserted_id)
+        ended = time.time()
+        duration = ended - started
+        dateTimeObj_e = datetime.now()
+        completion_data = {'completed_time_stamp': dateTimeObj_e,'elapsed_time': duration}
+        print(completion_data)
+        query_collection.update_one({'_id': record_entry.inserted_id},
+                         {'$set': completion_data})
+        print("Pipeline execution completed, elapsed time:", duration)
 
-#     # entry_id = search_a_company(comp_name, mycol)
-#     # print("entry id received ", entry_id)
-#
+    # entry_id = search_a_company(comp_name, mycol)
+    # print("entry id received ", entry_id)
+
 
 def execute_for_a_query(query):
     print("Searching a query")
@@ -108,7 +108,7 @@ queries = ['Medical equipment repair','Digital advertisement and marketing analy
             'Veterinary diagnostics','Medical equipment repair']
 from multiprocessing import Process
 if __name__ == '__main__':
-    for k in queries[:1]:
+    for k in queries[2:3]:
         p = Process(target=execute_for_a_query, args=(k, ))
         p.start()
         p.join() # this blocks until the process terminates

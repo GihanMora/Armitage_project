@@ -4,27 +4,45 @@ import csv
 
 
 def refer_collection():
-  myclient = pymongo.MongoClient("mongodb://localhost:27017/")
-  mydb = myclient["CompanyDatabase"]  # creates a database
+  # myclient = pymongo.MongoClient("mongodb://localhost:27017/")
+  myclient = pymongo.MongoClient(
+      "mongodb+srv://gatekeeper:oMBipAi6zLkme3e9@armitage-i0o8u.mongodb.net/test?retryWrites=true&w=majority")
+  # mydb = myclient["CompanyDatabase"]  # creates a database
+  mydb = myclient["miner"]  # creates a database
+
   mycol = mydb["comp_data"]  # creates a collection
   return mycol
 
+def refer_simplified_dump_col():
+    # myclient = pymongo.MongoClient("mongodb://localhost:27017/")
+    myclient = pymongo.MongoClient(
+        "mongodb+srv://gatekeeper:oMBipAi6zLkme3e9@armitage-i0o8u.mongodb.net/test?retryWrites=true&w=majority")
+    # mydb = myclient["CompanyDatabase"]  # creates a database
+    mydb = myclient["miner"]  # creates a database
+    mycol = mydb["simplified_dump"]  # creates a collection
+    return mycol
+
 def refer_query_col():
-    myclient = pymongo.MongoClient("mongodb://localhost:27017/")
-    mydb = myclient["CompanyDatabase"]  # creates a database
+    # myclient = pymongo.MongoClient("mongodb://localhost:27017/")
+    myclient = pymongo.MongoClient(
+        "mongodb+srv://gatekeeper:oMBipAi6zLkme3e9@armitage-i0o8u.mongodb.net/test?retryWrites=true&w=majority")
+    # mydb = myclient["CompanyDatabase"]  # creates a database
+    mydb = myclient["miner"]  # creates a database
     mycol = mydb["search_queries"]  # creates a collection
     return mycol
-mycol = refer_collection()
+# mycol = refer_query_col()
 # mycol.delete_many({})
 
 #display all existing records
 def display_all_records():
+  mycol = refer_collection()
   y=mycol.find()
   for k in y:
     print(k)
 # display_all_records()
 
 def get_all_ids():
+    mycol = refer_collection()
     lst = []
     y = mycol.find()
     for k in y:
@@ -33,13 +51,15 @@ def get_all_ids():
     print(lst)
 # get_all_ids()
 def clear_the_collection():
-  mycol = refer_query_col()
+  mycol = refer_collection()
   mycol.delete_many({})
   print("collection is cleared!")
 # clear_the_collection()
 
 
 def export_profiles(id_list,query_id):
+    mycol = refer_collection()
+    csv_dump_col = refer_simplified_dump_col()
     # store data in a csv file
     dump_name = 'F:\Armitage_project\crawl_n_depth\Simplified_System\end_to_end\data_dump\\'+str(query_id)+'_company_dump.csv'
     with open(dump_name, mode='w',encoding='utf8', newline='') as results_file:  # store search results in to a csv file
@@ -52,8 +72,26 @@ def export_profiles(id_list,query_id):
             data = [i for i in comp_data_entry]
             results_writer.writerow([data[0]['_id'], data[0]['search_text'], data[0]['title'], data[0]['link'], data[0]['description'],data[0]['comp_name'],data[0]['addresses'][:3],data[0]['emails'][:3],data[0]['social_media_links'][:5],
                                      data[0]['telephone_numbers'],data[0]['wordcloud_results_tri'][:10],data[0]['dnb_cp_info'],data[0]['oc_cp_info'],data[0]['linkedin_cp_info'],data[0]['comp_type_pred']])
+
+            dict_to_dump = {'id':data[0]['_id'],
+                            'search_text':data[0]['search_text'],
+                            'title':data[0]['title'],
+                            'link':data[0]['link'],
+                            'description':data[0]['description'],
+                            'Company Name':data[0]['comp_name'],
+                            'addresses':data[0]['addresses'][:3],
+                            'emails':data[0]['emails'][:3],
+                            'social_media_links':data[0]['social_media_links'][:5],
+                            'telephone_numbers':data[0]['telephone_numbers'][:5],
+                            'tokens':data[0]['wordcloud_results_tri'][:10],
+                            'contact_persons_dnb':data[0]['dnb_cp_info'],
+                            'contact_persons_opencorporates':data[0]['oc_cp_info'],
+                            'contact_persons_li':data[0]['linkedin_cp_info'],
+                            'company type':data[0]['comp_type_pred']}
+            record_entry = csv_dump_col.insert_one(dict_to_dump)
+            print("simplified dump completed", record_entry.inserted_id)
         results_file.close()
-    print("Data dumping completed!")
+    print("CSV export completed!")
 # export_profiles([ObjectId('5ea6ca6aa27a31ef12ce1208')],ObjectId('5ea6ca6aa27a31ef12ce1208'))
 
 # clear_the_collection()

@@ -115,9 +115,10 @@ def scrape_dnb(comp_url):
 # ,'BRADFORD INSULATION INDUSTRIES PTY. LIMITED','GOCUP PASTORAL PTY LTD']
 
 def get_cp_oc(entry_id,mode):
-    myclient = pymongo.MongoClient("mongodb://localhost:27017/")
-    mydb = myclient["CompanyDatabase"]  # refer the database
-    mycol = mydb["comp_data"]  # refer the collection
+    # myclient = pymongo.MongoClient("mongodb://localhost:27017/")
+    # mydb = myclient["CompanyDatabase"]  # refer the database
+    # mycol = mydb["comp_data"]  # refer the collection
+    mycol = refer_collection()
     comp_data_entry = mycol.find({"_id": entry_id})
     data = [i for i in comp_data_entry]
     # comp_name = data[0]['search_text']
