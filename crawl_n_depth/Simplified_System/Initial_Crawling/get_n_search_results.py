@@ -1,5 +1,6 @@
 import time
-
+import sys
+sys.path.insert(0, 'F:\Armitage_project\crawl_n_depth\\')
 import requests
 from selenium.webdriver.firefox.options import Options
 from selenium import webdriver
@@ -50,7 +51,7 @@ def use_firefox():
                                 executable_path='utilities/geckodriver')
     return browser
 
-def getGoogleLinksForSearchText(searchText,number_of_results):#given a search query get first n results from google
+def getGoogleLinksForSearchText(searchText,number_of_results,mode):#given a search query get first n results from google
     """
 
     :param searchText: query text of searching
@@ -107,12 +108,42 @@ def getGoogleLinksForSearchText(searchText,number_of_results):#given a search qu
 
             # Check to make sure everything is present before appending
             if (link not in ['',None]) and (title not in ['',None]) and (description not in ['',None]):#remove links if information is not available
+                rich_description = []
+                if(mode=='initial'):
+                    browser = use_chrome()
+                    browser.get(link)
+                    time.sleep(5)
+                    pageSource = browser.page_source
+                    soup = BeautifulSoup(pageSource, 'html.parser')
+                    metas = soup.find_all('meta')
+                    # print(metas)
+                    meta_description = [meta.attrs['content'] for meta in metas if
+                                        'name' in meta.attrs and meta.attrs['name'] == 'description']
+                    og_description = [meta.attrs['content'] for meta in metas if
+                                      'property' in meta.attrs and meta.attrs['property'] == 'og:description']
+                    # twitter_description =  [meta.attrs['content'] for meta in metas if 'name' in meta.attrs and meta.attrs['name'] == 'twitter:description']
+                    if (meta_description != og_description):
+                        rich_description = meta_description + og_description
+                    else:
+                        rich_description = meta_description
+
+                    rich_description = '_'.join(rich_description)
+                    rich_description = rich_description.replace(',',' ')
+                    print(rich_description)
+
                 item = {
                     "search_text":searchText,
                     "title": title.replace(',','_'),
                     "link": link,
-                    "description": description.replace(',','_'),
+                    "description": description.replace(',',' '),
+                    "rich_description":rich_description
                 }
+
+                # rich_descriptions = list(set(rich_descriptions))
+                # print(rich_descriptions)
+
+
+                # print("*************************************************")
                 results.append(item)
 
 
@@ -137,7 +168,7 @@ def getGoogleLinksForSearchText(searchText,number_of_results):#given a search qu
 #     print(searchResult)
 
 #example
-# searchResults = getGoogleLinksForSearchText("Information System Australia",3)
+# searchResults = getGoogleLinksForSearchText("caltext australia",3)
 # for searchResult in searchResults:
 #     print(searchResult)
 

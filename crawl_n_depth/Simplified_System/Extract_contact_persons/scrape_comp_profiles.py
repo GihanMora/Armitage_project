@@ -26,10 +26,10 @@ def proxy_generator():
 
 def get_browser():
     ua = UserAgent()
-    PROXY = proxy_generator()
+    # PROXY = proxy_generator()
     userAgent = ua.random #get a random user agent
     options = webdriver.ChromeOptions()  # use headless version of chrome to avoid getting blocked
-    #options.add_argument('headless')
+    # options.add_argument('headless')
     options.add_argument(f'user-agent={userAgent}')
     options.add_argument("start-maximized")# // open Browser in maximized mode
     options.add_argument("disable-infobars")# // disabling infobars
@@ -46,7 +46,7 @@ def get_browser():
 def scrape_opencorporates(comp_url):
 
     browser = get_browser()
-    browser.set_page_load_timeout(60)
+    # browser.set_page_load_timeout(30)
     try:
         browser.get(comp_url)
         # time.sleep(5)
@@ -75,7 +75,7 @@ def scrape_dnb(comp_url):
     results=[]
     browser = get_browser()
     print('check1')
-    browser.set_page_load_timeout(60)
+    # browser.set_page_load_timeout(30)
     try:
         browser.get(comp_url)
         # time.sleep(5)
@@ -122,12 +122,16 @@ def get_cp_oc(entry_id,mode):
     comp_data_entry = mycol.find({"_id": entry_id})
     data = [i for i in comp_data_entry]
     # comp_name = data[0]['search_text']
-    if mode=='comp':
-        comp_name = data[0]['search_text']
-    elif mode == 'query':
-        comp_name = data[0]['comp_name']
+    try:
+        if mode=='comp':
+            comp_name = data[0]['search_text']
+        elif mode == 'query':
+            comp_name = data[0]['comp_name']
+    except KeyError:
+        comp_name = data[0]['link'].split("/")[2]
+
     det=[comp_name]
-    sr = getGoogleLinksForSearchText(comp_name + " opencorporates", 3)
+    sr = getGoogleLinksForSearchText(comp_name + " opencorporates", 3, 'normal')
     filtered_oc = []
     for p in sr:
         if ('opencorporates.com' in p['link']) and (len(p['link'])>39):
@@ -153,12 +157,15 @@ def get_cp_dnb(entry_id,mode):
     data = [i for i in comp_data_entry]
     # comp_name = data[0]['search_text']
     # print(data)
-    if mode=='comp':
-        comp_name = data[0]['search_text']
-    elif mode == 'query':
-        comp_name = data[0]['comp_name']
+    try:
+        if mode=='comp':
+            comp_name = data[0]['search_text']
+        elif mode == 'query':
+            comp_name = data[0]['comp_name']
+    except KeyError:
+        comp_name = data[0]['link'].split("/")[2]
     det = [comp_name]
-    sr = getGoogleLinksForSearchText(comp_name + " dnb.com", 3)
+    sr = getGoogleLinksForSearchText(comp_name + " dnb.com", 3, 'normal')
     filtered_dnb = []
     for p in sr:
         if 'dnb.com' in p['link'] and (len(p['link']) > 20):

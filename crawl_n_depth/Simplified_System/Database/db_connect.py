@@ -64,7 +64,7 @@ def export_profiles(id_list,query_id):
     dump_name = 'F:\Armitage_project\crawl_n_depth\Simplified_System\end_to_end\data_dump\\'+str(query_id)+'_company_dump.csv'
     with open(dump_name, mode='w',encoding='utf8', newline='') as results_file:  # store search results in to a csv file
         results_writer = csv.writer(results_file, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
-        results_writer.writerow(['id','search_text','title', 'link', 'description', 'Company Name', 'addresses', 'emails',
+        results_writer.writerow(['id','search_text','title', 'link', 'description', 'Company_Name', 'addresses', 'emails',
                                  'social_media_links','telephone_numbers','tokens',
                                  'contact_persons_dnb','contact_persons_opencorporates','contact_persons_li','company type'])
         for entry_id in id_list:

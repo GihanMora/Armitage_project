@@ -117,6 +117,12 @@ class NCrawlerSpider(CrawlSpider):
         extracted_header_text = headers1 + headers2 + headers3 + headers4 + headers5 + headers6  # combining all header text
         self.crawled_links.append(response.url)#populating crawled link list
         self.header_text.extend(extracted_header_text)#populating header text list
+        ##add url to paragraph
+
+
+
+
+
         self.paragraph_text.extend(extracted_paragraph_text)#populating paragraph text list
         soup = BeautifulSoup(response.body, "lxml")#get response body to extract further attributes
         all_text_in_page = ''

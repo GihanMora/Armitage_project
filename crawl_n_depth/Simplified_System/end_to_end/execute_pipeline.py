@@ -74,7 +74,7 @@ def execute_for_a_query(query):
     print("Started on",dateTimeObj)
     started = time.time()
     print("***Initial Crawling Phrase***")
-    entry_id_list = search_a_query(query,6, mycol,record_entry.inserted_id)
+    entry_id_list = search_a_query(query,3, mycol,record_entry.inserted_id)
     if(entry_id_list==None):
         print("Initial crawling incomple..pipeline exits.try again")
     else:
@@ -107,11 +107,11 @@ queries = ['Medical equipment repair','Digital advertisement and marketing analy
             'specialist educators for video games developers','Software to manage relief teachers',
             'Veterinary diagnostics','Medical equipment repair']
 from multiprocessing import Process
-if __name__ == '__main__':
-    for k in queries[2:3]:
-        p = Process(target=execute_for_a_query, args=(k, ))
-        p.start()
-        p.join() # this blocks until the process terminates
+# if __name__ == '__main__':
+#     for k in queries[8:9]:
+#         p = Process(target=execute_for_a_query, args=(k, ))
+#         p.start()
+#         p.join() # this blocks until the process terminates
 
 
 # execute_for_a_company('Caltex Australia Ltd')
@@ -124,5 +124,5 @@ if __name__ == '__main__':
 # execute_for_a_query('pecialist educators for video games developers')
 # execute_for_a_query('Specialist content and material development')
 # execute_for_a_query('Software to manage relief teachers')
-# execute_for_a_query('Veterinary diagnostics')
-# execute_for_a_query('Medical equipment repair')
+execute_for_a_query('Veterinary diagnostics')
+# execute_for_a_query('Medical equipment repair Australia')
