@@ -72,13 +72,13 @@ def search_a_query(search_query,number_of_results,db_collection,query_entry):
         received_domains = [i.split("/")[2] for i in received_links]
         ids_list=[]
         for k in range(len(received_domains)):
-            time.sleep(20)
+            time.sleep(10)
             print(received_links[k],received_domains[k])
             if(received_domains[k] in ['www.capterra.com','www.softwareadvice.com','www.gartner.com','en.wikipedia.org','www.predictiveanalyticstoday.com','comparesoft.com',
             'technologyadvice.com','www.edsys.in','www.softwareadvisoryservice.com','www.trustradius.com','books.google.lk','www.noodle.com','www.researchgate.net','www.futurebridge.com','www.neoteryx.com','www.businesswire.com'
                                        ,'www.marketsandmarkets.com','www.ibisworld.com','www.slideshare.net','builtin.com']):
                 continue
-            sr = getGoogleLinksForSearchText(received_domains[k], 3, 'initial')
+            sr = getGoogleLinksForSearchText(received_domains[k], 3, 'normal')
             if(len(sr)>0):
                 print(sr[0])
                 sr[0]['search_text'] = search_query

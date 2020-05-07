@@ -64,35 +64,60 @@ def export_profiles(id_list,query_id):
     dump_name = 'F:\Armitage_project\crawl_n_depth\Simplified_System\end_to_end\data_dump\\'+str(query_id)+'_company_dump.csv'
     with open(dump_name, mode='w',encoding='utf8', newline='') as results_file:  # store search results in to a csv file
         results_writer = csv.writer(results_file, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
-        results_writer.writerow(['id','search_text','title', 'link', 'description', 'Company_Name', 'addresses', 'emails',
-                                 'social_media_links','telephone_numbers','tokens',
-                                 'contact_persons_dnb','contact_persons_opencorporates','contact_persons_li','company type'])
+
+        attributes_a = ['_id','search_text','title', 'link','description','rich_description','comp_name','addresses', 'emails',
+                                 'social_media_links','telephone_numbers','kpe_results',
+                                 'dnb_cp_info','oc_cp_info','linkedin_cp_info','comp_type_pred','company_size_li',
+                                 'description_li','founded_li','headquarters_li','image_li','industry_li',
+                        'name_li','num_employees_li','specialties_li','type_li','website_li','business_number_oc',
+                        'company_number_oc','company_type_oc','incorporation_date_oc','jurisdiction_oc',
+                        'registered_address_adr_oc','registry_page_oc','status_oc',
+'agent_name','agent_address',
+                                 'dissolution_date_oc', 'annual_return_last_made_up_date_oc', 'directors_or_officers_oc',
+                                 'company_trade_name_dnb', 'company_address_dnb', 'company_summary_dnb',
+                                 'company_web_dnb', 'company_tp_dnb', 'company_type_dnb',
+                                 'company_related_industries_dnb', 'company_snapshot_dnb', 'company_revenue_dnb','company_contacts_dnb'
+                                 ]
+        results_writer.writerow(attributes_a)
         for entry_id in id_list:
             comp_data_entry = mycol.find({"_id": entry_id})
             data = [i for i in comp_data_entry]
-            results_writer.writerow([data[0]['_id'], data[0]['search_text'], data[0]['title'], data[0]['link'], data[0]['description'],data[0]['comp_name'],data[0]['addresses'][:3],data[0]['emails'][:3],data[0]['social_media_links'][:5],
-                                     data[0]['telephone_numbers'],data[0]['wordcloud_results_tri'][:10],data[0]['dnb_cp_info'],data[0]['oc_cp_info'],data[0]['linkedin_cp_info'],data[0]['comp_type_pred']])
+            data_list = []
+            for each_a in attributes_a:
+                try:
+                    if((each_a=='addresses') or (each_a=='emails') or (each_a=='social_media_links') or (each_a=='telephone_numbers')):
+                        data_list.append(data[0][each_a][:5])
+                    elif((each_a=='wordcloud_results_tri')):
+                        data_list.append(data[0][each_a][:10])
+                    else:
+                        data_list.append(data[0][each_a])
+                except KeyError:
+                        data_list.append('None')
 
-            dict_to_dump = {'id':data[0]['_id'],
-                            'search_text':data[0]['search_text'],
-                            'title':data[0]['title'],
-                            'link':data[0]['link'],
-                            'description':data[0]['description'],
-                            'Company Name':data[0]['comp_name'],
-                            'addresses':data[0]['addresses'][:3],
-                            'emails':data[0]['emails'][:3],
-                            'social_media_links':data[0]['social_media_links'][:5],
-                            'telephone_numbers':data[0]['telephone_numbers'][:5],
-                            'tokens':data[0]['wordcloud_results_tri'][:10],
-                            'contact_persons_dnb':data[0]['dnb_cp_info'],
-                            'contact_persons_opencorporates':data[0]['oc_cp_info'],
-                            'contact_persons_li':data[0]['linkedin_cp_info'],
-                            'company type':data[0]['comp_type_pred']}
+            results_writer.writerow(data_list)
+            dict_to_dump = {}
+            for i in range(len(attributes_a)):
+                dict_to_dump[attributes_a[i]]= data_list[i]
+            # dict_to_dump = {'id':data[0]['_id'],
+            #                 'search_text':data[0]['search_text'],
+            #                 'title':data[0]['title'],
+            #                 'link':data[0]['link'],
+            #                 'description':data[0]['description'],
+            #                 'Company Name':data[0]['comp_name'],
+            #                 'addresses':data[0]['addresses'][:3],
+            #                 'emails':data[0]['emails'][:3],
+            #                 'social_media_links':data[0]['social_media_links'][:5],
+            #                 'telephone_numbers':data[0]['telephone_numbers'][:5],
+            #                 'tokens':data[0]['wordcloud_results_tri'][:10],
+            #                 'contact_persons_dnb':data[0]['dnb_cp_info'],
+            #                 'contact_persons_opencorporates':data[0]['oc_cp_info'],
+            #                 'contact_persons_li':data[0]['linkedin_cp_info'],
+            #                 'company type':data[0]['comp_type_pred']}
             record_entry = csv_dump_col.insert_one(dict_to_dump)
             print("simplified dump completed", record_entry.inserted_id)
         results_file.close()
     print("CSV export completed!")
-# export_profiles([ObjectId('5ea6ca6aa27a31ef12ce1208')],ObjectId('5ea6ca6aa27a31ef12ce1208'))
+# export_profiles([ObjectId('5eb3fe2233b62d98401f8944')],ObjectId('5eb3fde433b62d98401f8943'))
 
 # clear_the_collection()
 

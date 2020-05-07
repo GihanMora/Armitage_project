@@ -76,7 +76,6 @@ def get_li_url(entry_id):
         if('linkedin.com/company' in each):linked_in_comp_urls.append(each)
     if(len(linked_in_comp_urls)):
         print("Linkedin profile collected from crawled data")
-        # print(linked_in_comp_urls)
         print("linkedin taken from crawling")
         return linked_in_comp_urls[0]
     else:
@@ -88,18 +87,12 @@ def get_li_url(entry_id):
             # print(p['link'])
             if 'linkedin.com/company' in p['link']:
                 filtered_li.append(p['link'])
-        # print(filtered_li)
         if (len(filtered_li)):
-            # print(filtered_li)
             return filtered_li[0]
-            # mycol.update_one({'_id': entry_id},
-            #                  {'$set': {'linkedin_cp_info': filtered_li}})
-            # print("Successfully extended the data entry with linkedin contact person data", entry_id)
         else:
             print("No linkedin contacts found!, Try again")
             return False
-            # mycol.update_one({'_id': entry_id},
-            #                  {'$set': {'linkedin_cp_info': []}})
+
 
 def get_li_data(id_list):
     mycol = refer_collection()
@@ -112,13 +105,15 @@ def get_li_data(id_list):
             # enablePrint()
             # print(comp_li_data)
             corrected_dict = {k+'_li': v for k, v in comp_li_data.items()}
+            # for k in corrected_dict:
+            #     print("'"+str(k)+"'")
             # print(corrected_dict)
             mycol.update_one({'_id': entry_id},
                              {'$set': corrected_dict})
-            print("Successfully extended the data entry with linkedin contact person data", entry_id)
+            print("Successfully extended the data entry with linkedin profile information", entry_id)
         # else:
         #     print()
             # mycol.update_one({'_id': entry_id},
             #                  {'$set': {'linkedin_cp_info': []}})
 
-get_li_data([ObjectId('5eb13c97263ac8cb52b400e8')])
+# get_li_data([ObjectId('5eb13c97263ac8cb52b400e8')])

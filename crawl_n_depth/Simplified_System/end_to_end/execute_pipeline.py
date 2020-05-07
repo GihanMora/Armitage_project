@@ -2,6 +2,8 @@ import sys
 import threading
 import time
 
+from bson import ObjectId
+
 sys.path.insert(0, 'F:\Armitage_project\crawl_n_depth\\')
 
 from datetime import datetime
@@ -11,7 +13,9 @@ from Simplified_System.Database.db_connect import refer_collection,export_profil
 from Simplified_System.Feature_Extraction.main import extract_features
 from Simplified_System.Extract_contact_persons.main import extract_contact_persons
 from Classification.predict_class import predict_class_tags
-
+from Simplified_System.web_profile_data_crawler.scrape_dnb import get_dnb_data
+from Simplified_System.web_profile_data_crawler.scrape_oc import get_oc_data
+from Simplified_System.linkedin_data_crawler.linkedin_crawling import get_li_data
 # # from crawl_n_depth.Simplified_System.Deep_Crawling.main import deep_crawl
 
 # from Feature_Extraction.main import extract_features
@@ -50,6 +54,12 @@ def execute_for_a_company(comp_name):
         extract_contact_persons([entry_id],'comp')
         print(("***Predict the company type***"))
         predict_class_tags([entry_id])
+        print(("***Extract linkedin profile data***"))
+        get_li_data([entry_id])
+        print(("***Extract opencorporates profile data***"))
+        get_oc_data([entry_id])
+        print(("***Extract dnb profile data***"))
+        get_dnb_data([entry_id])
         print(("***Dumping the results***"))
         export_profiles([entry_id],record_entry.inserted_id)
         ended = time.time()
@@ -89,6 +99,12 @@ def execute_for_a_query(query):
         extract_contact_persons(entry_id_list, 'query')
         print(("***Predicting the company type***"))
         predict_class_tags(entry_id_list)
+        print(("***Extract linkedin profile data***"))
+        get_li_data(entry_id_list)
+        print(("***Extract opencorporates profile data***"))
+        get_oc_data(entry_id_list)
+        print(("***Extract dnb profile data***"))
+        get_dnb_data(entry_id_list)
         print(("***Dumping the results***"))
         export_profiles(entry_id_list,record_entry.inserted_id)
         ended = time.time()
@@ -114,7 +130,7 @@ from multiprocessing import Process
 #         p.join() # this blocks until the process terminates
 
 
-# execute_for_a_company('Caltex Australia Ltd')
+execute_for_a_company('Caltex Australia Ltd')
 # execute_for_a_query('Digital advertisement and marketing analytics services company')
 # execute_for_a_query('In-home care software and services for NDIS / CDC')
 # execute_for_a_query('Risk and Compliance management software')
@@ -124,5 +140,5 @@ from multiprocessing import Process
 # execute_for_a_query('pecialist educators for video games developers')
 # execute_for_a_query('Specialist content and material development')
 # execute_for_a_query('Software to manage relief teachers')
-execute_for_a_query('Veterinary diagnostics')
+# execute_for_a_query('Veterinary diagnostics')
 # execute_for_a_query('Medical equipment repair Australia')
