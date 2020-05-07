@@ -54,6 +54,7 @@ def scrape_opencorporates(comp_url):
         print("browser timeout")
         return []
     pageSource = browser.page_source
+    browser.quit()
     # print(pageSource)
     results=[]
     soup = BeautifulSoup(pageSource, 'html.parser')#bs4
@@ -68,7 +69,7 @@ def scrape_opencorporates(comp_url):
                 results.append([each.get_text(), "active"])
                 # print(each.get_text(), "active")
 
-    browser.quit()
+
     return results
 def scrape_dnb(comp_url):
     t = time.time()
@@ -86,6 +87,7 @@ def scrape_dnb(comp_url):
     # time.sleep(10)
     # wait = WebDriverWait(browser, 10)
     pageSource = browser.page_source
+    browser.quit()
     print(len(pageSource))
     # print(pageSource)
     soup = BeautifulSoup(pageSource, 'html.parser')#bs4
@@ -95,7 +97,7 @@ def scrape_dnb(comp_url):
         job_title = element.find('div', attrs={'class': 'position sub'}).get_text()
         results.append([name,job_title])
         # print(name,job_title)
-    browser.quit()
+
     print(time.time()-t)
     print(results)
     return results

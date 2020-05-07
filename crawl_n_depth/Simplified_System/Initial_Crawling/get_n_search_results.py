@@ -68,7 +68,7 @@ def getGoogleLinksForSearchText(searchText,number_of_results,mode):#given a sear
     browser.get(searchGoogle)
     time.sleep(5)
     pageSource = browser.page_source
-
+    browser.quit()
     soup = BeautifulSoup(pageSource, 'html.parser')#bs4
     is_captcha_on_page = soup.find("div", id="recaptcha") is not None
 
@@ -114,6 +114,7 @@ def getGoogleLinksForSearchText(searchText,number_of_results,mode):#given a sear
                     browser.get(link)
                     time.sleep(5)
                     pageSource = browser.page_source
+                    browser.quit()
                     soup = BeautifulSoup(pageSource, 'html.parser')
                     metas = soup.find_all('meta')
                     # print(metas)

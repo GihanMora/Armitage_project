@@ -41,14 +41,14 @@ def scrape_company(url):
     comp_overview = company.overview
     enablePrint()
     print("******Linkedin crawling results******")
-    print(comp_overview)
-    for each_key in comp_overview:
-        data_c = comp_overview[each_key]
-        if(type(data_c)==str): data_c.replace('\n\n', '\n')
-        print(each_key + " : ", data_c)
+    # print(comp_overview)
+    # for each_key in comp_overview:
+    #     data_c = comp_overview[each_key]
+    #     if(type(data_c)==str): data_c.replace('\n\n', '\n')
+    #     print(each_key + " : ", data_c)
 
     # print(company.overview)
-    # return company.overview
+    return comp_overview
 
 
 #
@@ -65,37 +65,60 @@ def scrape_company(url):
 
 
 
-def get_li_data(id_list):
-    for entry_id in id_list:
-        mycol = refer_collection()
-        comp_data_entry = mycol.find({"_id": entry_id})
-        data = [i for i in comp_data_entry]
-        sm_links = data[0]['social_media_links']
-        linked_in_comp_urls = []
-        for each in sm_links:
-            if('linkedin.com/company' in each):linked_in_comp_urls.append(each)
-        if(len(linked_in_comp_urls)):
-            print(linked_in_comp_urls)
-            print("linkedin taken from crawling")
-        else:
-            comp_name = data[0]['comp_name']
-            print(data[0]['comp_name'])
-            sr = getGoogleLinksForSearchText('"' + comp_name + '"' + " linkedin", 5, 'normal')
-            filtered_li = []
-            for p in sr:
-                # print(p['link'])
-                if 'linkedin.com/company' in p['link']:
-                    filtered_li.append([p['title'], p['link']])
-            # print(filtered_li)
-            if (len(filtered_li)):
-                print(filtered_li)
-                mycol.update_one({'_id': entry_id},
-                                 {'$set': {'linkedin_cp_info': filtered_li}})
-                print("Successfully extended the data entry with linkedin contact person data", entry_id)
-            else:
-                print("No linkedin contacts found!, Try again")
-                mycol.update_one({'_id': entry_id},
-                                 {'$set': {'linkedin_cp_info': []}})
+def get_li_url(entry_id):
 
+    mycol = refer_collection()
+    comp_data_entry = mycol.find({"_id": entry_id})
+    data = [i for i in comp_data_entry]
+    sm_links = data[0]['social_media_links']
+    linked_in_comp_urls = []
+    for each in sm_links:
+        if('linkedin.com/company' in each):linked_in_comp_urls.append(each)
+    if(len(linked_in_comp_urls)):
+        print("Linkedin profile collected from crawled data")
+        # print(linked_in_comp_urls)
+        print("linkedin taken from crawling")
+        return linked_in_comp_urls[0]
+    else:
+        comp_name = data[0]['comp_name']
+        print(data[0]['comp_name'])
+        sr = getGoogleLinksForSearchText('"' + comp_name + '"' + " linkedin", 5, 'normal')
+        filtered_li = []
+        for p in sr:
+            # print(p['link'])
+            if 'linkedin.com/company' in p['link']:
+                filtered_li.append(p['link'])
+        # print(filtered_li)
+        if (len(filtered_li)):
+            # print(filtered_li)
+            return filtered_li[0]
+            # mycol.update_one({'_id': entry_id},
+            #                  {'$set': {'linkedin_cp_info': filtered_li}})
+            # print("Successfully extended the data entry with linkedin contact person data", entry_id)
+        else:
+            print("No linkedin contacts found!, Try again")
+            return False
+            # mycol.update_one({'_id': entry_id},
+            #                  {'$set': {'linkedin_cp_info': []}})
+
+def get_li_data(id_list):
+    mycol = refer_collection()
+    for entry_id in id_list:
+        li_url = get_li_url(entry_id)
+        if(li_url):
+            print(li_url)
+            # blockPrint()
+            comp_li_data = scrape_company(li_url)
+            # enablePrint()
+            # print(comp_li_data)
+            corrected_dict = {k+'_li': v for k, v in comp_li_data.items()}
+            # print(corrected_dict)
+            mycol.update_one({'_id': entry_id},
+                             {'$set': corrected_dict})
+            print("Successfully extended the data entry with linkedin contact person data", entry_id)
+        # else:
+        #     print()
+            # mycol.update_one({'_id': entry_id},
+            #                  {'$set': {'linkedin_cp_info': []}})
 
 get_li_data([ObjectId('5eb13c97263ac8cb52b400e8')])

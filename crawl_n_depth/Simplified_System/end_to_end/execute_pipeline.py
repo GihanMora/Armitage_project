@@ -74,7 +74,7 @@ def execute_for_a_query(query):
     print("Started on",dateTimeObj)
     started = time.time()
     print("***Initial Crawling Phrase***")
-    entry_id_list = search_a_query(query,3, mycol,record_entry.inserted_id)
+    entry_id_list = search_a_query(query,5, mycol,record_entry.inserted_id)
     if(entry_id_list==None):
         print("Initial crawling incomple..pipeline exits.try again")
     else:

@@ -12,13 +12,13 @@ from Simplified_System.Database.db_connect import refer_collection
 
 
 def search_a_company(comp_name, db_collection, query_entry):
-    sr = getGoogleLinksForSearchText(comp_name, 3, 'initial')
+    sr = getGoogleLinksForSearchText(comp_name, 3, 'normal')
     count = 0
     while (sr == 'captcha'):
         count = count + 1
         print('captch detected and sleeping for n times n:', count)
         time.sleep(1200 * count)
-        sr = getGoogleLinksForSearchText(comp_name, 3, 'initial')
+        sr = getGoogleLinksForSearchText(comp_name, 3, 'normal')
 
     b_list_file = open('F:\Armitage_project\crawl_n_depth\Simplified_System\Initial_Crawling\\black_list.txt','r')
     black_list = b_list_file.read().splitlines()
@@ -54,13 +54,13 @@ def search_a_company(comp_name, db_collection, query_entry):
 
 
 def search_a_query(search_query,number_of_results,db_collection,query_entry):
-    sr = getGoogleLinksForSearchText(search_query, number_of_results, 'initial')
+    sr = getGoogleLinksForSearchText(search_query, number_of_results, 'normal')
     count = 0
     while (sr == 'captcha'):
         count = count + 1
         print('captch detected and sleeping for n times n:', count)
         time.sleep(1200 * count)
-        sr = getGoogleLinksForSearchText(search_query, number_of_results, 'initial')
+        sr = getGoogleLinksForSearchText(search_query, number_of_results, 'normal')
 
     if (len(sr)):
         # print(sr)
