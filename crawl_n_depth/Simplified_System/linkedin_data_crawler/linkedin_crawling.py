@@ -38,7 +38,10 @@ def scrape_company(url):
     with CompanyScraper(driver_options=HEADLESS_OPTIONS, cookie='AQEDATCqAAsEnwLsAAABceUL55UAAAFyCRhrlVYAHF3D2I07SBdYzkXulfZyZSL6M5Y_Ap17KE5qIXPGP5MiebSzuJFFIiQNI6Gj3LREGMgwtZdTtQk09LHenXAOIC9zEkedjhbHxoZDGC2ejC0MfNwS') as scraper:
         company = scraper.scrape(company=user_name)
     blockPrint()
-    comp_overview = company.overview
+    try:
+        comp_overview = company.overview
+    except Exception:
+        comp_overview = {}
     enablePrint()
     print("******Linkedin crawling results******")
     # print(comp_overview)
@@ -108,9 +111,12 @@ def get_li_data(id_list):
             # for k in corrected_dict:
             #     print("'"+str(k)+"'")
             # print(corrected_dict)
-            mycol.update_one({'_id': entry_id},
-                             {'$set': corrected_dict})
-            print("Successfully extended the data entry with linkedin profile information", entry_id)
+            if (len(corrected_dict.keys())):
+                mycol.update_one({'_id': entry_id},
+                                 {'$set': corrected_dict})
+                print("Successfully extended the data entry with linkedin profile information", entry_id)
+            else:
+                print("No linkedin profile found! dict is empty")
         # else:
         #     print()
             # mycol.update_one({'_id': entry_id},

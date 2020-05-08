@@ -17,12 +17,14 @@ from bs4.element import Tag
 from fake_useragent import UserAgent
 from random import choice
 from Simplified_System.Initial_Crawling.get_n_search_results import getGoogleLinksForSearchText
+
+
 def get_browser():
     ua = UserAgent()
     # PROXY = proxy_generator()
     userAgent = ua.random #get a random user agent
     options = webdriver.ChromeOptions()  # use headless version of chrome to avoid getting blocked
-    options.add_argument('headless')
+    # options.add_argument('headless')
     options.add_argument(f'user-agent={userAgent}')
     # options.add_argument("start-maximized")# // open Browser in maximized mode
     # options.add_argument("disable-infobars")# // disabling infobars
@@ -32,23 +34,24 @@ def get_browser():
     # options.add_argument('--proxy-server=%s' % PROXY)
     browser = webdriver.Chrome(chrome_options=options,  # give the path to selenium executable
                                    # executable_path='F://Armitage_lead_generation_project//chromedriver.exe'
-                                   executable_path='F://Armitage_project//crawl_n_depth//utilities//chromedriver.exe'
+                                   executable_path='F://Armitage_project//crawl_n_depth//utilities//chromedriver.exe',
+                               service_args=["--verbose", "--log-path=D:\\qc1.log"]
                                    )
     return browser
 
-
 def scrape_opencorporates(comp_url):
-
     browser = get_browser()
-    # browser.set_page_load_timeout(30)
+    browser.set_page_load_timeout(30)
     try:
         browser.get(comp_url)
-        # time.sleep(5)
+        time.sleep(5)
+        pageSource = browser.page_source
     except TimeoutException:
         print("browser timeout")
-        return []
-    pageSource = browser.page_source
+        return {}
+
     browser.quit()
+    # browser.close()
     # print(pageSource)
     results=[]
     soup = BeautifulSoup(pageSource, 'html.parser')#bs4
@@ -88,12 +91,16 @@ def get_oc_data(id_list):
             data_dict_oc = scrape_opencorporates(oc_link)
             corrected_dict = {k + '_oc': v for k, v in data_dict_oc.items()}
             # print(corrected_dict.keys())
-            mycol.update_one({'_id': entry_id},
-                             {'$set': corrected_dict})
-            print("Successfully extended the data entry with opencorporates profile information", entry_id)
+            if(len(corrected_dict.keys())):
+                mycol.update_one({'_id': entry_id},
+                                 {'$set': corrected_dict})
+                print("Successfully extended the data entry with opencorporates profile information", entry_id)
+            else:
+                print("No opencorporates profile found! dict is empty")
         except IndexError:
             print("No opencorporates profile found!")
         except KeyError:
             print("No opencorporates profile found!")
+
 
 # get_oc_data([ObjectId('5eb1573403cb37de03af8369')])

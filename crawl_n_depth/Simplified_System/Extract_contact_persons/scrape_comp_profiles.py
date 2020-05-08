@@ -39,22 +39,25 @@ def get_browser():
     # options.add_argument('--proxy-server=%s' % PROXY)
     browser = webdriver.Chrome(chrome_options=options,  # give the path to selenium executable
                                    # executable_path='F://Armitage_lead_generation_project//chromedriver.exe'
-                                   executable_path='F://Armitage_project//crawl_n_depth//utilities//chromedriver.exe'
+                                   executable_path='F://Armitage_project//crawl_n_depth//utilities//chromedriver.exe',
+                                    service_args=["--verbose", "--log-path=D:\\qc1.log"]
                                    )
     return browser
 
 def scrape_opencorporates(comp_url):
 
     browser = get_browser()
-    # browser.set_page_load_timeout(30)
+    browser.set_page_load_timeout(30)
     try:
         browser.get(comp_url)
-        # time.sleep(5)
+        time.sleep(5)
+        pageSource = browser.page_source
     except TimeoutException:
         print("browser timeout")
         return []
-    pageSource = browser.page_source
+
     browser.quit()
+    # browser.close()
     # print(pageSource)
     results=[]
     soup = BeautifulSoup(pageSource, 'html.parser')#bs4
@@ -72,22 +75,24 @@ def scrape_opencorporates(comp_url):
 
     return results
 def scrape_dnb(comp_url):
-    t = time.time()
-    results=[]
-    browser = get_browser()
-    print('check1')
-    # browser.set_page_load_timeout(30)
+
+    browser1 = get_browser()
+    # print('check1')
+    browser1.set_page_load_timeout(30)
     try:
-        browser.get(comp_url)
-        # time.sleep(5)
+        browser1.get(comp_url)
+        time.sleep(5)
+        pageSource = browser1.page_source
     except TimeoutException:
         print("browser timeout")
         return []
-    print('check2')
+    # print('check2')
     # time.sleep(10)
     # wait = WebDriverWait(browser, 10)
-    pageSource = browser.page_source
-    browser.quit()
+
+    browser1.quit()
+    results = []
+    # browser.close()
     print(len(pageSource))
     # print(pageSource)
     soup = BeautifulSoup(pageSource, 'html.parser')#bs4
@@ -98,7 +103,7 @@ def scrape_dnb(comp_url):
         results.append([name,job_title])
         # print(name,job_title)
 
-    print(time.time()-t)
+
     print(results)
     return results
 

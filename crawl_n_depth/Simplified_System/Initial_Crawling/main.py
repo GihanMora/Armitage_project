@@ -10,6 +10,40 @@ import pymongo
 from Simplified_System.Database.db_connect import refer_collection
 # from ..Database.db_connect import refer_collection
 
+def search_a_company_alpha(comp_name, db_collection, query_entry,c_name):
+    sr = getGoogleLinksForSearchText(comp_name, 3, 'normal')
+    count = 0
+    while (sr == 'captcha'):
+        count = count + 1
+        print('captch detected and sleeping for n times n:', count)
+        time.sleep(1200 * count)
+        sr = getGoogleLinksForSearchText(comp_name, 3, 'normal')
+
+    b_list_file = open('F:\Armitage_project\crawl_n_depth\Simplified_System\Initial_Crawling\\black_list.txt','r')
+    black_list = b_list_file.read().splitlines()
+    # 'www.dnb.com'
+    received_links = [i['link'] for i in sr]
+
+    received_domains = [i.split("/")[2] for i in received_links]
+    filtered_sr = []
+
+    print('rd', received_domains)
+    for i, each in enumerate(received_domains):
+        if each not in black_list:
+            filtered_sr.append(sr[i])
+
+    if(len(filtered_sr)):
+        filtered_sr[0]['comp_name'] = c_name
+        filtered_sr[0]['query_id'] = query_entry
+        record_entry=db_collection.insert_one(filtered_sr[0])
+        print(filtered_sr[0])
+        print("search record stored in db: ",record_entry.inserted_id)
+        return record_entry.inserted_id
+    else:
+        print("No results found!")
+        return None
+
+
 
 def search_a_company(comp_name, db_collection, query_entry):
     sr = getGoogleLinksForSearchText(comp_name, 3, 'normal')
