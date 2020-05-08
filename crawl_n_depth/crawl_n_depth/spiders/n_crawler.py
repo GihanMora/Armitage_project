@@ -1,3 +1,4 @@
+# fix sys path if you want to use this script individually
 import csv
 import json
 import re

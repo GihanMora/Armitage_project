@@ -1,4 +1,5 @@
-
+#add sys path if you want to run this script individually
+#check mallet path, mallet home if using lda mallet model
 import sys
 
 import pymongo

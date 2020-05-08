@@ -1,3 +1,5 @@
+#update sys path if you want to run this seperately
+#check chrome driver exeecutable path
 import time
 import sys
 

@@ -1,4 +1,7 @@
 # pip install git+git://github.com/austinoboyle/scrape-linkedin-selenium.git
+#chrome driver should contain in the folder
+#fix sys path if you want to run this script individually
+#replace linkedin live cookie value
 import sys, os
 
 

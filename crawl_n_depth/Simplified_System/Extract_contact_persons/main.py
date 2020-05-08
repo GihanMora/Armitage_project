@@ -1,3 +1,5 @@
+#update sys path if you need to run this seperately
+
 import time
 import sys
 from bson import ObjectId
@@ -24,4 +26,4 @@ def extract_contact_persons(id_list,mode):
         # get_li_emp(id_n,mode)
         time.sleep(10)
 
-extract_contact_persons([ObjectId('5eb515eee7e6f6c4669eff4b')],'query')
+# extract_contact_persons([ObjectId('5eb515eee7e6f6c4669eff4b')],'query')

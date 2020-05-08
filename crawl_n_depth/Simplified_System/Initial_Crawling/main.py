@@ -1,4 +1,7 @@
+#make sure black_list.txt path is correct
+#fix sys path if you want to run this seperately
 import sys
+
 sys.path.insert(0, 'F:/Armitage_project/crawl_n_depth/')
 from Simplified_System.Initial_Crawling.get_n_search_results import getGoogleLinksForSearchText
 

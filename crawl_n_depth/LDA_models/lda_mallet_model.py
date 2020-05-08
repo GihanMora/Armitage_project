@@ -1,3 +1,5 @@
+#check sys path and mallet home path
+#check mallet path
 import json
 # Gensim
 import gensim

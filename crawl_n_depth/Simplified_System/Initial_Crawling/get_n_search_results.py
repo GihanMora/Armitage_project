@@ -1,5 +1,9 @@
+#make sure chrome driver's executable path is correct
+#make sure gecko driver's executable path is correct(optional)
+#fix sys path if you want to run this seperately
 import time
 import sys
+
 sys.path.insert(0, 'F:\Armitage_project\crawl_n_depth\\')
 import requests
 from selenium.webdriver.firefox.options import Options

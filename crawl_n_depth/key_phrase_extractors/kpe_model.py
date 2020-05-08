@@ -1,3 +1,4 @@
+#this script will generate a temp_text.txt for processing text
 import json
 
 import pymongo

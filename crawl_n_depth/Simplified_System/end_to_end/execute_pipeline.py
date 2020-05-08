@@ -3,7 +3,7 @@ import threading
 import time
 
 from bson import ObjectId
-
+#fix this path variable when using in another machine
 sys.path.insert(0, 'F:\Armitage_project\crawl_n_depth\\')
 from fake_useragent import UserAgent
 from selenium import webdriver
@@ -194,7 +194,7 @@ queries = [['360 Engineering', 'http://360engineering.com.au/'], ['Ace Avetmiss'
 
 from multiprocessing import Process
 if __name__ == '__main__':
-    for i,k in enumerate(queries[32:33]):
+    for i,k in enumerate(queries[72:80]):
         print("iteration",i)
         p = Process(target=execute_for_a_company_alpha, args=(k[1],k[0] ))
         p.start()

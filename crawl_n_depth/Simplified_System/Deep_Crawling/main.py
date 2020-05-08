@@ -1,4 +1,4 @@
-
+#fix sys path if you want to run it seperately
 import sys
 from bson import ObjectId
 sys.path.insert(0, 'F:/Armitage_project/crawl_n_depth/')
