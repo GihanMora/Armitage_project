@@ -1,4 +1,7 @@
 #this script will generate a temp_text.txt for processing text
+# pip install git+https://github.com/boudinfl/pke.git
+# python3 -m spacy download en_core_web_sm(sudo might needed)
+# python3 -m spacy download en(sudo might needed)
 import json
 
 import pymongo

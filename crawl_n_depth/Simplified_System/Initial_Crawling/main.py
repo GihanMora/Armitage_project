@@ -111,9 +111,11 @@ def search_a_query(search_query,number_of_results,db_collection,query_entry):
         for k in range(len(received_domains)):
             time.sleep(10)
             print(received_links[k],received_domains[k])
+            b_list_file = open('F:\Armitage_project\crawl_n_depth\Simplified_System\Initial_Crawling\\black_list.txt','r')
+            black_list = b_list_file.read().splitlines()
             if(received_domains[k] in ['www.capterra.com','www.softwareadvice.com','www.gartner.com','en.wikipedia.org','www.predictiveanalyticstoday.com','comparesoft.com',
             'technologyadvice.com','www.edsys.in','www.softwareadvisoryservice.com','www.trustradius.com','books.google.lk','www.noodle.com','www.researchgate.net','www.futurebridge.com','www.neoteryx.com','www.businesswire.com'
-                                       ,'www.marketsandmarkets.com','www.ibisworld.com','www.slideshare.net','builtin.com']):
+                                       ,'www.marketsandmarkets.com','www.ibisworld.com','www.slideshare.net','builtin.com']+black_list):
                 continue
             sr = getGoogleLinksForSearchText(received_domains[k], 3, 'normal')
             if(len(sr)>0):

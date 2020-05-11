@@ -1,3 +1,6 @@
+#check mongo client string
+#dump csv path
+
 import pymongo
 from bson import ObjectId
 import csv

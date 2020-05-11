@@ -2,6 +2,7 @@
 #chrome driver should contain in the folder
 #fix sys path if you want to run this script individually
 #replace linkedin live cookie value
+# sudo apt install chromium-chromedriver incase of need
 import sys, os
 
 
@@ -35,26 +36,30 @@ def scrape_person(url):
 # scrape_person('https://www.linkedin.com/in/gihangamage2015/')
 
 def scrape_company(url):
-    user_name = url.split('company/')[1]
-    user_name = user_name.split('/')[0]
-    # scrape a company
-    with CompanyScraper(driver_options=HEADLESS_OPTIONS, cookie='AQEDATCqAAsEnwLsAAABceUL55UAAAFyCRhrlVYAHF3D2I07SBdYzkXulfZyZSL6M5Y_Ap17KE5qIXPGP5MiebSzuJFFIiQNI6Gj3LREGMgwtZdTtQk09LHenXAOIC9zEkedjhbHxoZDGC2ejC0MfNwS') as scraper:
-        company = scraper.scrape(company=user_name)
-    blockPrint()
     try:
-        comp_overview = company.overview
-    except Exception:
-        comp_overview = {}
-    enablePrint()
-    print("******Linkedin crawling results******")
-    # print(comp_overview)
-    # for each_key in comp_overview:
-    #     data_c = comp_overview[each_key]
-    #     if(type(data_c)==str): data_c.replace('\n\n', '\n')
-    #     print(each_key + " : ", data_c)
+        user_name = url.split('company/')[1]
+        user_name = user_name.split('/')[0]
+        # scrape a company
+        with CompanyScraper( cookie='AQEDATCqAAsEnwLsAAABceUL55UAAAFyCRhrlVYAHF3D2I07SBdYzkXulfZyZSL6M5Y_Ap17KE5qIXPGP5MiebSzuJFFIiQNI6Gj3LREGMgwtZdTtQk09LHenXAOIC9zEkedjhbHxoZDGC2ejC0MfNwS') as scraper:
+            company = scraper.scrape(company=user_name)
+        blockPrint()
+        try:
+            comp_overview = company.overview
+        except Exception:
+            comp_overview = {}
+        enablePrint()
+        print("******Linkedin crawling results******")
+        # print(comp_overview)
+        # for each_key in comp_overview:
+        #     data_c = comp_overview[each_key]
+        #     if(type(data_c)==str): data_c.replace('\n\n', '\n')
+        #     print(each_key + " : ", data_c)
 
-    # print(company.overview)
-    return comp_overview
+        # print(company.overview)
+        return comp_overview
+    except Exception:
+        return {}
+
 
 
 #
@@ -76,7 +81,10 @@ def get_li_url(entry_id):
     mycol = refer_collection()
     comp_data_entry = mycol.find({"_id": entry_id})
     data = [i for i in comp_data_entry]
-    sm_links = data[0]['social_media_links']
+    try:
+        sm_links = data[0]['social_media_links']
+    except Exception:
+        sm_links = []
     linked_in_comp_urls = []
     for each in sm_links:
         if('linkedin.com/company' in each):linked_in_comp_urls.append(each)

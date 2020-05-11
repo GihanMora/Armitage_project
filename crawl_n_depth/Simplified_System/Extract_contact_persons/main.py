@@ -17,13 +17,13 @@ def extract_contact_persons(id_list,mode):
     for id_n in id_list:
         #grabbing contact persons from dnb
 
-        # get_cp_oc(id_n, mode)
+        get_cp_oc(id_n, mode)
         #grabbing contact persons from opencorporates
         # time.sleep(10)
         get_cp_dnb(id_n,mode)
         #grabbing_contact_persons_from_linkedin
         # time.sleep(10)
-        # get_li_emp(id_n,mode)
+        get_li_emp(id_n,mode)
         time.sleep(10)
 
 # extract_contact_persons([ObjectId('5eb515eee7e6f6c4669eff4b')],'query')

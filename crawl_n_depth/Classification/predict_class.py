@@ -1,5 +1,5 @@
 import gensim
-
+#check model path
 # Load pre-trained Word2Vec model.
 from bson import ObjectId
 
