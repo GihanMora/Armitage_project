@@ -1,0 +1,279 @@
+**************************************************************************************************
+Organization or Company: fitzroyacademy
+Search Text: Will and Luke started the academy as startup-style accelerator for non-tech peeps, with a social impact focus. We ran our main accelerator in 2014 with 25 students and 40 teachers + mentors in Donkey Wheel house. Since, we’ve worked with researchers, universities, funds and accelerators to figure out different ways to do education. In early 2016 we decided to go online-first, so we can reach the whole world by default, when we partnered up with the Telstra Foundation. Our teaching approach was originally inspired by Will’s grandfather, refined through countless classes, workshops, intensives, seminars, mentoring programs and wine-drenched heart-to-hearts
+Final list where the names are extracted from: ['Will and Luke started the academy as startup-style accelerator for non-tech peeps, with a social impact focus']
+No. of Founders or Important Persons (using Spacy & Allen NLP): 2
+Founders or Important Persons associated with the organization: ['Will', 'Luke']
+**************************************************************************************************
+
+**************************************************************************************************
+Organization or Company: seqta
+Search Text: “ Leading SEQTA  answered quite a few questions I had in my mind at the start of those two days,” he begins. +61 8 9301 2277   +61 8 9301 2277   1300 473 782  or    email Join SEQTA founder and CEO, Grant Grosser, as he shares the story of Alex – a young student struggling to meet the uniform standards of the school. SEQTA cofounders Grant and Sharon Grosser have been selected as National Finalists in Ernst and Young’s prestigious 2016. SEQTA founder and Chief Executive Officer Grant Grosser said that amid the partnership’s obvious business benefits, schools were the biggest winners. +61 8 9301 2277   +61 8 9301 2277   1300 473 782  or    email   +61 8 9301 2277   +61 8 9301 2277   1300 473 782  or    email Founded by teachers Grant and Sharon Grosser in 2006, SEQTA has grown from a humble kitchen table start-up into a multi-award winning software company with clients throughout Australia and South East Asia. …unicorns! Education Horizons Group is an Australian EdTech holdings company founded in 2016 through a formalised partnership between SEQTA and longstanding partner company, Synergetic Management Systems
+Final list where the names are extracted from: [' +61 8 9301 2277   +61 8 9301 2277   1300 473 782  or    email   +61 8 9301 2277   +61 8 9301 2277   1300 473 782  or    email Founded by teachers Grant and Sharon Grosser in 2006, SEQTA has grown from a humble kitchen table start-up into a multi-award winning software company with clients throughout Australia and South East Asia', ' …unicorns! Education Horizons Group is an Australian EdTech holdings company founded in 2016 through a formalised partnership between SEQTA and longstanding partner company, Synergetic Management Systems', ' +61 8 9301 2277   +61 8 9301 2277   1300 473 782  or    email Join SEQTA founder and CEO, Grant Grosser, as he shares the story of Alex – a young student struggling to meet the uniform standards of the school', ' SEQTA cofounders Grant and Sharon Grosser have been selected as National Finalists in Ernst and Young’s prestigious 2016', ' SEQTA founder and Chief Executive Officer Grant Grosser said that amid the partnership’s obvious business benefits, schools were the biggest winners', '“ Leading SEQTA  answered quite a few questions I had in my mind at the start of those two days,” he begins']
+No. of Founders or Important Persons (using Spacy & Allen NLP): 4
+Founders or Important Persons associated with the organization: ['Grant', 'Sharon Grosser', 'Grant Grosser', 'SEQTA']
+**************************************************************************************************
+
+**************************************************************************************************
+Organization or Company: sentral
+Search Link: www.sentral.com.au
+Final list where the names are extracted from: [' \xa0Sentral began in 1998, with our founders stepping directly from the education sector', 'au Sentral Education founders Geoff Byers and Peta Byers nominated as Technology Entreprenuers by The Pearcy Foundation']
+No. of Founders or Important Persons (using Spacy & Allen NLP): 2
+Founders or Important Persons associated with the organization: ['Geoff Byers', 'Peta Byers']
+**************************************************************************************************
+
+**************************************************************************************************
+Organization or Company: sentral
+Search Text: SENTRAL PTY LTD
+Final list where the names are extracted from: [' \xa0Sentral began in 1998, with our founders stepping directly from the education sector', 'au Sentral Education founders Geoff Byers and Peta Byers nominated as Technology Entreprenuers by The Pearcy Foundation']
+No. of Founders or Important Persons (using Spacy & Allen NLP): 2
+Founders or Important Persons associated with the organization: ['Geoff Byers', 'Peta Byers']
+**************************************************************************************************
+
+**************************************************************************************************
+Organization or Company: quantium
+Search Link: https://quantium.com/
+Final list where the names are extracted from: []
+No. of Founders or Important Persons (using Spacy & Allen NLP): 0
+Founders or Important Persons associated with the organization: []
+**************************************************************************************************
+
+**************************************************************************************************
+Organization or Company: quantium
+Search Link: https://quantium.com/our-team/greg-schneider/
+Final list where the names are extracted from: [' Chief Executive Officer Adam co-founded Quantium in 2002', ' Executive Director Greg co-founded Quantium in 2002', ' Greg co-founded Quantium in 2002 and led the teams responsible for many of Quantium’s innovative solutions in software, marketing, media and pricing']
+No. of Founders or Important Persons (using Spacy & Allen NLP): 2
+Founders or Important Persons associated with the organization: ['Adam co', 'Greg co']
+**************************************************************************************************
+
+**************************************************************************************************
+Organization or Company: codelikeagirl
+Search Link: https://www.codelikeagirl.com/about/our-story/
+Final list where the names are extracted from: [' Founded in 2015, Code Like A Girl began as a way for Ally to meet other women who code', '”   Vanessa Doake, Code Like a Girl co-founder']
+No. of Founders or Important Persons (using Spacy & Allen NLP): 2
+Founders or Important Persons associated with the organization: ['Ally', 'Vanessa Doake']
+**************************************************************************************************
+
+**************************************************************************************************
+Organization or Company: codelikeagirl
+Search Link: https://www.codelikeagirl.com/
+Final list where the names are extracted from: ['”   Vanessa Doake, Code Like a Girl co-founder', ' Founded in 2015, Code Like A Girl began as a way for Ally to meet other women who code']
+No. of Founders or Important Persons (using Spacy & Allen NLP): 2
+Founders or Important Persons associated with the organization: ['Vanessa Doake', 'Ally']
+**************************************************************************************************
+
+**************************************************************************************************
+Organization or Company: devika
+Search Link: https://devika.com/
+Final list where the names are extracted from: [' I am the founder of Devika where we specialize in using emerging technology to build meaningful experiences and solve problems across different industries', ' Devika’s CEO and Founder Ken Kencevski spoke at the event and shared how virtual reality could be a game-changer for the way people learn and develop sensory skills', ' In this blog, we have captured the meaning of Kolb to give you a glimpse into the mind of Devika’s CEO and founder Ken Kencevski and hopefully, an appreciation for the story behind  Kolb by Devika ', ' Evenness was Founded by the CEO and Founder of Devika, Ken Kencevski, who has developed associated products, such as Kolb with the intention of utilizing technology to create meaningful change in the community and collaborating with individuals who aspire to do the same', '” Event attendants included our very own CEO and Founder of Devika, Ken Kencevski and software developer, Byron Papanikolaou who respectively presented and showcased the technology', ' Founded in Wollongong The team at devika will consider each human interaction — including every visual, audible and haptic experience — to create products that are not only beautiful, but also intuitive and useful', " Founded in Wollongong Devika and it's affiliated companies (Service Provider) has agreed to supply certain Services and/or Software and/or Hardware to the client (Client) subject to the terms of this Service Level Agreement (Agreement)", ' Founded in Wollongong Devika is proud to be assisting in an end-to-end innovation programme for AR and VR ran by Village Roadshow and Collective Campus along with Microsoft', ' Founded in Wollongong Devika, Opsco Pty Ltd ABN 91603610975 ACN 603610975 Devika, Inc', ' Founded in Wollongong Founded in Wollongong Devika attended the  Your Voice Your Choice (YVYC) 2019 Conference  which is an event designed to empower people with a disability, parents, carers and bring together service providers who are working in the industry', ' Founded in Wollongong Founded in Wollongong In our previous blog ‘The Story Behind the Name Devika" we revealed the thought process behind the design of Devika', ' These are a few special moments captured by the ABZ team of the Chisuma Library launch This project is part of Devika Cares, an initiative that was founded by Ken to give back to the community and use what we have to support important social issues such as education', ' Founded in Wollongong At Devika we’re currently working on a virtual reality application that will teach meditation and mindfulness', " Founded in Wollongong We are always excited to get new tech in the Devika office and this week we have been lucky to receive the new Dell Visor; the creation of the company's partnership with Microsoft", ' As part of this commitment, we started Devika Learning, a program dedicated to moving students from content consumers to content creators', '” David Kolb In the Devika’s timeline, the build for Kolb began a few months after the Devika branding had been established']
+No. of Founders or Important Persons (using Spacy & Allen NLP): 8
+Founders or Important Persons associated with the organization: ['Ken Kencevski', 'Kolb', 'Devika ’s', 'Devika Evenness', 'Devika', 'Byron Papanikolaou', 'Ken', 'David Kolb']
+**************************************************************************************************
+
+**************************************************************************************************
+Organization or Company: dienst consulting
+Search Text: Dienst Consulting
+Final list where the names are extracted from: []
+No. of Founders or Important Persons (using Spacy & Allen NLP): 0
+Founders or Important Persons associated with the organization: []
+**************************************************************************************************
+
+**************************************************************************************************
+Organization or Company: schoolzine
+Search Link: https://www.schoolzine.com/
+Final list where the names are extracted from: [' There is no fee for your request unless it is deemed as ‘manifestly unfounded or excessive’ (for example, if you make repetitive requests) by Schoolzine, at which point a fee may be charged to cover Schoolzine’s administrative costs in responding', ' AU  +61 754142300 NZ  +64 98891353  Asia  +66 2106 4140  Schoolzine Pty Ltd 48 School Road Maroochydore, QLD Australia 4558 Schoolzine was established back in January 2007 after a chance meeting between a parent (Phil Reardon) and a primary school principal, while watching their children playing football']
+No. of Founders or Important Persons (using Spacy & Allen NLP): 1
+Founders or Important Persons associated with the organization: ['Phil Reardon']
+**************************************************************************************************
+
+**************************************************************************************************
+Organization or Company: switch
+Search Link: https://www.switch.com/
+Final list where the names are extracted from: [" Prior to joining Switch, Karlee was the Vice President of Development for one of the top five largest law firms in Las Vegas, and headed up the sales team for that firm's start-up software company", ' Due to COVID-19 concerns physical tours will not be held at this time Receive updates from Switch \n Please leave this field empty', ' The MOD ®  design incorporates Switch founder and CEO Rob Roy’s patented data center designs into physically secure, optimally-integrated, future-proof, mission-critical facilities', ' Guided by the vision of Founder and CEO Rob Roy, Switch continues to work on ensuring the sustainable growth of the Internet', ' Prior to joining Switch, Overgaard was Founder and President of leading downtown Las Vegas design firm one11', ' Switch’s founder and CEO, Rob Roy, cultivates a unique client-oriented culture at every level of the company', ' Rob Roy is CEO and Founder of Switch, developer of the world-renowned Switch data centers', ' Alongside CEO and Founder of Switch, Rob Roy, Terri continually works to develop and implement data center design improvements and advances in equipment, systems and processes to create the most advanced data center ecosystem in the world', ' Switch founder and CEO Rob Roy has developed the world’s largest technology ecosystem with a vision of fully integrating the infrastructure and analytics needed to run a truly smart city', ' Brian works closely with CEO and Founder Rob Roy on research and development projects to ensure Switch Technology remains the most advanced data center ecosystem in the world', ' “The reason Switch was able to achieve this historic recognition is because of the guiding vision of Founder and CEO Rob Roy to move Switch to 100% renewable energy and complete sustainability,” said Adam Kramer, Switch Executive Vice President for Strategy', ' Switch CEO and Founder, Rob Roy, saw the opportunity to create geographically-redundant data center facilities in Nevada’s economically-beneficial business environment', ' Under the vision of Founder and CEO, Rob Roy, Switch continues to invent and innovate in pursuit of the perfect data center and technology ecosystem', ' Prior to joining Switch, Adam was the Director of Entrepreneurship for the Las Vegas Metro Chamber of Commerce and before that an award-winning journalist in California and Florida', ' Since founding Switch, inventrepreneur Rob Roy has transformed the way data center ecosystems are engineered and utilized', " As the chief inventor and designer of Switch data center facilities and their technology solutions platforms, Rob Roy is widely considered the data center industry's most successful technology entrepreneur"]
+No. of Founders or Important Persons (using Spacy & Allen NLP): 7
+Founders or Important Persons associated with the organization: ['Karlee', 'Rob Roy', 'Overgaard', 'Terri', 'Brian', 'Adam Kramer', 'Adam']
+**************************************************************************************************
+
+**************************************************************************************************
+Organization or Company: jac and jack
+Search Text: Jac and Jack pty ltd
+Final list where the names are extracted from: [' EXCLUSIVE OFFERS, NEWS + MORE © 2020 Jac+Jack Pty Ltd |  Privacy Policy  |  Terms + Conditions PROJECTS LOCATIONS EXCLUSIVE OFFERS, NEWS + MORE © 2020 Jac+Jack Pty Ltd |  Privacy Policy  |  Terms + Conditions PROJECTS LOCATIONS SHOP STORY SHOP STORY Shop Story Shop Story Shop Story SHOP STORY EXCLUSIVE OFFERS, NEWS + MORE © 2020 Jac+Jack Pty Ltd |  Privacy Policy  |  Terms + Conditions PROJECTS LOCATIONS In 2004, Jacqueline “Jac” Hunt and Lisa “Jack” Dempsey founded Jac + Jack in Australia, born out of a fascination with clothing that balances style and ease']
+No. of Founders or Important Persons (using Spacy & Allen NLP): 5
+Founders or Important Persons associated with the organization: ['Jacqueline', 'Jac', 'Hunt', 'Lisa', 'Jack ” Dempsey']
+**************************************************************************************************
+
+
+AFTER FILTERING AND USING OPENIE
+
+
+**************************************************************************************************
+Organization or Company: sentral
+Search Text: SENTRAL PTY LTD
+Final list where the names are extracted from: [' \xa0Sentral began in 1998 with our founders stepping directly from the education sector', 'au Sentral Education founders Geoff Byers and Peta Byers nominated as Technology Entreprenuers by The Pearcy Foundation']
+No. of Founders or Important Persons (using Spacy & Allen NLP): 2
+Founders or Important Persons associated with the organization: ['Geoff Byers', 'Peta Byers']
+Founders or Important Persons associated with the organization after filtering:['Geoff Byers', 'Peta Byers']
+**************************************************************************************************
+
+**************************************************************************************************
+Organization or Company: sentral
+Search Link: www.sentral.com.au
+Final list where the names are extracted from: [' \xa0Sentral began in 1998 with our founders stepping directly from the education sector', 'au Sentral Education founders Geoff Byers and Peta Byers nominated as Technology Entreprenuers by The Pearcy Foundation']
+No. of Founders or Important Persons (using Spacy & Allen NLP): 2
+Founders or Important Persons associated with the organization: ['Peta Byers', 'Geoff Byers']
+Founders or Important Persons associated with the organization after filtering:['Peta Byers', 'Geoff Byers']
+**************************************************************************************************
+
+**************************************************************************************************
+Organization or Company: quantium
+Search Link: https://quantium.com/our-team/greg-schneider/
+Final list where the names are extracted from: [' Chief Executive Officer Adam cofounded Quantium in 2002', ' Executive Director Greg cofounded Quantium in 2002']
+No. of Founders or Important Persons (using Spacy & Allen NLP): 2
+Founders or Important Persons associated with the organization: ['Adam co', 'Greg co']
+Founders or Important Persons associated with the organization after filtering:['Adam co', 'Greg co']
+**************************************************************************************************
+
+**************************************************************************************************
+Organization or Company: devika
+Search Link: https://devika.com/
+Final list where the names are extracted from: [' Founded in Wollongong Devika is excited to be collaborating with IRT to assist in The Innovation Challenge to help senior citizens experience the optimum quality of life through the use of technology', ' Founded in Wollongong Devika and its affiliated companies Service Provider has agreed to supply certain Services andor Software andor Hardware to the client Client subject to the terms of this Service Level Agreement Agreement', ' Founded in Wollongong Devika Opsco Pty Ltd ABN 91603610975 ACN 603610975 Devika Inc', ' Founded in Wollongong In collaboration with the  Sarah’s Day  team Devika developed the  Sarah’s Day Fitness Timer App ', ' Founded in Wollongong Devika is proud to be assisting in an endtoend innovation programme for AR and VR ran by Village Roadshow and Collective Campus along with Microsoft', ' Founded in Wollongong Here at  Devika  we are passionate about pursuing initiatives which incorporate emerging technology and contribute to the betterment of individuals lives our community and wider society', ' Founded in Wollongong Devika is proud to be working with  Chelsea Pottenger  from  EQ Minds  and the  Nylon Studio  to help bring virtual reality VR and mindfulness together', ' Founded in Wollongong Devika is excited to be working with Westpac on a product that will help them conceptualize what the future of banking will feel like with holograms and through the power of Augmented Reality AR', ' Founded in Wollongong Devika has officially been announced as an Independent Service Vendor ISV for HP Australia', ' Founded in Wollongong Devika Learning is very pleased to announce that we have partnered with Microsoft for Education to store deliver and collaborate our content globally', ' Founded in Wollongong A big congratulations goes out to the team at Devika who won the “Best Showcase nongaming” for the  Kolb  Antarctica Experience at the  Unity Unite Sydney 2019  annual event Unite Sydney 2019 is a twoday event of training presentations and workshops which has been designed to help tech novices and fanatics “unlock the full creative potential of the Unity platform”', ' Founded in Wollongong We’re excited to announce that Devika’s Australian operation has been listed in the  Deloitte Technology Fast 500 Asia Pacific Accreditation Cooperation APAC Award 2019 ', ' Founded in Wollongong Here at  Devika   we excited to announce that we have been chosen as one of the winners of the  2018 Westpac Top 200  Business of Tomorrow Award ', ' With the support of forwardthinking institutions such as Westpac Devika will continue to push its boundaires Founded in Wollongong Building 6 Room 306 SMART Infrastructure Facility University of Wollongong View map International Towers Tower 3 F 25 Exchange Pl Barangaroo NSW 2000  View map 1101 W Rialto Ave Rialto CA 92376 United States  View map Founded in Wollongong Taking the lead in supporting virtual reality VR developers to imagine develop and create new experiences Oculus has launched an  Oculus Start Program  to offload some of the costs in VR development', ' The name Devika is synonymous with highquality startups and services', ' Devika Founder  Ken Kencevski  announced “It is kind of Westpac to recognize Devika as a Top 200 Business of Tomorrow']
+No. of Founders or Important Persons (using Spacy & Allen NLP): 2
+Founders or Important Persons associated with the organization: ['Ken Kencevski', 'Devika']
+Founders or Important Persons associated with the organization after filtering:['Ken Kencevski', 'Devika']
+**************************************************************************************************
+
+**************************************************************************************************
+Organization or Company: codelikeagirl
+Search Link: https://www.codelikeagirl.com/
+Final list where the names are extracted from: ['”   Vanessa Doake Code Like a Girl cofounder', ' Founded in 2015 Code Like A Girl began as a way for Ally to meet other women who code']
+No. of Founders or Important Persons (using Spacy & Allen NLP): 2
+Founders or Important Persons associated with the organization: ['Ally', 'Vanessa Doake']
+Founders or Important Persons associated with the organization after filtering:['Ally', 'Vanessa Doake']
+**************************************************************************************************
+
+**************************************************************************************************
+Organization or Company: dienstconsulting
+Search Link: https://dienstconsulting.com/
+Final list where the names are extracted from: []
+No. of Founders or Important Persons (using Spacy & Allen NLP): 0
+Founders or Important Persons associated with the organization: []
+Founders or Important Persons associated with the organization after filtering:[]
+**************************************************************************************************
+
+**************************************************************************************************
+Organization or Company: switch
+Search Link: https://www.switch.com/
+Final list where the names are extracted from: [' What is an Innevation center It is Switch founder and CEO Rob Roy’s philanthropic approach to drive the new Innevation economy in the communities we do business by empowering large scale companies startups educators and community stakeholders to leverage Switch’s thought leadership and the unique technology infrastructure provided by Switch to drive economic diversification in Nevada', ' Founded in 2000 and headquartered in Las Vegas Nevada Switch is built on the intelligent and sustainable growth of the Internet', ' Switch CEO and Founder Rob Roy saw the opportunity to create geographicallyredundant data center facilities in Nevada’s economicallybeneficial business environment', ' Under the vision of Founder and CEO Rob Roy Switch continues to invent and innovate in pursuit of the perfect data center and technology ecosystem', ' The MOD ®  design incorporates Switch founder and CEO Rob Roy’s patented data center designs into physically secure optimallyintegrated futureproof missioncritical facilities', ' “The reason Switch was able to achieve this historic recognition is because of the guiding vision of Founder and CEO Rob Roy to move Switch to 100 renewable energy and complete sustainability” said Adam Kramer Switch Executive Vice President for Strategy', ' Switch CEO and Founder Rob Roy’s Gigawatt 1 solar project will… STEAM NonProfit Teaches Students Problem Solving Teamwork Inspired Robot Design and Building Highlights from the 2017 Las Vegas Regional FIRST® Robotics Competition LAS VEGAS – Switch NYSE SWCH and FIRST Nevada have teamed up again to demonstrate the value of STEAM education and careers in these fields through robot design and creation for the 2018 Las Vegas Regional FIRST®… By Rafael Soltanovich Vice President Software Development at Hulu It takes a lot of energy to connect millions of viewers across the United States with the content they love', ' The grades published in the 2017 report reflect Switch’s use of 100 percent renewable energy for all… Switch Founder and CEO Rob Roy shares the importance of the passage of Question 3 and what energy choice means to Nevadans', ' Just like Switch Founder and CEO Rob Roy thought about modernday data center design… The DRI President’s Medal recognized Switch for its outstanding and significant dedication to furthering the Institute’s mission and goals through time support and expertise', ' Guided by the vision of Founder and CEO Rob Roy Switch continues to work on ensuring the sustainable growth of the Internet', ' Prior to joining Switch Overgaard was Founder and President of leading downtown Las Vegas design firm one11', ' Switch’s founder and CEO Rob Roy cultivates a unique clientoriented culture at every level of the company', ' Rob Roy is CEO and Founder of Switch developer of the worldrenowned Switch data centers', ' Alongside CEO and Founder of Switch Rob Roy Terri continually works to develop and implement data center design improvements and advances in equipment systems and processes to create the most advanced data center ecosystem in the world', ' Switch founder and CEO Rob Roy has developed the world’s largest technology ecosystem with a vision of fully integrating the infrastructure and analytics needed to run a truly smart city', ' Brian works closely with CEO and Founder Rob Roy on research and development projects to ensure Switch Technology remains the most advanced data center ecosystem in the world', ' Switch’s CEO and Founder Rob Roy has been designing building and operating data centers since 2000', ' Switch Founder and CEO Rob Roy believes in building better communities and improving local economies through technology education and economic diversification', ' \xa0Switch CEO and founder Rob Roy invented the 100 Hot Aisle Containment System also known as a Thermal Separate Compartment in Facility tscif™ a stateoftheart patented system which offers Customers the luxury of highdensity power in a safe environment', ' \xa0If Customer fails to provide such documentation within the applicable period Switch may at its sole election commence charging monthly recurring charges “ MRC ” as a reservation fee', ' Prior to joining Switch Karlee was the Vice President of Development for one of the top five largest law firms in Las Vegas and headed up the sales team for that firms startup software company']
+No. of Founders or Important Persons (using Spacy & Allen NLP): 6
+Founders or Important Persons associated with the organization: ['Adam Kramer', 'Rafael Soltanovich', 'Karlee', 'Terri', 'Brian', 'Rob Roy', 'Overgaard']
+Founders or Important Persons associated with the organization after filtering:['Rob Roy', 'Brian', 'Karlee', 'Terri']
+**************************************************************************************************
+
+**************************************************************************************************
+Organization or Company: schoolzine
+Search Link: https://www.schoolzine.com/
+Final list where the names are extracted from: ['Schoolzine was established back in January 2007 after a chance meeting between a parent Phil Reardon and a primary school principal while watching their children playing football', ' There is no fee for your request unless it is deemed as ‘manifestly unfounded or excessive’ for example if you make repetitive requests by Schoolzine at which point a fee may be charged to cover Schoolzine’s administrative costs in responding']
+No. of Founders or Important Persons (using Spacy & Allen NLP): 1
+Founders or Important Persons associated with the organization: ['Phil Reardon']
+Founders or Important Persons associated with the organization after filtering:['Phil Reardon']
+**************************************************************************************************
+
+**************************************************************************************************
+Organization or Company: nationalmusicacademy
+Search Link: https://www.nationalmusicacademy.com.au/who-we-are
+Final list where the names are extracted from: ['\xa0 NMA Vlog 49 BENEFITS OF A GREAT RELATIONSHIP WITH YOUR MUSIC TEACHER NMA Vlog 48 GUITAR TEACHERS FAVOURITE LICKS NMA Vlog 47 FOUNDER GIANNI MICHELINI ON THE IMPORTANCE OF NETWORKING IN THE MUSIC INDUSTRY National Music Academy offers holistic artist development programs providing training  mentoring to foster musicians of all ages', 'au \n Address  416a High St Maitland NSW 2320\xa0 HOME Who We Are What We Do Our Campuses Pricing  Policies FAQ Careers Vlogs and Blogs Student Login More Connect with us National Music Academy began in 1995 when founder and principal Gianni Michelini began teaching guitar lessons from his home']
+No. of Founders or Important Persons (using Spacy & Allen NLP): 1
+Founders or Important Persons associated with the organization: ['Gianni Michelini']
+Founders or Important Persons associated with the organization after filtering:['Gianni Michelini']
+**************************************************************************************************
+
+**************************************************************************************************
+Organization or Company: jac and jack
+Search Text: Jac and Jack pty ltd
+Final list where the names are extracted from: ['com EXCLUSIVE OFFERS NEWS  MORE © 2020 JacJack Pty Ltd   Privacy Policy    Terms  Conditions LOCATIONS In 2004 Jacqueline “Jac” Hunt and Lisa “Jack” Dempsey founded Jac  Jack in Australia born out of a fascination with clothing that balances style and ease']
+No. of Founders or Important Persons (using Spacy & Allen NLP): 4
+Founders or Important Persons associated with the organization: ['Jacqueline', 'Lisa', 'Jack ” Dempsey', 'Jac ” Hunt']
+Founders or Important Persons associated with the organization after filtering:['Jack ” Dempsey', 'Jacqueline', 'Jac ” Hunt', 'Lisa']
+**************************************************************************************************
+
+**************************************************************************************************
+Organization or Company: seqta
+Search Text: Seqta
+Final list where the names are extracted from: ['   61 8 9301 2277   61 8 9301 2277   1300 473 782  or    email Founded by teachers Grant and Sharon Grosser in 2006 SEQTA has grown from a humble kitchen table startup into a multiaward winning software company with clients throughout Australia and South East Asia', '   61 8 9301 2277   61 8 9301 2277   1300 473 782  or    email Join SEQTA founder and CEO Grant Grosser as he shares the story of Alex – a young student struggling to meet the uniform standards of the school', ' …unicorns Education Horizons Group is an Australian EdTech holdings company founded in 2016 through a formalised partnership between SEQTA and longstanding partner company Synergetic Management Systems']
+No. of Founders or Important Persons (using Spacy & Allen NLP): 3
+Founders or Important Persons associated with the organization: ['Sharon Grosser', 'Grant', 'Grant Grosser']
+Founders or Important Persons associated with the organization after filtering:['Sharon Grosser', 'Grant', 'Grant Grosser']
+**************************************************************************************************
+
+**************************************************************************************************
+Organization or Company: navitas
+Search Link: https://www.navitas.com/
+Final list where the names are extracted from: [' The Navitas college will commence teaching from September 2019 for an agreed fiveyear period', ' Introducing our new Navitas Digital Campus Introducing GREEN APPLE  our eMagazine for teachers Navitas response to Novel Coronavirus Simon Fraser University and Navitas extend internationalization partnership Navitas Insights Reimagining work experience to improve employability Navitas Education Trust reopens for applications in 2020 Navitas shares outcomes of the International Higher Education Student Flows project  Navitas Insights Creating global pathways for international mobility Navitas Insights A story of global growth and diversification in EdTech One man’s incredible story leads to better education in Cambodia Navitas cofounder Rod Jones receives Lifetime Achievement Award Navitas Education Trust shine the spotlight on Lille Fro Foundation Navitas Insights Humancentred research – a catalyst for innovation Navitas Insights Growth or decline The factors behind future US international student enrollments Navitas Insights Five things you need to know about education in China Navitas Insights  Why India won’t be the next China  Navitas appoints new Group CEO and CFO Navitas Education Trust announces new partners for FY20 Navitas Insights Why student experience matters in a digital world Navitas Insights When worlds collide  convergence of international and online education Navitas Insights feature article Market trends signal shifts in Chinese student demand Queens College and Navitas announce internationalization partnership Innovation and access to education Navitas partners with the University of Leicester Navitas celebrates two   10year university partnership renewals Opening new doors for students in Germany Navitas and Lancaster University  Navitas Insights feature article The accidental counsellor  teachers on the front line of mental health Navitas signs recruitment and marketing agreement with James Cook University  Navitas Education Trust reopens for applications in 2019 Navitas Insights  Feature article of the month UCICs 5th anniversary welcomes a triple celebration Navitas partnership with The University of Canterbury renewed Introducing our new Navitas Digital Campus Introducing GREEN APPLE  our eMagazine for teachers Navitas response to Novel Coronavirus Simon Fraser University and Navitas extend internationalization partnership Navitas Insights Reimagining work experience to improve employability Navitas Education Trust reopens for applications in 2020 Navitas shares outcomes of the International Higher Education Student Flows project  Navitas Insights Creating global pathways for international mobility Navitas Insights A story of global growth and diversification in EdTech One man’s incredible story leads to better education in Cambodia Navitas cofounder Rod Jones receives Lifetime Achievement Award Navitas Education Trust shine the spotlight on Lille Fro Foundation Navitas Insights Humancentred research – a catalyst for innovation Navitas Insights Growth or decline The factors behind future US international student enrollments Navitas Insights Five things you need to know about education in China Navitas Insights  Why India won’t be the next China  Navitas appoints new Group CEO and CFO Navitas Education Trust announces new partners for FY20 Navitas Insights Why student experience matters in a digital world Navitas Insights When worlds collide  convergence of international and online education Navitas Insights feature article Market trends signal shifts in Chinese student demand Queens College and Navitas announce internationalization partnership Innovation and access to education Navitas partners with the University of Leicester Navitas celebrates two   10year university partnership renewals Opening new doors for students in Germany Navitas and Lancaster University  Navitas Insights feature article The accidental counsellor  teachers on the front line of mental health Navitas signs recruitment and marketing agreement with James Cook University  Navitas Education Trust reopens for applications in 2019 Navitas Insights  Feature article of the month UCICs 5th anniversary welcomes a triple celebration Navitas partnership with The University of Canterbury renewed Introducing our new Navitas Digital Campus Introducing GREEN APPLE  our eMagazine for teachers Navitas response to Novel Coronavirus Simon Fraser University and Navitas extend internationalization partnership Navitas Insights Reimagining work experience to improve employability Navitas Education Trust reopens for applications in 2020 Navitas shares outcomes of the International Higher Education Student Flows project  Navitas Insights Creating global pathways for international mobility Navitas Insights A story of global growth and diversification in EdTech One man’s incredible story leads to better education in Cambodia Navitas cofounder Rod Jones receives Lifetime Achievement Award Navitas Education Trust shine the spotlight on Lille Fro Foundation Navitas Insights Humancentred research – a catalyst for innovation Navitas Insights Growth or decline The factors behind future US international student enrollments Navitas Insights Five things you need to know about education in China Navitas Insights  Why India won’t be the next China  Navitas appoints new Group CEO and CFO Navitas Education Trust announces new partners for FY20 Navitas Insights Why student experience matters in a digital world Navitas Insights When worlds collide  convergence of international and online education Navitas Insights feature article Market trends signal shifts in Chinese student demand Queens College and Navitas announce internationalization partnership Innovation and access to education Navitas partners with the University of Leicester Navitas celebrates two   10year university partnership renewals Opening new doors for students in Germany Navitas and Lancaster University  Navitas Insights feature article The accidental counsellor  teachers on the front line of mental health Navitas signs recruitment and marketing agreement with James Cook University  Navitas Education Trust reopens for applications in 2019 Navitas Insights  Feature article of the month UCICs 5th anniversary welcomes a triple celebration Navitas partnership with The University of Canterbury renewed Introducing our new Navitas Digital Campus Introducing GREEN APPLE  our eMagazine for teachers Navitas response to Novel Coronavirus Simon Fraser University and Navitas extend internationalization partnership Navitas Insights Reimagining work experience to improve employability Navitas Education Trust reopens for applications in 2020 Navitas shares outcomes of the International Higher Education Student Flows project  Navitas Insights Creating global pathways for international mobility Navitas Insights A story of global growth and diversification in EdTech One man’s incredible story leads to better education in Cambodia Navitas cofounder Rod Jones receives Lifetime Achievement Award Navitas Education Trust shine the spotlight on Lille Fro Foundation Navitas Insights Humancentred research – a catalyst for innovation Navitas Insights Growth or decline The factors behind future US international student enrollments Navitas Insights Five things you need to know about education in China Navitas Insights  Why India won’t be the next China  Navitas appoints new Group CEO and CFO Navitas Education Trust announces new partners for FY20 Navitas Insights Why student experience matters in a digital world Navitas Insights When worlds collide  convergence of international and online education Navitas Insights feature article Market trends signal shifts in Chinese student demand Queens College and Navitas announce internationalization partnership Innovation and access to education Navitas partners with the University of Leicester Navitas celebrates two   10year university partnership renewals Opening new doors for students in Germany Navitas and Lancaster University  Navitas Insights feature article The accidental counsellor  teachers on the front line of mental health Navitas signs recruitment and marketing agreement with James Cook University  Navitas Education Trust reopens for applications in 2019 Navitas Insights  Feature article of the month UCICs 5th anniversary welcomes a triple celebration Navitas partnership with The University of Canterbury renewed Introducing our new Navitas Digital Campus Introducing GREEN APPLE  our eMagazine for teachers Navitas response to Novel Coronavirus Simon Fraser University and Navitas extend internationalization partnership Navitas Insights Reimagining work experience to improve employability Navitas Education Trust reopens for applications in 2020 Navitas shares outcomes of the International Higher Education Student Flows project  Navitas Insights Creating global pathways for international mobility Navitas Insights A story of global growth and diversification in EdTech One man’s incredible story leads to better education in Cambodia Navitas cofounder Rod Jones receives Lifetime Achievement Award Navitas Education Trust shine the spotlight on Lille Fro Foundation Navitas Insights Humancentred research – a catalyst for innovation Navitas Insights Growth or decline The factors behind future US international student enrollments Navitas Insights Five things you need to know about education in China Navitas Insights  Why India won’t be the next China  Navitas appoints new Group CEO and CFO Navitas Education Trust announces new partners for FY20 Navitas Insights Why student experience matters in a digital world Navitas Insights When worlds collide  convergence of international and online education Navitas Insights feature article Market trends signal shifts in Chinese student demand Queens College and Navitas announce internationalization partnership Innovation and access to education Navitas partners with the University of Leicester Navitas celebrates two   10year university partnership renewals Opening new doors for students in Germany Navitas and Lancaster University  Navitas Insights feature article The accidental counsellor  teachers on the front line of mental health Navitas signs recruitment and marketing agreement with James Cook University  Navitas Education Trust reopens for applications in 2019 Navitas Insights  Feature article of the month UCICs 5th anniversary welcomes a triple celebration Navitas partnership with The University of Canterbury renewed Introducing our new Navitas Digital Campus Introducing GREEN APPLE  our eMagazine for teachers Navitas response to Novel Coronavirus Simon Fraser University and Navitas extend internationalization partnership Navitas Insights Reimagining work experience to improve employability Navitas Education Trust reopens for applications in 2020 Navitas shares outcomes of the International Higher Education Student Flows project  Navitas Insights Creating global pathways for international mobility Navitas Insights A story of global growth and diversification in EdTech One man’s incredible story leads to better education in Cambodia Navitas cofounder Rod Jones receives Lifetime Achievement Award Navitas Education Trust shine the spotlight on Lille Fro Foundation Navitas Insights Humancentred research – a catalyst for innovation Navitas Insights Growth or decline The factors behind future US international student enrollments Navitas Insights Five things you need to know about education in China Navitas Insights  Why India won’t be the next China  Navitas appoints new Group CEO and CFO Navitas Education Trust announces new partners for FY20 Navitas Insights Why student experience matters in a digital world Navitas Insights When worlds collide  convergence of international and online education Navitas Insights feature article Market trends signal shifts in Chinese student demand Queens College and Navitas announce internationalization partnership Innovation and access to education Navitas partners with the University of Leicester Navitas celebrates two   10year university partnership renewals Opening new doors for students in Germany Navitas and Lancaster University  Navitas Insights feature article The accidental counsellor  teachers on the front line of mental health Navitas signs recruitment and marketing agreement with James Cook University  Navitas Education Trust reopens for applications in 2019 Navitas Insights  Feature article of the month UCICs 5th anniversary welcomes a triple celebration Navitas partnership with The University of Canterbury renewed Jemima Dunlop E mediaandcommsnavitas', '  Update my browser now    ×    Home  »  Newsroom                             »\n                            Navitas cofounder Rod Jones receives Lifetime Achievement Award                         Navitas founder and Chairman Rod Jones has been awarded this years AFR Higher Education Lifetime Achievement Award']
+No. of Founders or Important Persons (using Spacy & Allen NLP): 1
+Founders or Important Persons associated with the organization: ['Rod Jones']
+Founders or Important Persons associated with the organization after filtering:['Rod Jones']
+**************************************************************************************************
+
+**************************************************************************************************
+Organization or Company: digistorm
+Search Link: https://www.digistorm.com/
+Final list where the names are extracted from: [' Digistorm was founded back in 2011 in Burleigh Heads on the sunny Gold Coast']
+No. of Founders or Important Persons (using Spacy & Allen NLP): 0
+Founders or Important Persons associated with the organization: []
+Founders or Important Persons associated with the organization after filtering:[]
+**************************************************************************************************
+
+**************************************************************************************************
+Organization or Company: careercake
+Search Link: https://www.careercake.com/
+Final list where the names are extracted from: [' She is an award winning careers consultant speaker and Founder of Careercake', '\xa0 Aimee Bateman founder of Careercake and careers expert and has placed over 4000 people in their dream jobs', ' I’m Aimee Bateman founder of Careercake I’m a careers expert and employability coach', '\xa0 I’m Aimee Bateman founder and CEO of Careercake', '\xa0 In this course you can expect to Hi I’m Aimee Bateman founder and CEO of Careercake', ' Hi Im Aimee Bateman career coach and founder and CEO of Careercake', ' Im Aimee Bateman careers coach founder and CEO of Careercake', ' Well Im Aimee Bateman Im the CEO and founder of Careercake and Im going to help you feel confident about attending these events and be excited about the opportunities that it can create']
+No. of Founders or Important Persons (using Spacy & Allen NLP): 1
+Founders or Important Persons associated with the organization: ['Aimee Bateman']
+Founders or Important Persons associated with the organization after filtering:['Aimee Bateman']
+**************************************************************************************************
+
+**************************************************************************************************
+Organization or Company: sentral
+Search Link: https://www.sentral.com.au/education-founders-nominated-as-technology-entreprenuers-by-the-pearcy-foundation/
+Final list where the names are extracted from: ['Sentral Education founders Geoff Byers and Peta Byers nominated as Technology Entreprenuers by The Pearcy Foundation', ' \xa0Sentral began in 1998, with our founders stepping directly from the education sector', 'au Sentral Education founders Geoff Byers and Peta Byers nominated as Technology Entreprenuers by The Pearcy Foundation']
+No. of Founders or Important Persons (using Spacy & Allen NLP): 2
+Founders or Important Persons associated with the organization: ['Geoff Byers', 'Peta Byers']
+Founders or Important Persons associated with the organization after filtering:['Geoff Byers', 'Peta Byers']
+**************************************************************************************************
+
+**************************************************************************************************
+Organization or Company: fitzroyacademy
+Search Link: https://fitzroyacademy.com/
+Final list where the names are extracted from: [' A post shared by Fitzroy Academy fitzroyacademy  on  Aug 30 2017 at 300pm PDT Our faculty is full of CEOs founders and early employees who learnt their craft through decades of field work', ' \n\t\t\t\t\t Book a 15 minute demo \n\t\t\t\t A post shared by Fitzroy Academy fitzroyacademy  on  Aug 30 2017 at 300pm PDT Our faculty is full of CEOs founders and early employees who learnt their craft through decades of field work', ' \n\t\t\t\t Planning guides \n\t\t\t\t Workshop activities \n\t\t\t\t Consultation  support \n\t\t\t A post shared by Fitzroy Academy fitzroyacademy  on  Aug 30 2017 at 300pm PDT Our faculty is full of CEOs founders and early employees who learnt their craft through decades of field work']
+No. of Founders or Important Persons (Allen NLP & OpenIE): 0
+Founders or Important Persons associated with the organization: []
+Founders or Important Persons associated with the organization after filtering:[]
+**************************************************************************************************
+
+**************************************************************************************************
+Organization or Company: prime q
+Search Text: Prime Q
+Final list where the names are extracted from: [' PrimeQ has extensive experience implementing Oracle SaaS Cloud solutions which complements Accenture’s established credentials across the Oracle Cloud portfolio” said James Madigan leader of the Oracle business across ANZ at Accenture']
+No. of Founders or Important Persons (Allen NLP & OpenIE): 1
+Founders or Important Persons associated with the organization: ['James Madigan']
+Founders or Important Persons associated with the organization after filtering:['James Madigan']
+**************************************************************************************************
+
+**************************************************************************************************
+Organization or Company: prime q
+Search Text: Prime Q
+Final list where the names are extracted from: []
+No. of Founders or Important Persons (Allen NLP & OpenIE): 0
+Founders or Important Persons associated with the organization: []
+Founders or Important Persons associated with the organization after filtering:[]
+**************************************************************************************************
+
+**************************************************************************************************
+Organization or Company: sentral
+Search Link: www.sentral.com.au
+Final list where the names are extracted from: [' \xa0Sentral began in 1998 with our founders stepping directly from the education sector', 'au Sentral Education founders Geoff Byers and Peta Byers nominated as Technology Entreprenuers by The Pearcy Foundation']
+No. of Founders or Important Persons (Allen NLP & OpenIE): 2
+Founders or Important Persons associated with the organization: ['Geoff Byers', 'Peta Byers']
+Founders or Important Persons associated with the organization after filtering:['Geoff Byers', 'Peta Byers']
+**************************************************************************************************
+
