@@ -143,7 +143,7 @@ def get_cp_oc(entry_id,mode):
     sr = getGoogleLinksForSearchText(comp_name + " opencorporates", 3, 'normal')
     filtered_oc = []
     for p in sr:
-        if ('opencorporates.com' in p['link']) and (len(p['link'])>39):
+        if (('opencorporates.com/companies/nz' in p['link']) or ('opencorporates.com/companies/au' in p['link'])):
             filtered_oc.append([p['title'], p['link']])
     if (len(filtered_oc)):
         print(filtered_oc[0])
@@ -170,6 +170,7 @@ def get_cp_dnb(entry_id,mode):
         if mode=='comp':
             comp_name = data[0]['search_text']
         elif mode == 'query':
+            print(data)
             comp_name = data[0]['comp_name']
     except KeyError:
         comp_name = data[0]['link'].split("/")[2]
@@ -177,7 +178,7 @@ def get_cp_dnb(entry_id,mode):
     sr = getGoogleLinksForSearchText(comp_name + " dnb.com", 3, 'normal')
     filtered_dnb = []
     for p in sr:
-        if 'dnb.com' in p['link'] and (len(p['link']) > 20):
+        if 'dnb.com/business-directory/company-profiles' in p['link']:
             filtered_dnb.append([p['title'], p['link']])
     if (len(filtered_dnb)):
         print("dnb profile found and extracting contact persons..")

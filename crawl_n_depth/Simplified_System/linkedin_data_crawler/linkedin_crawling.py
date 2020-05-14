@@ -95,7 +95,7 @@ def get_li_url(entry_id):
     else:
         comp_name = data[0]['comp_name']
         print(data[0]['comp_name'])
-        sr = getGoogleLinksForSearchText('"' + comp_name + '"' + " linkedin", 5, 'normal')
+        sr = getGoogleLinksForSearchText('"' + comp_name + '"' + " linkedin australia or newzealand", 5, 'normal')
         filtered_li = []
         for p in sr:
             # print(p['link'])

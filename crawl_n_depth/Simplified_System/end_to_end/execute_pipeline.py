@@ -134,11 +134,11 @@ def execute_for_a_query(query):
     print("Started on",dateTimeObj)
     started = time.time()
     print("***Initial Crawling Phrase***")
-    entry_id_list = search_a_query(query,20, mycol,record_entry.inserted_id)
+    entry_id_list = search_a_query(query,10, mycol,record_entry.inserted_id)
     if(entry_id_list==None):
         for i in range(3):
             print("Initial crawling incomplete..retrying",i)
-            entry_id_list = search_a_query(query, 20, mycol, record_entry.inserted_id)
+            entry_id_list = search_a_query(query, 10, mycol, record_entry.inserted_id)
             time.sleep(5)
             if(entry_id_list!=None):break
     if (entry_id_list == None):
@@ -247,16 +247,16 @@ def retry_for_query(details):
 #             'specialist educators for video games developers','Software to manage relief teachers',
 #             'Veterinary diagnostics','Medical equipment repair']
 
-queries = ['In-home care software and services for NDIS / CDC Australia OR New Zealandk'
-,'Risk and Compliance management software Australia New Zealandk'
-,'Enterprise asset management software Australia OR New Zealandk'
-,'Asset and fleet management software Australia OR New Zealandk'
-,'Education software and services Australia OR New Zealandk'
-,'Specialist educators for video games developers software, animation, education, developers, game design, training provider Australia OR New Zealandk'
-,'Specialist content and material B2B specialist content Australia OR New Zealandk'
-,'Software to manage relief teachers Australia OR New Zealandk'
-,'Service/consumables provider for stable/legacy equipment Australia OR New Zealandk'
-,'Digital advertisement and marketing analytics Australia OR New Zealandk'
+queries = ['In-home care software and services for NDIS / CDC Australia OR New Zealand cr:au'
+,'Risk and Compliance management software Australia New Zealand'
+,'Enterprise asset management software Australia OR New Zealand'
+,'Asset and fleet management software Australia OR New Zealand'
+,'Education software and services Australia OR New Zealand'
+,'Specialist educators for video games developers software, animation, education, developers, game design, training provider Australia OR New Zealand'
+,'Specialist content and material B2B specialist content Australia OR New Zealand'
+,'Software to manage relief teachers Australia OR New Zealand'
+,'Service/consumables provider for stable/legacy equipment Australia OR New Zealand'
+,'Digital advertisement and marketing analytics Australia OR New Zealand'
 ,'Veterinary diagnostics supplier into veterinary hospitals Australia OR New Zealand'
 ,'Medical equipment repair and maintenance service providers high-use surgical equipment Australia OR New Zealand']
 
@@ -272,7 +272,7 @@ queries = ['In-home care software and services for NDIS / CDC Australia OR New Z
 # retried= time.time()
 # retry_for_query([[ ObjectId('5eb8094955584ed5ddbe68fd')], ObjectId('5eb807c755584ed5ddbe68f0'), 1589118921.9288456])
 #
-retry_for_query([[ObjectId('5eb807ec55584ed5ddbe68f1'), ObjectId('5eb8080355584ed5ddbe68f2'), ObjectId('5eb8081955584ed5ddbe68f3'), ObjectId('5eb8082f55584ed5ddbe68f4'), ObjectId('5eb8084555584ed5ddbe68f5'), ObjectId('5eb8085b55584ed5ddbe68f6'), ObjectId('5eb808a355584ed5ddbe68f7'), ObjectId('5eb808d955584ed5ddbe68f8'), ObjectId('5eb808f055584ed5ddbe68f9'), ObjectId('5eb8090655584ed5ddbe68fa'), ObjectId('5eb8091c55584ed5ddbe68fb'), ObjectId('5eb8093255584ed5ddbe68fc'), ObjectId('5eb8094955584ed5ddbe68fd')], ObjectId('5eb807c755584ed5ddbe68f0'), 1589118921.9288456])
+# retry_for_query([[ObjectId('5eb807ec55584ed5ddbe68f1'), ObjectId('5eb8080355584ed5ddbe68f2'), ObjectId('5eb8081955584ed5ddbe68f3'), ObjectId('5eb8082f55584ed5ddbe68f4'), ObjectId('5eb8084555584ed5ddbe68f5'), ObjectId('5eb8085b55584ed5ddbe68f6'), ObjectId('5eb808a355584ed5ddbe68f7'), ObjectId('5eb808d955584ed5ddbe68f8'), ObjectId('5eb808f055584ed5ddbe68f9'), ObjectId('5eb8090655584ed5ddbe68fa'), ObjectId('5eb8091c55584ed5ddbe68fb'), ObjectId('5eb8093255584ed5ddbe68fc'), ObjectId('5eb8094955584ed5ddbe68fd')], ObjectId('5eb807c755584ed5ddbe68f0'), 1589118921.9288456])
 # for i,k in enumerate(queries):
 #     if i<249:continue
 #     if i>260:break
@@ -282,13 +282,13 @@ retry_for_query([[ObjectId('5eb807ec55584ed5ddbe68f1'), ObjectId('5eb8080355584e
 
 from multiprocessing import Process
 # if __name__ == '__main__':
-#     for i,k in enumerate(queries[10:11]):
+#     for i,k in enumerate(queries[0:1]):
 #         print("iteration",i,k)
 #         p = Process(target=execute_for_a_query, args=(k, ))
 #         p.start()
 #         p.join() # this blocks until the process terminates
 
-# execute_for_a_company('Caltex Australia Ltd')
+execute_for_a_company('www.aie.edu.au')
 # execute_for_a_company('Prime Q')
 # execute_for_a_query('Digital advertisement and marketing analytics services company')
 # execute_for_a_query('In-home care software and services for NDIS / CDC')

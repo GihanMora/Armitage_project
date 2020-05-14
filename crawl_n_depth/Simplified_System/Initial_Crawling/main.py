@@ -67,6 +67,8 @@ def search_a_company(comp_name, db_collection, query_entry):
 
     print('rd', received_domains)
     for i, each in enumerate(received_domains):
+        if ('.gov.' in each or '.edu.' in each):  # filter non wanted websites
+            continue
         if each not in black_list:
             filtered_sr.append(sr[i])
 
@@ -107,15 +109,18 @@ def search_a_query(search_query,number_of_results,db_collection,query_entry):
             print(each_sr)
         received_links = [i['link'] for i in sr]
         received_domains = [i.split("/")[2] for i in received_links]
+        print("received_domains",received_domains)
+        received_domains = list(set(received_domains))
+        print("received_domains", received_domains)
         ids_list=[]
         for k in range(len(received_domains)):
             time.sleep(10)
             print(received_links[k],received_domains[k])
             b_list_file = open('F:\Armitage_project\crawl_n_depth\Simplified_System\Initial_Crawling\\black_list.txt','r')
             black_list = b_list_file.read().splitlines()
-            if(received_domains[k] in ['www.capterra.com','www.softwareadvice.com','www.gartner.com','en.wikipedia.org','www.predictiveanalyticstoday.com','comparesoft.com',
-            'technologyadvice.com','www.edsys.in','www.softwareadvisoryservice.com','www.trustradius.com','books.google.lk','www.noodle.com','www.researchgate.net','www.futurebridge.com','www.neoteryx.com','www.businesswire.com'
-                                       ,'www.marketsandmarkets.com','www.ibisworld.com','www.slideshare.net','builtin.com']+black_list):
+            if(received_domains[k] in black_list):#filter non wanted websites
+                continue
+            if ('.gov.' in received_domains[k] or '.edu.' in received_domains[k] ):  # filter non wanted websites
                 continue
             sr = getGoogleLinksForSearchText(received_domains[k], 3, 'normal')
             if(len(sr)>0):
