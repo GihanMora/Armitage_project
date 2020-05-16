@@ -73,9 +73,8 @@ def get_address_from_google(company_name):
     soup = BeautifulSoup(pageSource, 'html.parser')#bs4
     result_div = soup.find_all('div', attrs={'class': 'NqXXPb'})
     for each in result_div:
-        print(each.get_text())
         if(len(each.get_text())):
-            print(each.get_text())
+            print("initial",each.get_text())
             results.append(each.get_text())
 
     result_div = soup.find_all('tr', attrs={'class': 'ztXv9'})
