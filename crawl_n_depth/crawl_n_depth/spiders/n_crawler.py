@@ -24,7 +24,33 @@ import sys
 sys.path.insert(0, 'F:/Armitage_project/crawl_n_depth/')
 from Simplified_System.Database.db_connect import refer_collection
 
+def add_parser(text):
+    extracted_addresses = []
+    addregexau = re.compile(
+        r"(?i)(\b(PO BOX|post box)[,\s|.\s|,.|\s]*)?(\b(\d+))(\b(?:(?!\s{2,}).){1,60})\b(New South Wales|Victoria|Queensland|Western Australia|South Australia|Tasmania|VIC|NSW|ACT|QLD|NT|SA|TAS|WA).?[,\s|.\s|,.|\s]*(\b\d{4}).?[,\s|.\s|,.|\s]*(\b(Australia|Au))?")
+    searchau = addregexau.findall(text)
+    if (len(searchau)):
+        add_r = (" ").join(list(searchau[0]))
+        add_r = add_r.strip()
+        extracted_addresses.append(add_r)
+        # print("au", add_r)
 
+    addregexnz = re.compile(
+        r"(?i)(\b(PO BOX|post box)[,\s|.\s|,.|\s]*)?(\b(\d+))(\b(?:(?!\s{2,}).){1,60})\b(Northland|Auckland|Waikato|Bay of Plenty|Gisborne|Hawke's Bay|Taranaki|Manawatu-Whanganui|Wellington|Tasman|Nelson|Marlborough|West Coast|Canterbury|Otago|Southland).?[,\s|.\s|,.|\s]*(\b\d{4}).?[,\s|.\s|,.|\s]*(\b(New zealand|Newzealand|Nz))?")
+    searchnz = addregexnz.findall(text)
+    if (len(searchnz)):
+        add_nz = (" ").join(list(searchnz[0]))
+        add_nz = add_nz.strip()
+        extracted_addresses.append(add_nz)
+        # print("nz", add_nz)
+
+
+    adss = pyap.parse(text, country='US')  # extracting addresses(Us address parser)
+    adss = [str(i) for i in adss]
+    if (len(adss)):
+        extracted_addresses.extend(adss)
+
+    return extracted_addresses
 
 class NCrawlerSpider(CrawlSpider):
     name = 'n_crawler' # Spider name
