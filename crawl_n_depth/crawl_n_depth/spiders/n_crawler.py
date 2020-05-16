@@ -44,12 +44,6 @@ def add_parser(text):
         extracted_addresses.append(add_nz)
         # print("nz", add_nz)
 
-
-    adss = pyap.parse(text, country='US')  # extracting addresses(Us address parser)
-    adss = [str(i) for i in adss]
-    if (len(adss)):
-        extracted_addresses.extend(adss)
-
     return extracted_addresses
 
 class NCrawlerSpider(CrawlSpider):
@@ -114,6 +108,7 @@ class NCrawlerSpider(CrawlSpider):
             'telephone_numbers': self.telephone_numbers
                                    }
         print("size", len(self.paragraph_text))
+        print(self.addresses)
         try:
             mycol = refer_collection()
             mycol.update_one({'_id': self.entry_id},
@@ -171,6 +166,9 @@ class NCrawlerSpider(CrawlSpider):
         extracted_addresses = pyap.parse(all_text_in_page, country='US')#extracting addresses(Us address parser)
         extracted_addresses = [str(i) for i in extracted_addresses]
         self.addresses.extend(extracted_addresses)
+
+        adds_from_reg = add_parser(all_text_in_page)
+        self.addresses.extend(adds_from_reg)
 
         sm_sites = ['twitter.com', 'facebook.com', 'linkedin.com', 'youtube.com']
         extracted_sm_sites = []

@@ -27,3 +27,4 @@ def deep_crawl(id_list,depth,link_limit):
 
     run_crawlers_m(id_list,depth,link_limit)
 # run_crawlers_m([ObjectId('5eaa4865b5e8e09eef472217')],3,100)
+run_crawlers_m([ObjectId('5eb6783b3dd775bea489b02d')],3,70)
