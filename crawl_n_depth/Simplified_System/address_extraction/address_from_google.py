@@ -18,7 +18,7 @@ import re
 import sys
 sys.path.insert(0, 'F:/Armitage_project/crawl_n_depth/')
 from Simplified_System.Database.db_connect import refer_collection,refer_cleaned_collection
-from Simplified_System.Deep_Crawling.main import deep_crawl
+
 def get_browser():
     ua = UserAgent()
     # PROXY = proxy_generator()
@@ -66,7 +66,7 @@ def add_parser(text):
 
     return extracted_addresses
 
-def get_address_from_google(company_name):
+def scrape_address_from_google(company_name):
     results = []
     browser = get_browser()
     searchText = company_name+' australia street address'
@@ -99,10 +99,33 @@ def get_address_from_google(company_name):
 
     # print(extracted_addresses)
     # print(results)
-    results =set(results)
+    results =list(set(results))
     return results
 
+def get_ad_from_google(id_list):
+    mycol = refer_collection()
+    for entry_id in id_list:
+        comp_data_entry = mycol.find({"_id": entry_id})
+        data = [i for i in comp_data_entry]
+        try:
+            comp_name = data[0]['comp_name']
+            print(comp_name)
+            g_ad_data = scrape_address_from_google(comp_name)
+            data_dict = {'google_address':g_ad_data}
+            print(data_dict)
+            if(len(data_dict.keys())):
+                mycol.update_one({'_id': entry_id},
+                                 {'$set': data_dict})
+                print("Successfully extended the data entry with google address data", entry_id)
+            else:
+                print("No google address data found! dict is empty")
+        except IndexError:
+            print("No google address data found!")
+        except KeyError:
+            print("No google address data found!")
 
+
+get_ad_from_google([ObjectId('5eb6311c86662885174692de')])
 
 # print(get_address_from_google("armitage"))
 

@@ -1,6 +1,7 @@
 import time
 import usaddress
 import pyap
+from bson import ObjectId
 from commonregex import CommonRegex
 import pymongo
 from selenium.common.exceptions import TimeoutException
@@ -13,6 +14,9 @@ from fake_useragent import UserAgent
 from random import choice
 import re
 # from Simplified_System.Initial_Crawling.get_n_search_results import getGoogleLinksForSearchText
+import sys
+sys.path.insert(0, 'F:/Armitage_project/crawl_n_depth/')
+from Simplified_System.Database.db_connect import refer_collection
 
 def get_browser():
     ua = UserAgent()
@@ -36,10 +40,10 @@ def get_browser():
 
 
 
-def get_cp_from_google(company_name):
+def scrape_cp_from_google(company_name):
     results = []
     browser = get_browser()
-    searchText = company_name+' australia CEO/founder/managing director'
+    searchText = company_name+' australia CEO | founder | director'
     searchGoogle = URL = f"https://google.com/search?q={searchText}"+"&num=" + str(10)
     browser.get(searchGoogle)
     time.sleep(5)
@@ -48,20 +52,35 @@ def get_cp_from_google(company_name):
     soup = BeautifulSoup(pageSource, 'html.parser')  # bs4 TxZVoe
     result_div = soup.find_all('div', attrs={'class': 'LGOjhe'})
     for each in result_div:
-        print(each.text)
-        # if (len(each.get_text())):
-        #     print(each.get_text())
-        #     results.append(each.get_text())
-
-    search_divs = soup.find_all('div', attrs={'class': 'g'})
-    for each in search_divs:
-        description = each.find('span', attrs={'class': 'st'})  # extracting the description
-        if isinstance(description, Tag):
-            description = description.get_text()
-            extracted_tp_numbers = re.findall(r'[\+\(]?[1-9][0-9 .\-\(\)]{8,}[0-9]',
-                                              description)  # extracting tp numbers
-            results.extend(extracted_tp_numbers)
+        # print(each.text)
+        if (len(each.get_text())):
+            print(each.get_text())
+            results.append(each.get_text())
     results = list(set(results))
     return results
 
-print(get_cp_from_google('skedulo'))
+def get_cp_from_google(id_list):
+    mycol = refer_collection()
+    for entry_id in id_list:
+        comp_data_entry = mycol.find({"_id": entry_id})
+        data = [i for i in comp_data_entry]
+        try:
+            comp_name = data[0]['comp_name']
+            print(comp_name)
+            g_cp_data = scrape_cp_from_google(comp_name)
+            data_dict = {'google_cp':g_cp_data}
+            print(data_dict)
+            if(len(data_dict.keys())):
+                mycol.update_one({'_id': entry_id},
+                                 {'$set': data_dict})
+                print("Successfully extended the data entry with google contact data", entry_id)
+            else:
+                print("No google contact data found! dict is empty")
+        except IndexError:
+            print("No google contact data found!")
+        except KeyError:
+            print("No google contact data found!")
+
+
+get_cp_from_google([ObjectId('5eb6311c86662885174692de')])
+# print(get_cp_from_google('skedulo'))

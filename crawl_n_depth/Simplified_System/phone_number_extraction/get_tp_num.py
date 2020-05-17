@@ -1,6 +1,7 @@
 import time
 import usaddress
 import pyap
+from bson import ObjectId
 from commonregex import CommonRegex
 import pymongo
 from selenium.common.exceptions import TimeoutException
@@ -13,13 +14,16 @@ from fake_useragent import UserAgent
 from random import choice
 import re
 # from Simplified_System.Initial_Crawling.get_n_search_results import getGoogleLinksForSearchText
+import sys
+sys.path.insert(0, 'F:/Armitage_project/crawl_n_depth/')
+from Simplified_System.Database.db_connect import refer_collection
 
 def get_browser():
     ua = UserAgent()
     # PROXY = proxy_generator()
     userAgent = ua.random #get a random user agent
     options = webdriver.ChromeOptions()  # use headless version of chrome to avoid getting blocked
-    options.add_argument('headless')
+    # options.add_argument('headless')
     options.add_argument(f'user-agent={userAgent}')
     # options.add_argument("start-maximized")# // open Browser in maximized mode
     # options.add_argument("disable-infobars")# // disabling infobars
@@ -36,7 +40,7 @@ def get_browser():
 
 
 
-def get_address_from_google(company_name):
+def scrape_tp_from_google(company_name):
     results = []
     browser = get_browser()
     searchText = company_name+' australia phone number'
@@ -63,5 +67,28 @@ def get_address_from_google(company_name):
     results = list(set(results))
     return results
 
-print(get_address_from_google('caltex'))
+# print(get_address_from_google('caltex'))
+def get_tp_from_google(id_list):
+    mycol = refer_collection()
+    for entry_id in id_list:
+        comp_data_entry = mycol.find({"_id": entry_id})
+        data = [i for i in comp_data_entry]
+        try:
+            comp_name = data[0]['comp_name']
+            print(comp_name)
+            g_tp_data = scrape_tp_from_google(comp_name)
+            data_dict = {'google_tp':g_tp_data}
+            print(data_dict)
+            if(len(data_dict.keys())):
+                mycol.update_one({'_id': entry_id},
+                                 {'$set': data_dict})
+                print("Successfully extended the data entry with google tp data", entry_id)
+            else:
+                print("No google tp data found! dict is empty")
+        except IndexError:
+            print("No google tp data found!")
+        except KeyError:
+            print("No google tp data found!")
 
+
+get_tp_from_google([ObjectId('5eb6311c86662885174692de')])

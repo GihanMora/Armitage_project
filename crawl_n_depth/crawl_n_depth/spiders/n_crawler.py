@@ -200,8 +200,8 @@ def run_sequential_crawlers_m(id_list,depth_limit,crawl_limit):#method used to r
     :param crawl_limit: max page count want to crawl
     :return:
     """
-    # mycol = refer_collection()
-    mycol = refer_cleaned_collection()
+    mycol = refer_collection()
+    # mycol = refer_cleaned_collection()
     for entry_id in id_list:#going for n depth for the each google search result
         comp_data_entry = mycol.find({"_id": entry_id})
         data=[i for i in comp_data_entry]
