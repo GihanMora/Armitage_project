@@ -19,7 +19,7 @@ def get_browser():
     # PROXY = proxy_generator()
     userAgent = ua.random #get a random user agent
     options = webdriver.ChromeOptions()  # use headless version of chrome to avoid getting blocked
-    options.add_argument('headless')
+    # options.add_argument('headless')
     options.add_argument(f'user-agent={userAgent}')
     # options.add_argument("start-maximized")# // open Browser in maximized mode
     # options.add_argument("disable-infobars")# // disabling infobars
@@ -36,21 +36,22 @@ def get_browser():
 
 
 
-def get_address_from_google(company_name):
+def get_cp_from_google(company_name):
     results = []
     browser = get_browser()
-    searchText = company_name+' australia phone number'
+    searchText = company_name+' australia CEO/founder/managing director'
     searchGoogle = URL = f"https://google.com/search?q={searchText}"+"&num=" + str(10)
     browser.get(searchGoogle)
     time.sleep(5)
     pageSource = browser.page_source
     browser.quit()
     soup = BeautifulSoup(pageSource, 'html.parser')  # bs4 TxZVoe
-    result_div = soup.find_all('div', attrs={'class': 'bBmoPd'})
+    result_div = soup.find_all('div', attrs={'class': 'LGOjhe'})
     for each in result_div:
-        if (len(each.get_text())):
-            print(each.get_text())
-            results.append(each.get_text())
+        print(each.text)
+        # if (len(each.get_text())):
+        #     print(each.get_text())
+        #     results.append(each.get_text())
 
     search_divs = soup.find_all('div', attrs={'class': 'g'})
     for each in search_divs:
@@ -63,5 +64,4 @@ def get_address_from_google(company_name):
     results = list(set(results))
     return results
 
-print(get_address_from_google('caltex'))
-
+print(get_cp_from_google('skedulo'))

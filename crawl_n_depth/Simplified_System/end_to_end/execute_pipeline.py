@@ -287,8 +287,8 @@ from multiprocessing import Process
 #         p = Process(target=execute_for_a_query, args=(k, ))
 #         p.start()
 #         p.join() # this blocks until the process terminates
-
-execute_for_a_company('www.aie.edu.au')
+# execute_for_a_company_alpha('2and2', 'www.2and2.com.au')
+# execute_for_a_company('www.aie.edu.au')
 # execute_for_a_company('Prime Q')
 # execute_for_a_query('Digital advertisement and marketing analytics services company')
 # execute_for_a_query('In-home care software and services for NDIS / CDC')

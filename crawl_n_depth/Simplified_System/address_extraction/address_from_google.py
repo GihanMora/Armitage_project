@@ -1,6 +1,7 @@
 import time
 import usaddress
 import pyap
+from bson import ObjectId
 from commonregex import CommonRegex
 import pymongo
 from selenium.common.exceptions import TimeoutException
@@ -10,10 +11,14 @@ from selenium import webdriver
 from bs4 import BeautifulSoup
 from bs4.element import Tag
 from fake_useragent import UserAgent
+
 from random import choice
 import re
 # from Simplified_System.Initial_Crawling.get_n_search_results import getGoogleLinksForSearchText
-
+import sys
+sys.path.insert(0, 'F:/Armitage_project/crawl_n_depth/')
+from Simplified_System.Database.db_connect import refer_collection,refer_cleaned_collection
+from Simplified_System.Deep_Crawling.main import deep_crawl
 def get_browser():
     ua = UserAgent()
     # PROXY = proxy_generator()
@@ -98,5 +103,6 @@ def get_address_from_google(company_name):
     return results
 
 
-print(get_address_from_google("armitage"))
+
+# print(get_address_from_google("armitage"))
 

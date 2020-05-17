@@ -16,6 +16,17 @@ def refer_collection():
   mycol = mydb["comp_data"]  # creates a collection
   return mycol
 
+
+def refer_cleaned_collection():
+  # myclient = pymongo.MongoClient("mongodb://localhost:27017/")
+  myclient = pymongo.MongoClient(
+      "mongodb+srv://gatekeeper:oMBipAi6zLkme3e9@armitage-i0o8u.mongodb.net/test?retryWrites=true&w=majority")
+  # mydb = myclient["CompanyDatabase"]  # creates a database
+  mydb = myclient["miner"]  # creates a database
+
+  mycol = mydb["comp_data_cleaned"]  # creates a collection
+  return mycol
+
 def refer_simplified_dump_col():
     # myclient = pymongo.MongoClient("mongodb://localhost:27017/")
     myclient = pymongo.MongoClient(
