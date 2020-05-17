@@ -55,6 +55,10 @@ def get_address_from_google(company_name):
         description = each.find('span', attrs={'class': 'st'})  # extracting the description
         if isinstance(description, Tag):
             description = description.get_text()
-            print(description)
+            extracted_tp_numbers = re.findall(r'[\+\(]?[1-9][0-9 .\-\(\)]{8,}[0-9]',
+                                              description)  # extracting tp numbers
+            results.extend(extracted_tp_numbers)
+    results = list(set(results))
+    return results
 
-get_address_from_google('armitage associate')
+print(get_address_from_google('answersportals.com'))
