@@ -26,6 +26,6 @@ from crawl_n_depth.spiders.n_crawler import run_crawlers_m
 def deep_crawl(id_list,depth,link_limit):
     run_crawlers_m(id_list,depth,link_limit)
 # run_crawlers_m([ObjectId('5eaa4865b5e8e09eef472217')],3,100)
-run_crawlers_m([ObjectId('5eb62e2a134cc6fb9536e93d')],3,70)
+# run_crawlers_m([ObjectId('5eb62e2a134cc6fb9536e93d')],3,70)
 
 # ObjectId('5eb62e2a134cc6fb9536e93d')

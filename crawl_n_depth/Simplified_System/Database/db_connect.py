@@ -26,7 +26,10 @@ def refer_cleaned_collection():
 
   mycol = mydb["comp_data_cleaned"]  # creates a collection
   return mycol
-
+# mycol = refer_cleaned_collection()
+# comp_data_entry = mycol.find({"_id": ObjectId('5eb6363894bd0b097f9c2734')})
+# data = [i for i in comp_data_entry]
+# print(data)
 def refer_simplified_dump_col():
     # myclient = pymongo.MongoClient("mongodb://localhost:27017/")
     myclient = pymongo.MongoClient(
@@ -49,10 +52,13 @@ def refer_query_col():
 
 #display all existing records
 def display_all_records():
-  mycol = refer_collection()
+  mycol = refer_cleaned_collection()
   y=mycol.find()
   for k in y:
-    print(k)
+      try:
+        print(k['google_cp'])
+      except KeyError:
+        print(None)
 # display_all_records()
 
 def get_all_ids():

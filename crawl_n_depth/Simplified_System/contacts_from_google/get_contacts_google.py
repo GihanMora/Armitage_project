@@ -16,15 +16,24 @@ import re
 # from Simplified_System.Initial_Crawling.get_n_search_results import getGoogleLinksForSearchText
 import sys
 sys.path.insert(0, 'F:/Armitage_project/crawl_n_depth/')
-from Simplified_System.Database.db_connect import refer_collection
+from Simplified_System.Database.db_connect import refer_collection,refer_cleaned_collection
+
 
 def get_browser():
     ua = UserAgent()
     # PROXY = proxy_generator()
-    userAgent = ua.random #get a random user agent
+    for k in range(5):
+        userAgent = ua.random  # get a random user agent
+        if ('Mobile' in userAgent):
+            print("got mobile")
+            continue
+        else:
+            break
+    print(userAgent)
     options = webdriver.ChromeOptions()  # use headless version of chrome to avoid getting blocked
-    # options.add_argument('headless')
+
     options.add_argument(f'user-agent={userAgent}')
+    options.add_argument('headless')
     # options.add_argument("start-maximized")# // open Browser in maximized mode
     # options.add_argument("disable-infobars")# // disabling infobars
     # options.add_argument("--disable-extensions")# // disabling extensions
@@ -32,10 +41,10 @@ def get_browser():
     # options.add_argument("--disable-dev-shm-usage")# // overcome limited resource problems
     # options.add_argument('--proxy-server=%s' % PROXY)
     browser = webdriver.Chrome(chrome_options=options,  # give the path to selenium executable
-                                   # executable_path='F://Armitage_lead_generation_project//chromedriver.exe'
-                                   executable_path='F://Armitage_project//crawl_n_depth//utilities//chromedriver.exe',
-                                    service_args=["--verbose", "--log-path=D:\\qc1.log"]
-                                   )
+                               # executable_path='F://Armitage_lead_generation_project//chromedriver.exe'
+                               executable_path='F://Armitage_project//crawl_n_depth//utilities//chromedriver.exe',
+                               service_args=["--verbose", "--log-path=D:\\qc1.log"]
+                               )
     return browser
 
 
@@ -50,6 +59,10 @@ def scrape_cp_from_google(company_name):
     pageSource = browser.page_source
     browser.quit()
     soup = BeautifulSoup(pageSource, 'html.parser')  # bs4 TxZVoe
+    is_captcha_on_page = soup.find("div", id="recaptcha") is not None
+    if (is_captcha_on_page):  # a captcha triggered
+        print("Captcha Detected")
+        return results
     result_div = soup.find_all('div', attrs={'class': 'LGOjhe'})
     for each in result_div:
         # print(each.text)
@@ -60,7 +73,8 @@ def scrape_cp_from_google(company_name):
     return results
 
 def get_cp_from_google(id_list):
-    mycol = refer_collection()
+    # mycol = refer_collection()
+    mycol = refer_cleaned_collection()
     for entry_id in id_list:
         comp_data_entry = mycol.find({"_id": entry_id})
         data = [i for i in comp_data_entry]
@@ -70,7 +84,7 @@ def get_cp_from_google(id_list):
             g_cp_data = scrape_cp_from_google(comp_name)
             data_dict = {'google_cp':g_cp_data}
             print(data_dict)
-            if(len(data_dict.keys())):
+            if(len(g_cp_data)):
                 mycol.update_one({'_id': entry_id},
                                  {'$set': data_dict})
                 print("Successfully extended the data entry with google contact data", entry_id)
@@ -82,5 +96,5 @@ def get_cp_from_google(id_list):
             print("No google contact data found!")
 
 
-get_cp_from_google([ObjectId('5eb6311c86662885174692de')])
+# get_cp_from_google([ObjectId('5eb6311c86662885174692de')])
 # print(get_cp_from_google('skedulo'))

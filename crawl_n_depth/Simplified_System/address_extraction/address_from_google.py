@@ -19,13 +19,22 @@ import sys
 sys.path.insert(0, 'F:/Armitage_project/crawl_n_depth/')
 from Simplified_System.Database.db_connect import refer_collection,refer_cleaned_collection
 
+
 def get_browser():
     ua = UserAgent()
     # PROXY = proxy_generator()
-    userAgent = ua.random #get a random user agent
+    for k in range(5):
+        userAgent = ua.random  # get a random user agent
+        if ('Mobile' in userAgent):
+            print("got mobile")
+            continue
+        else:
+            break
+    print(userAgent)
     options = webdriver.ChromeOptions()  # use headless version of chrome to avoid getting blocked
-    options.add_argument('headless')
+
     options.add_argument(f'user-agent={userAgent}')
+    options.add_argument('headless')
     # options.add_argument("start-maximized")# // open Browser in maximized mode
     # options.add_argument("disable-infobars")# // disabling infobars
     # options.add_argument("--disable-extensions")# // disabling extensions
@@ -33,10 +42,10 @@ def get_browser():
     # options.add_argument("--disable-dev-shm-usage")# // overcome limited resource problems
     # options.add_argument('--proxy-server=%s' % PROXY)
     browser = webdriver.Chrome(chrome_options=options,  # give the path to selenium executable
-                                   # executable_path='F://Armitage_lead_generation_project//chromedriver.exe'
-                                   executable_path='F://Armitage_project//crawl_n_depth//utilities//chromedriver.exe',
-                                    service_args=["--verbose", "--log-path=D:\\qc1.log"]
-                                   )
+                               # executable_path='F://Armitage_lead_generation_project//chromedriver.exe'
+                               executable_path='F://Armitage_project//crawl_n_depth//utilities//chromedriver.exe',
+                               service_args=["--verbose", "--log-path=D:\\qc1.log"]
+                               )
     return browser
 def add_parser(text):
     extracted_addresses = []
@@ -76,34 +85,23 @@ def scrape_address_from_google(company_name):
     pageSource = browser.page_source
     browser.quit()
     soup = BeautifulSoup(pageSource, 'html.parser')#bs4
+    is_captcha_on_page = soup.find("div", id="recaptcha") is not None
+    if (is_captcha_on_page):  # a captcha triggered
+        print("Captcha Detected")
+        return results
     result_div = soup.find_all('div', attrs={'class': 'NqXXPb'})
     for each in result_div:
         if(len(each.get_text())):
-            print("initial",each.get_text())
-            results.append(each.get_text())
-
-    result_div = soup.find_all('tr', attrs={'class': 'ztXv9'})
-    for each in result_div:
-        if (len(each.get_text())):
             print(each.get_text())
             results.append(each.get_text())
 
-    search_divs = soup.find_all('div', attrs={'class': 'g'})
-    for each in search_divs:
-        description = each.find('span', attrs={'class': 'st'})  # extracting the description
-        if isinstance(description, Tag):
-            description = description.get_text()
-            ext_ads = add_parser(description)
-            if(len(ext_ads)):
-                results.extend(ext_ads)
-
-    # print(extracted_addresses)
-    # print(results)
+    result_div = soup.find_all('tr', attrs={'class': 'ztXv9'})
     results =list(set(results))
     return results
 
 def get_ad_from_google(id_list):
-    mycol = refer_collection()
+    # mycol = refer_collection()
+    mycol = refer_cleaned_collection()
     for entry_id in id_list:
         comp_data_entry = mycol.find({"_id": entry_id})
         data = [i for i in comp_data_entry]
@@ -113,7 +111,7 @@ def get_ad_from_google(id_list):
             g_ad_data = scrape_address_from_google(comp_name)
             data_dict = {'google_address':g_ad_data}
             print(data_dict)
-            if(len(data_dict.keys())):
+            if(len(g_ad_data)):
                 mycol.update_one({'_id': entry_id},
                                  {'$set': data_dict})
                 print("Successfully extended the data entry with google address data", entry_id)
@@ -125,7 +123,7 @@ def get_ad_from_google(id_list):
             print("No google address data found!")
 
 
-get_ad_from_google([ObjectId('5eb6311c86662885174692de')])
+# get_ad_from_google([ObjectId('5eb6311c86662885174692de')])
 
-# print(get_address_from_google("armitage"))
+print(scrape_address_from_google("armitage"))
 
