@@ -32,7 +32,7 @@ def get_browser():
             break
     print(userAgent)
     options = webdriver.ChromeOptions()  # use headless version of chrome to avoid getting blocked
-
+    options.add_argument("--no-sandbox")
     options.add_argument(f'user-agent={userAgent}')
     options.add_argument('headless')
     # options.add_argument("start-maximized")# // open Browser in maximized mode
@@ -125,5 +125,5 @@ def get_ad_from_google(id_list):
 
 # get_ad_from_google([ObjectId('5eb6311c86662885174692de')])
 
-print(scrape_address_from_google("armitage"))
+# print(scrape_address_from_google("armitage"))
 

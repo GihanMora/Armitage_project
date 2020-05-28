@@ -32,6 +32,7 @@ def get_browser():
     print(userAgent)
     options = webdriver.ChromeOptions()  # use headless version of chrome to avoid getting blocked
 
+    options.add_argument("--no-sandbox")
     options.add_argument(f'user-agent={userAgent}')
     options.add_argument('headless')
     # options.add_argument("start-maximized")# // open Browser in maximized mode
