@@ -1,27 +1,30 @@
-# Author    :Sajani Ranasinghe
-# Task      :Extract the founders, co-founders and Important persons of an Organization through the deep crawled pages of the given Organization
+# Author        :Sajani Ranasinghe
+# Task          :Extract the founders, co-founders and important persons of an organization through the deep crawled pages
+# Pre-conditions:The script uses RocketReach, NeverBounce APIs and AllenNLP, Glove Stanford embeddings
 
 
 import re
-import string
 import sys
-import nltk
+import spacy
+import string
+import rocketreach
 import numpy as np
+import neverbounce_sdk
 from scipy import spatial
 from bson import ObjectId
+from fuzzywuzzy import fuzz
 from collections import OrderedDict
-import spacy
 nlp = spacy.load("en_core_web_sm")
-from spacy.lang.en import English
-from openie import StanfordOpenIE
 from allennlp.predictors.predictor import Predictor
-from fuzzysearch import find_near_matches
+from itertools import groupby
 from fuzzywuzzy import process
 from urllib.parse import urlparse
-from itertools import groupby
+from fuzzysearch import find_near_matches
 import subprocess
-from stanfordnlp.server import CoreNLPClient
+from spacy.lang.en import English
+from openie import StanfordOpenIE
 import allennlp_models.ner.crf_tagger
+from stanfordnlp.server import CoreNLPClient
 #import pymongo
 #from spacy import displacy
 #from collections import Counter
@@ -32,11 +35,14 @@ import allennlp_models.ner.crf_tagger
 #nlp.add_pipe(nlp.create_pipe('sentencizer'))
 
 
-sys.path.insert(0, 'C:/Users/user/Desktop/LaTrobe/Projects/Proj_Armitage/Armitage_project-pre_version/crawl_n_depth//')
-from Simplified_System.Database.db_connect import refer_collection
+sys.path.insert(0, 'C:/Users/user/Desktop/LaTrobe/Projects/Proj_Armitage/Armitage_project-master/crawl_n_depth//')
+from Simplified_System.Deep_Crawling.main import deep_crawl
+from scrape_linkedin import ProfileScraper, HEADLESS_OPTIONS
 from Simplified_System.Initial_Crawling.main import search_a_query
 from Simplified_System.Initial_Crawling.main import search_a_company
-from Simplified_System.Deep_Crawling.main import deep_crawl
+from Simplified_System.Database.db_connect import refer_cleaned_collection
+from Simplified_System.linkedin_data_crawler.linkedin_crawling import scrape_person
+from Simplified_System.Initial_Crawling.get_n_search_results import getGoogleLinksForSearchText
 
 
 # Function to read the file containing the GLOVE embeddings from Stanford
@@ -58,19 +64,346 @@ def read_Glove_file():
 def find_closest_embeddings(embedding, embeddings_dict):
     return sorted(embeddings_dict.keys(), key=lambda word: spatial.distance.euclidean(embeddings_dict[word], embedding))
 
-# Function to extract the title, description, header and paragraph text from the given record_id to an extended list
+# Function to extract the description, header and paragraph text from the crawled data for a given record_id to an extended list
 def extract_data(def_entry_id):
-    mycol = refer_collection()
-    comp_data_entry = mycol.find({"_id": def_entry_id})
+
+    mycol = refer_cleaned_collection()
+    comp_data_entry = mycol.find({'_id': ObjectId(def_entry_id)})
     data = [i for i in comp_data_entry]
     # extracted_data = data[0]['header_text'] + [data[0]["description"]] + data[0]["paragraph_text"]
-    extracted_data = data[0]["paragraph_text"]
+    try:
+        extracted_data = data[0]["paragraph_text"]
+    except KeyError:
+        extracted_data = None
+
     return extracted_data
+
+# Function to get the required text from the given entry id and return the type
+def get_company(def_entry_id, key):
+
+    type = None
+    flag = False
+    check_link_list = ['www.', '.com', 'https', 'http']
+    mycol = refer_cleaned_collection()
+    comp_data_entry = mycol.find({'_id': ObjectId(def_entry_id)})
+    data = [i for i in comp_data_entry]
+    comp_name = data[0][key]
+
+    for i in range(len(check_link_list)):
+        if check_link_list[i] in comp_name:
+            flag = True
+            type = 'link'
+            break
+    if flag == False:
+        type = 'text'
+
+    return comp_name, type
+
+# Function to get the organization name
+def get_org(company, type):
+
+    if type == 'link':
+        # Get the main company name to be searched when a link is given
+        _netloc_ = urlparse(company).netloc
+        if _netloc_ != '':
+            if 'wiki' not in _netloc_:
+                org = get_main_organization_link(_netloc_)[0]
+            else:
+                _netloc_ = ''
+        if _netloc_ is '':
+            org = get_main_organization_link(company)[0]
+
+    elif type == 'text':
+        # Some pre-processing to get the company only
+        org = get_main_organization_text(company)
+
+    return org
+
+# Function to get the person names from dnb key value pair of the stored json
+def get_persons_dnb(def_entry_id):
+
+    mycol = refer_cleaned_collection()
+    comp_data_entry = mycol.find({'_id': ObjectId(def_entry_id)})
+    data = [i for i in comp_data_entry]
+    try:
+        person_names = data[0]['dnb_cp_info']
+        if len(person_names) > 1:
+            person_names = person_names[-1]
+        else:
+            person_names = None
+    except KeyError:
+        return None
+
+    return person_names
+
+# Function to check if the directors/people listed in dnb have any association to the company through LinkedIn
+def cross_check_person_linkedin(def_names, comp_name, status):
+
+    title_link_list = []
+    for i in range(len(def_names)):
+
+        # Defining the search text on google
+        if status == 'nested':
+            name = def_names[i][0]
+            search_text = name.lower() + ' ' + comp_name + ' linkedin'
+        elif status == 'not nested':
+            name = def_names[i]
+            search_text = name.lower() + ' ' + comp_name + ' linkedin'
+
+        # Searching google with the search text and extracting the titles and the links
+        sr = getGoogleLinksForSearchText(search_text, 3, 'normal')
+        filtered_li = []
+        for p in sr:
+            if 'linkedin.com' in p['link']:
+                if '/in/' in p['link']:
+                    if [p['title'], p['link']] not in title_link_list:
+                        if [p['title'], p['link']] not in filtered_li:
+                            filtered_li.append([p['title'], p['link']])
+
+            title_link_list.extend(filtered_li)
+
+    # Remove duplicates from the nested list
+    fset = set(frozenset(x) for x in title_link_list)
+    title_link_list = [list(x) for x in fset]
+
+    names_in_profiles = []
+    profile_urls = []
+    # Extract the names and profile urls from the extracted profiles
+    for i in range(len(title_link_list)):
+        if 'linkedin.com' in title_link_list[i][1]:
+            temp = title_link_list[i][0].split(' - ')
+            names_in_profiles.append(temp[0])
+            profile_urls.append(title_link_list[i][1])
+        else:
+            temp = title_link_list[i][1].split(' - ')
+            names_in_profiles.append(temp[0])
+            profile_urls.append(title_link_list[i][0])
+
+    scraped_profiles = []
+    # Scraping the linkedin profiles
+    for i in range(len(profile_urls)):
+        try:
+            profile_dict = scrape_person(profile_urls[i])
+        except Exception:
+            print('Exception Occurred')
+            continue
+        scraped_profiles.append(profile_dict)
+
+    # Check if the person is associated with the company, if so extract them
+    persons_associated = check_person_association_comp(scraped_profiles, comp_name, profile_urls)
+    # Check if the persons associated is in the upper hierarchy of the company
+    persons_relevant = check_if_important_person(persons_associated, ['co founder','co-founder','co-founded','co founded','co found','co-found','managing director','director',' ceo ', 'CEO', 'ceo',' coo ','founder','found','founding','executive director','chief executive officer','chief executive','chief operating officer', 'owner', 'chairman', 'chairperson'])
+
+    return persons_relevant
+
+# Function to check if the persons associated is in the upper hierarchy of the company
+def check_if_important_person(person_list, important_person_list):
+
+    final_person_list = []
+    for i in range(len(person_list)):
+        person_des = person_list[i]['job_title'].lower()
+        for k in range(len(important_person_list)):
+            if important_person_list[k] in person_des:
+                if person_list[i] not in final_person_list:
+                    final_person_list.append(person_list[i])
+
+    return final_person_list
+
+# Function to check if the person scraped from linkedin profile is associated with the company
+def check_person_association_comp(scraped_linkedin_list, org, profile_urls):
+
+    nested_list = []
+    # Make a nested list [[scraped_linkedin_list, profile_urls]]
+    for i in range(len(scraped_linkedin_list)):
+        nested_list.append([scraped_linkedin_list[i], profile_urls[i]])
+
+    title_list = []
+    # Iterating through the scraped linkedin profiles
+    for i in range(len(nested_list)):
+        profile = nested_list[i][0]
+        linkedin_url = nested_list[i][1]
+        name = profile['personal_info']['name']
+        jobs = profile['experiences']['jobs']
+
+        for k in range(len(jobs)):
+            job = jobs[k]
+            # Fuzzy string match to check if the companies are the same
+            par_ratio = fuzz.partial_ratio(job['company'].lower(), org.lower())
+            ratio = fuzz.ratio(job['company'].lower(), org.lower())
+            avg_ratio = (par_ratio + ratio)/2
+
+            if avg_ratio >= 60:
+                title_list.append({'name':name, 'job_title':job['title'], 'company':job['company'], 'linkedin_url':linkedin_url})
+
+    return title_list
+
+# Function to get email address of persons cross-checked with linkedIn using RocketReach
+def get_email_address(names):
+
+    rr = rocketreach.Gateway(rocketreach.GatewayConfig('Insert RocketReach API'))
+
+    for i in range(len(names)):
+        linkedin_url = names[i]['linkedin_url']
+
+        # Find a valid email for a given person
+        email_list = []
+        result = rr.person.lookup(linkedin_url=linkedin_url)
+
+        try:
+            # Get only the valid email addresses using RocketReach API
+            email_dict = result.person.emails
+            for k in range(len(email_dict)):
+                if email_dict[k]['smtp_valid'] == 'valid':
+                    email_list.append(email_dict[k]['email'])
+
+            if email_list == []:
+                names[i].update({'email':None})
+            elif email_list != []:
+                names[i].update({'email':email_list})
+
+        except AttributeError:
+            names[i].update({'email': None})
+            continue
+
+    return names
+
+# Function to write the important persons as a dictionary to MongoDB
+def write_to_mongodb(names, entry_id):
+
+    if names != []:
+        mycol = refer_cleaned_collection()
+        mycol.update_one({'_id': entry_id},
+                         {'$set': {'important_person_company':names}})
+
+    elif names == []:
+        mycol = refer_cleaned_collection()
+        mycol.update_one({'_id': entry_id},
+                         {'$set': {'important_person_company': 'No important persons found'}})
+
+    # mycol = refer_cleaned_collection()
+    # comp_data_entry = mycol.find({"_id": entry_id})
+    # data = [i for i in comp_data_entry]
+    # print('Updated final mongodb record:', data)
+
+# Function to generate all possible combinations of emails for a given person and verify them
+def generate_validate_email(name, org):
+
+    # Remove punctuation from the name string
+    name = name.translate(str.maketrans('', '', string.punctuation))
+    name = name.lower().split()
+    # Remove keyword from the list
+    _list_ = ['dr', 'mr', 'mrs', 'miss']
+    for i in range(len(_list_)):
+        if _list_[i] in name:
+            name.remove(_list_[i])
+    # Check if the length of the given keyword is greater than 2, to remove unnecessary keywords
+    name_list = []
+    for i in range(len(name)):
+        if len(name[i]) > 2:
+            name_list.append(name[i])
+
+    # Remove white spaces from the organization
+    org = org.replace(" ", "")
+    domain_com = '@'+str(org)+'.com'
+    domain_au = '@'+str(org)+'.com'+'.au'
+    domain_net = '@'+str(org)+'.net'
+    domain_main = [domain_com, domain_au, domain_net]
+
+    # Split the name to a list
+    if len(name_list) == 1:
+        name = name_list[0]
+        combinations = [name+domain_com, name[0]+domain_com, name+domain_au, name[0]+domain_au, name+domain_net, name[0]+domain_net]
+    else:
+        # Get the first name and the last name
+        first_name = name_list[0]
+        last_name = name_list[-1]
+
+        # Define the different combinations/permutations of email possibilities
+        combinations_main = [first_name+last_name,first_name+'.'+last_name,first_name+'_'+last_name,first_name[0]+'.'+last_name,first_name[0]+last_name,first_name,last_name,last_name+first_name,last_name+'.'+first_name,last_name+'_'+first_name]
+        combinations = []
+        for i in range(len(domain_main)):
+            for k in range(len(combinations_main)):
+                combinations.append(combinations_main[k] + domain_main[i])
+
+    # Verify the combinations using NeverBounce API
+    api_key = 'Insert NeverBounce API key'
+    client = neverbounce_sdk.client(api_key=api_key, timeout=50)
+    email_list = []
+
+    # Iterating through the combination list
+    for i in range(len(combinations)):
+        resp = client.single_check(combinations[i])
+        if resp['result'] == 'valid':
+            email_list.append(combinations[i])
+
+    if email_list == []:
+        email_list = None
+
+    return email_list
+
+# Function to verify emails where the emails value is None
+def predict_emails(entry_id):
+
+    # Get the data for important_person_company for the given entry id
+    mycol = refer_cleaned_collection()
+    comp_data_entry = mycol.find({"_id": entry_id})
+    data = [i for i in comp_data_entry]
+    important_person_company = data[0]['important_person_company']
+
+    comp_name, type = get_company(entry_id, 'search_text')
+    if type == 'link':
+        org = get_org(comp_name, type)
+    elif type == 'text':
+        if len(data[0]['search_text']) <= 15:
+            comp_name, type = get_company(entry_id, 'search_text')
+            org = get_org(comp_name, type)
+        elif len(data[0]['search_text']) > 15:
+            comp_name, type = get_company(entry_id, 'comp_name')
+            org = get_org(comp_name, type)
+
+    if important_person_company != 'No important persons found':
+
+        # Iterating through the list of persons
+        for i in range(len(important_person_company)):
+            email = important_person_company[i]['email']
+
+            if email == None:
+                # Generate all possible combinations of emails and verify
+                email_list = generate_validate_email(important_person_company[i]['name'], org)
+                important_person_company[i]['email'] = email_list
+
+            elif email != None:
+                continue
+
+        # Write back to the MongoDB record, the updated emails
+        write_to_mongodb(important_person_company, entry_id)
+
+# Function to extract sentences where the contact people from dnb exist
+# And check if the keywords appear in the selected sentences and return the contact persons
+def check_person_dnb_website(def_people_dnb_list, join_sentences, enrich_vocab_list):
+
+    # Extract the sentences by splitting it by '.'
+    sents = split_to_sentences(join_sentences)
+    sents = extract_sentences(sents, enrich_vocab_list)
+
+    sents_list = []
+    for i in range(len(sents)):
+        for k in range(len(def_people_dnb_list)):
+            flag = fuzzy_extract(def_people_dnb_list[k][0].lower(), sents[i], 50, 6)
+            if flag == True:
+                sents_list.append(def_people_dnb_list[k][0])
+
+    # Remove duplicates from the list
+    sents_list = list(set(sents_list))
+    if sents_list != []:
+        return sents_list
+    else:
+        return None
 
 # Function to enrich the vocabulary using the GLOVE model
 def enrich_vocab(embeddings_dict):
 
-    def_list = ['founder', 'commence']
+    def_list = ['founder']
     keywords = []
     temp = []
 
@@ -84,56 +417,18 @@ def enrich_vocab(embeddings_dict):
             keywords.append(temp[i])
 
     # Remove keyword from the list
-    _list_ = ['ceasing', 'postpone', 'proceed', 'underway', 'builder', 'pioneer', 'founding', 'start', 'started', 'entrepreneur']
+    _list_ = ['ceasing', 'postpone', 'proceed', 'underway', 'builder', 'pioneer', 'founding', 'start', 'started', 'entrepreneur', 'recommence']
     for i in range(len(_list_)):
         if _list_[i] in keywords:
             keywords.remove(_list_[i])
 
-    # Extend the keyword list with two more keywords
-    keywords.extend(['creator', 'named', 'established', ' dates from ', 'start-up', 'startup', 'cofounder', 'cofounded'])
+    # Extend the keyword list with two more keywords | Might have to include 'owner', 'owned', 'director'
+    keywords.extend(['established', ' dates from ', 'start-up', 'startup', 'cofounder', 'cofounded'])
 
     # Remove duplicates from the keyword list
     keywords = list(set(keywords))
 
     return keywords
-
-# Function to get the positions of the existing vocab keywords
-def get_position(def_sentences, def_vocab_list):
-
-    words = def_sentences.split()
-    position_list = []
-    word_list = []
-
-    for i in range(len(def_vocab_list)):
-        for pos in range(len(words)):
-            if def_vocab_list[i].lower() in words[pos].lower():
-                if pos not in position_list:
-                    position_list.append(pos)
-                    word_list.append(words[pos])
-
-    return position_list, word_list
-
-# Function to get human names
-def get_human_names(text):
-
-    tokens = nltk.tokenize.word_tokenize(text)
-    pos = nltk.pos_tag(tokens)
-    sentt = nltk.ne_chunk(pos, binary = False)
-    person_list = []
-    person = []
-    name = ""
-    for subtree in sentt.subtrees(filter=lambda t: t.label() == 'PERSON'):
-        for leaf in subtree.leaves():
-            person.append(leaf[0])
-        # Not grabbing lone surnames
-        if len(person) > 1:
-            for part in person:
-                name += part + ' '
-            if name[:-1] not in person_list:
-                person_list.append(name[:-1])
-            name = ''
-        person = []
-    return (person_list)
 
 # Function to extract the sentences where the keywords appear from the enriched vocab
 def extract_sentences(def_extracted_data, def_enrich_vocab_list):
@@ -150,46 +445,8 @@ def extract_sentences(def_extracted_data, def_enrich_vocab_list):
 
     return sentences
 
-# Function to extract the names of the founders
-def extract_founders(def_sentences):
-
-    names = []
-    for i in range(len(def_sentences)):
-        names.extend(get_human_names(def_sentences[i]))
-
-    # Remove duplicates in the list sentences
-    names = list(OrderedDict.fromkeys(names))
-
-    return names
-
-# Function to extract portion of a text for a given keyword radius
-def extract_text(def_words, position, def_keyword_radius):
-
-    # Get the bounds of the text to be extracted by specifying the keyword radius
-    start_idx = position - def_keyword_radius
-    finish_idx = position + (def_keyword_radius + 1)
-    if start_idx < 0:
-        start_idx = 0
-    if finish_idx > len(def_words) + 1:
-        finish_idx = len(def_words) + 1
-
-    text = ' '.join(def_words[start_idx:finish_idx])
-
-    return text
-
-# Function to parse sentences
-def form_sentences(join_sentences):
-
-    nlp = English()
-    nlp.add_pipe(nlp.create_pipe('sentencizer'))
-    doc = nlp(join_sentences)
-    sentences = [sent.string.strip() for sent in doc.sents]
-
-    return sentences
-
 # Function to split to sentences by '.'
 def split_to_sentences(join_sentences):
-
     long_sentence = join_sentences.split('.')
     return long_sentence
 
@@ -255,203 +512,7 @@ def extract_org_allenNLP(join_sentences, def_tag):
 
     return names
 
-# Function to extract founders using OpenIE
-def extract_founders_openie(person_names, _list_, enrich_vocab_list, def_org):
-
-    with StanfordOpenIE() as client:
-
-        # Initializing the lists
-        subject_list = [[]]*len(_list_)
-        relation_list = [[]]*len(_list_)
-        object_list = [[]]*len(_list_)
-
-        for i in range(len(_list_)):
-            for triple in client.annotate(_list_[i]):
-                subject_list[i].append(triple['subject'])
-                relation_list[i].append(triple['relation'])
-                object_list[i].append(triple['object'])
-
-    obj_sbj_list = []
-    for i in range(len(relation_list)):
-        for m in range(len(relation_list[i])):
-            relation = relation_list[i][m]
-            for k in range(len(enrich_vocab_list)):
-                if enrich_vocab_list[k].lower() in relation.lower():
-                    # Then extract the object and subject to a new list, removing duplicates
-                    if [object_list[i][m], subject_list[i][m]] not in obj_sbj_list:
-                        obj_sbj_list.append([object_list[i][m], subject_list[i][m]])
-
-    #print('obj_sbj_list:', obj_sbj_list)
-
-    # Remove the names from the person names if the name is not associated with the given organization
-    #print('def_org:', def_org)
-    #print('len def_org:', len(def_org))
-    #print('Person Names Before:', person_names)
-
-    temp_names = []
-    # obj_suj_list contains the object and the subject where the relation contains a keyword from enrich vocab
-    for i in range(len(obj_sbj_list)):
-
-        # Check if the object or the subject contains the organization
-        flag1 = fuzzy_extract(def_org.lower(), obj_sbj_list[i][0].lower(), 60, 3)
-        flag2 = fuzzy_extract(def_org.lower(), obj_sbj_list[i][1].lower(), 60, 3)
-
-        #print('obj_sbj_list[i][0]:', obj_sbj_list[i][0])
-        #print('obj_sbj_list[i][1]:', obj_sbj_list[i][1])
-        #print('flag1:', flag1)
-        #print('flag2:', flag2)
-        """flag1 = False
-        flag2 = False
-        if obj_sbj_list[i][0].lower() == def_org.lower():
-            flag1 = True
-        if obj_sbj_list[i][1].lower() == def_org.lower():
-            flag2 = True"""
-
-        if flag1 != False and flag2 != False:
-            if obj_sbj_list[i][0] in person_names:
-                temp_names.append(obj_sbj_list[i][0])
-            if obj_sbj_list[i][1] in person_names:
-                temp_names.append(obj_sbj_list[i][1])
-
-    return temp_names
-
-# Fine tune the founder extraction by removing names after the word 'said'
-def remove_names_said(filtered_person_names, _list_):
-
-    flag = False
-    # Iterating through the sentence list
-    for i in range(len(_list_)):
-        sentence = _list_[i]
-        if 'I ' in sentence:
-            flag = True
-        if ' said ' in sentence:
-            sentence_word_list = sentence.split()
-            idx = sentence_word_list.index('said')
-            # Get 5 words after the word said
-            if idx <= len(sentence_word_list) + 1:
-                words = sentence_word_list[idx:idx+5]
-            else:
-                last_idx = len(sentence_word_list) + 1
-                words = sentence_word_list[idx:last_idx]
-
-        if flag == False and words != []:
-            # Check if a name occurs in a words list
-            for k in range(len(words)):
-                for m in range(len(filtered_person_names)):
-                    if words[k] in filtered_person_names[m]:
-                        filtered_person_names.remove(filtered_person_names[m])
-
-    return filtered_person_names
-
-# Function to fine-tune founder extraction by using OpenIE
-def relation_ext_OpenIE(person_names, _list_, enrich_vocab_list, def_org):
-
-    with StanfordOpenIE() as client:
-
-        # Initializing the lists
-        subject_list = [[]]*len(_list_)
-        relation_list = [[]]*len(_list_)
-        object_list = [[]]*len(_list_)
-
-        for i in range(len(_list_)):
-            for triple in client.annotate(_list_[i]):
-                subject_list[i].append(triple['subject'])
-                relation_list[i].append(triple['relation'])
-                object_list[i].append(triple['object'])
-
-    obj_sbj_list = []
-    for i in range(len(relation_list)):
-        for m in range(len(relation_list[i])):
-            relation = relation_list[i][m]
-            for k in range(len(enrich_vocab_list)):
-                if enrich_vocab_list[k].lower() in relation.lower():
-                    # Then extract the object and subject to a new list, removing duplicates
-                    if [object_list[i][m], subject_list[i][m]] not in obj_sbj_list:
-                        obj_sbj_list.append([object_list[i][m], subject_list[i][m]])
-
-    #print('obj_sbj_list:', obj_sbj_list)
-
-    # Remove the names from the person names if the name is not associated with the given organization
-    #print('def_org:', def_org)
-    #print('len def_org:', len(def_org))
-    #print('Person Names Before:', person_names)
-    for i in range(len(obj_sbj_list)):
-        #print('Person Names Before:', person_names)
-        flag1 = fuzzy_extract(def_org.lower(), obj_sbj_list[i][0].lower(), 60, 3)
-        flag2 = fuzzy_extract(def_org.lower(), obj_sbj_list[i][1].lower(), 60, 3)
-        #print('obj_sbj_list[i][0]:', obj_sbj_list[i][0])
-        #print('obj_sbj_list[i][1]:', obj_sbj_list[i][1])
-        #print('flag1:', flag1)
-        #print('flag2:', flag2)
-        """flag1 = False
-        flag2 = False
-        if obj_sbj_list[i][0].lower() == def_org.lower():
-            flag1 = True
-        if obj_sbj_list[i][1].lower() == def_org.lower():
-            flag2 = True"""
-
-        if flag1 == False and flag2 == False:
-            if obj_sbj_list[i][0] in person_names:
-                person_names.remove(obj_sbj_list[i][0])
-            if obj_sbj_list[i][1] in person_names:
-                person_names.remove(obj_sbj_list[i][1])
-
-    return person_names
-
-# Function to fine-tune the founder extract by extracting the names which are a no. of words away from the keyword
-def check_keyword_dist(person_names, _list_, enrich_vocab_list, no_of_words_away):
-
-    count_array = []
-    main_keyword = []
-    position_of_keyword = []
-    # Iterating through the sentence list to check how many names appear in each sentence and the main keyword
-    for i in range(len(_list_)):
-        sentence = _list_[i]
-        sentence = sentence.translate(str.maketrans('', '', string.punctuation))
-        _list_[i] = sentence
-        count = 0
-        for k in range(len(person_names)):
-            if person_names[k] in sentence:
-                count = count + 1
-        count_array.append(count)
-        for k in range(len(enrich_vocab_list)):
-            if enrich_vocab_list[k].lower() in sentence.lower():
-                main_keyword.append(enrich_vocab_list[k])
-                break
-
-        sentence_list = sentence.lower().split()
-        for k in range(len(sentence_list)):
-            for m in range(len(enrich_vocab_list)):
-                if enrich_vocab_list[m].lower() in sentence_list[k]:
-                    position_of_keyword.append(k)
-        #position_of_keyword.append(sentence_list.index(main_keyword[i].lower()))
-
-    new_person_names = []
-    # Getting the words around a keyword and checking if there are any names
-    for i in range(len(_list_)):
-        sentence = _list_[i]
-        if count_array[i] == 1:
-            for k in range(len(person_names)):
-                if person_names[k] in sentence:
-                    if person_names[k] not in new_person_names:
-                        new_person_names.append(person_names[k])
-
-        if count_array[i] > 1:
-            # Extract the words around the main keyword
-            text = extract_text(sentence.split(), position_of_keyword[i], no_of_words_away)
-            # Check if a name appears on the text
-            text_words = text.split()
-            for k in range(len(text_words)):
-                for m in range(len(person_names)):
-                    if text_words[k] in person_names[m]: # Might be the issue
-                        if text_words[k] not in new_person_names:
-                            new_person_names.append(person_names[m])
-    # Remove duplicates from the list
-    new_person_names = list(set(new_person_names))
-
-    return new_person_names
-
-# Function to detect organizations names when link is provided
+# Function to extract organizations names when link is provided
 def get_main_organization_link(link):
 
     org = []
@@ -463,16 +524,25 @@ def get_main_organization_link(link):
                 org.append(rem[i])
     return org
 
-# Function to detect organizations names when link is provided
+# Function to extract organizations names when text is provided
 def get_main_organization_text(text):
 
     text = text.lower()
-    remove_list = ['.', ',', '-', '_', ':', ';', ' pty', ' ltd', ' inc', ' llc', ' co ', 'org', 'australia', 'limited']
-    for i in range(len(remove_list)):
-        if remove_list[i] in text:
-            text = text.replace(remove_list[i], '')
+    if '.' in text:
+        text_list = text.split('.')
+        remove_list = ['au', 'com', 'nz', 'ac', 'uk', 'net', 'gov', 'govt']
+        for k in range(len(remove_list)):
+            if remove_list[k] in text_list:
+                text_list.remove(remove_list[k])
+        text = ''.join(text_list)
 
-    # Remove the leading and traling white spaces
+    elif '.' not in text:
+        remove_list = ['.', ',', '-', '_', ':', ';', ' pty', ' ltd', ' inc', ' llc', ' co ', 'org', 'australia', 'limited']
+        for i in range(len(remove_list)):
+            if remove_list[i] in text:
+                text = text.replace(remove_list[i], '')
+
+    # Remove the leading and trailing white spaces
     text = text.lstrip()
     text = text.rstrip()
 
@@ -483,210 +553,20 @@ def fuzzy_extract(qs, ls, threshold, l_dist):
 
     _flag_ = False
     for word, _ in process.extractBests(qs, (ls,), score_cutoff=threshold):
-        # print('word {}'.format(word))
         for match in find_near_matches(qs, word, max_l_dist=l_dist):
             match = word[match.start:match.end]
-            # print('match {}'.format(match))
             index = ls.find(match)
             # if index != None and index > 0:
             if index != None:
                 _flag_ = True
-            # yield (match, index)
 
     return _flag_
 
-# Function to extract founders using nltk - Not Effective
-def extract_founders_nltk(join_sentences, enrich_vocab_list):
-
-    # Get the position of keywords from the vocab in the extracted text
-    position_list, word_list = get_position(join_sentences, enrich_vocab_list)
-
-    # Extract the text within 40 keyword radius from a given keyword from the enriched vocab
-    words = join_sentences.split()
-    text_portions = extract_text(words, position_list, 40)
-
-    # Extract person names
-    founders = extract_founders(text_portions)
-
-    return founders
-
-# Function to extract founders using spacy - in sentence level - Not Effective
-def extract_founders_spacy_sentence_lvl(join_sentences, enrich_vocab_list):
-
-    # Get all the people names
-    doc = nlp(join_sentences)
-    person_names = []
-    for X in doc.ents:
-        if X.label_ == 'PERSON':
-            _split_ = X.text.split(' ')
-            if len(_split_) > 1:
-                person_names.append(X.text)
-
-    sentence_list = form_sentences(join_sentences)
-    sents = extract_sentences(sentence_list, enrich_vocab_list)
-
-    # Extract the people from the sentences where the keywords occurred
-    _persons_ = []
-    for i in range(len(sents)):
-        for k in range(len(person_names)):
-            if person_names[k] in sents[i]:
-                if person_names[k] not in _persons_:
-                    _persons_.append(person_names[k])
-
-    return _persons_
-
-# Function to extract founders using spacy - in keyword level - Not Effective
-def extract_founders_spacy_keyword_lvl(join_sentences, enrich_vocab_list):
-
-    # Get the position of keywords from the vocab in the extracted text
-    position_list, word_list = get_position(join_sentences, enrich_vocab_list)
-
-    # Extract the text within 40 keyword radius from a given keyword from the enriched vocab
-    words = join_sentences.split()
-    text_portions = extract_text(words, position_list, 40)
-
-    # Get all the people names
-    doc = nlp(join_sentences)
-    person_names = []
-    for X in doc.ents:
-        if X.label_ == 'PERSON':
-            _split_ = X.text.split(' ')
-            if len(_split_) > 1:
-                person_names.append(X.text)
-
-    # Extract the people from the sentences where the keywords occurred
-    _persons_ = []
-    for i in range(len(text_portions)):
-        for k in range(len(person_names)):
-            if person_names[k] in text_portions[i]:
-                if person_names[k] not in _persons_:
-                    _persons_.append(person_names[k])
-
-    return _persons_
-
-# Function to extract founders using spacy - in keyword level - Not Effective
-def extract_founders_spacy_keyword_lvl_openie(join_sentences, enrich_vocab_list):
-
-    # Get the position of keywords from the vocab in the extracted text
-    position_list, word_list = get_position(join_sentences, enrich_vocab_list)
-
-    # Extract the text within 40 keyword radius from a given keyword from the enriched vocab
-    words = join_sentences.split()
-    text_portions = extract_text(words, position_list, 40)
-
-    # Get all the people names
-    doc = nlp(join_sentences)
-    person_names = []
-    for X in doc.ents:
-        if X.label_ == 'PERSON':
-            _split_ = X.text.split(' ')
-            if len(_split_) > 1:
-                person_names.append(X.text)
-
-    print('Initial Person Names:', person_names)
-    # Extract the people from the sentences where the keywords occurred
-    _persons_ = []
-    for i in range(len(text_portions)):
-        for k in range(len(person_names)):
-            if person_names[k] in text_portions[i]:
-                if person_names[k] not in _persons_:
-                    _persons_.append(person_names[k])
-
-    subjects = []
-    # Use OpenIE to extract entity relationships
-    with StanfordOpenIE() as client:
-
-        for i in range(len(text_portions)):
-            text = text_portions[i]
-            for triple in client.annotate(text):
-                # print(triple)
-                # Should be the other way round
-                for k in range(len(enrich_vocab_list)):
-                    if enrich_vocab_list[k] in triple['relation'] or triple['relation'] in enrich_vocab_list:
-                        if triple['subject'] not in subjects:
-                            subjects.append(triple['subject'])
-
-    print('_persons_:', _persons_)
-    print('subjects:', subjects)
-
-    return _persons_
-
-# Function to extract founders using spacy and Allen NLP - keyword level - Not Effective
-def extract_founders_spacy_and_allennlp_keyword(join_sentences, enrich_vocab_list, org):
-
-    # Get the position of keywords from the vocab in the extracted text
-    position_list, word_list = get_position(join_sentences, enrich_vocab_list)
-
-    # Extract the text within 40 keyword radius from a given keyword from the enriched vocab
-    words = join_sentences.split()
-    text_portions = extract_text(words, position_list, 40)
-
-    _list_ = []
-    # Check if the company is there
-    for i in range(len(text_portions)):
-        print('text portions:', text_portions[i].lower())
-        print('org:', org.lower())
-        if org.lower() in text_portions[i].lower():
-            _list_.append(text_portions[i])
-    print('list with the company:', _list_)
-
-    # Get the person names
-    persons = extract_names_allenNLP(' '.join(_list_))
-    print('persons:', persons)
-
-    return persons
-
-# Function to extract founders using spacy and Allen NLP - sentence level - Not Effective
-def extract_founders_openie_allennlp(join_sentences, enrich_vocab_list, org):
-
-    # Extract the sentences by splitting it by '.'
-    sents = split_to_sentences(join_sentences)
-    sents = extract_sentences(sents, enrich_vocab_list)
-    print('No. of sentences have the keywords from the enrich vocab:', len(sents))
-
-    _list_ = []
-    flag = False
-    # Check if the company name is there
-    for i in range(len(sents)):
-        if org.lower() in sents[i].lower():
-            _list_.append(sents[i])
-            flag = True
-    if flag == False:
-        # Do fuzzy string matching for company and the organization name
-        for i in range(len(sents)):
-            _flag_ = fuzzy_extract(org.lower(), sents[i], 50, 7)
-            if _flag_ == True:
-                _list_.append(sents[i])
-    print('Final list where the names are extracted:', _list_)
-    print('No. of sentences Allen NLP is used:', len(_list_))
-
-    person_names = []
-    if _list_ != []:
-        # Get the person names
-        person_names = extract_names_allenNLP(' '.join(_list_))
-
-    # Perform OpenIE to extract founders, by checking if there is a keyword appearing on the relation
-    temp_person_names = extract_founders_openie(person_names, _list_, enrich_vocab_list, org)
-    print('temp_person_names:', temp_person_names)
-    # Fine-tune the founder extraction by performing OpenIE on the final list(_list_)
-    filtered_person_names = relation_ext_OpenIE(person_names, _list_, enrich_vocab_list, org)
-
-    # Fine-tune the founder extraction by checking if a name is appearing before and after 6 words of a keyword
-    filterd_person_names = check_keyword_dist(filtered_person_names, _list_, enrich_vocab_list, 5)
-    print('filterd_person_names:', filterd_person_names)
-
-    # Concat the lists together and remove duplicates
-    final_names = temp_person_names + filterd_person_names
-    final_names = list(set(final_names))
-
-    return final_names, _list_
-
-# Function to extract founders using spacy and Allen NLP - sentence level
+# Function to extract founders using Allen NLP in sentence level
 def extract_founders_allennlp(join_sentences, enrich_vocab_list, org):
 
-    # Extract the sentences which have keywords from the enrich vocab list and use spacy to parse into sentences - Not Effective
-    # sentence_list = form_sentences(join_sentences)
-    # sents = extract_sentences(sentence_list, enrich_vocab_list)
+    # Remove duplicates from the enrich vocab list
+    enrich_vocab_list = list(set(enrich_vocab_list))
 
     # Extract the sentences by splitting it by '.'
     sents = split_to_sentences(join_sentences)
@@ -706,22 +586,150 @@ def extract_founders_allennlp(join_sentences, enrich_vocab_list, org):
             _flag_ = fuzzy_extract(org.lower(), sents[i], 50, 7)
             if _flag_ == True:
                 _list_.append(sents[i])
-    print('Final list where the names are extracted:', _list_)
+
+    # Remove duplicates from the _list_
+    _list_ = list(set(_list_))
     print('No. of sentences Allen NLP is used:', len(_list_))
 
-    person_names = []
     if _list_ != []:
         # Get the person names
         person_names = extract_names_allenNLP(' '.join(_list_))
+        print('Person names using Allen NLP:', person_names)
+        # Fine-tune the founder extraction by performing OpenIE on the final list(_list_)
+        # filtered_person_names = relation_ext_OpenIE(person_names, _list_, enrich_vocab_list, org)
 
-    # Fine-tune the founder extraction by performing OpenIE on the final list(_list_)
-    filtered_person_names = relation_ext_OpenIE(person_names, _list_, enrich_vocab_list, org)
-    # Fine-tune the founder extraction by checking if a name is appearing before and after 12 words of a keyword
-    filterd_person_names = check_keyword_dist(filtered_person_names, _list_, enrich_vocab_list, 12)
-    #filtered_person_names = remove_names_said(filtered_person_names, _list_)
-    #print('final filtered_person_names:', filtered_person_names)
+    elif _list_ == []:
+        person_names = []
 
-    return person_names, _list_, filterd_person_names
+    return person_names, _list_
+
+# Function to perform extended founder search
+def main_founder_search(id_list):
+
+    # Read the text file containing the GLOVE embeddings from Stanford and enrich the vocabulary with similar meaning to founder
+    embeddings_dict = read_Glove_file()
+    enrich_vocab_list = enrich_vocab(embeddings_dict)
+
+    for entry_id in id_list:
+
+        # Get the company name
+        comp_name, type = get_company(entry_id, 'comp_name')
+        print('Entry Id:', entry_id)
+        print('Stored company name:', comp_name)
+
+        persons_dnb = get_persons_dnb(entry_id)
+        flag = False
+        if persons_dnb == []:
+            flag = True
+        if persons_dnb == None:
+            flag = True
+        print('Persons found in D&B:', persons_dnb)
+
+        # Get organization name
+        org = get_org(comp_name, type)
+        print('Organization: ' + str(org))
+
+        # Extract the data related to the description, header and paragraph text in form of an extended list and joining the extracted data
+        extracted_data = extract_data(entry_id)
+        if extracted_data == None:
+            write_to_mongodb([], entry_id)
+            print('*** No extracted data ***')
+
+        if extracted_data != None:
+            join_sentences = ' '.join(extracted_data)
+            chairperson_flag = True
+            # Check for chairman or chairpersons of a company
+            chairperson, _list_ = extract_founders_allennlp(join_sentences, ['chairman', 'chairperson'], org)
+            print('Chairman or Chairperson:', chairperson)
+
+            # Cross check the chairman list with LinkedIn
+            if chairperson != []:
+                print('Cross-checking Chairman or Chairperson with linkedin profiles')
+                names = cross_check_person_linkedin(chairperson, org, 'not nested')
+                if names != []:
+                    # Update the output names by appending email addresses
+                    names= get_email_address(names)
+                    write_to_mongodb(names, entry_id)
+                    print('Chairman/Important persons associated with company after LinkedIn cross-checking:', names)
+                    print('Updated MongoDB')
+                if names == []:
+                    chairperson_flag = False
+            if chairperson == []:
+                chairperson_flag = False
+
+            # If there exist no chairman or chairpersons
+            if chairperson_flag == False:
+                print('No mentioning of Chairman or Chairpersons in the website')
+
+                # If there exist people in the dnb
+                if flag == False:
+                    # Check if the persons listed in dnb has any association with the mentioned organization
+                    print('Cross-checking with linkedin profiles to check the persons mentioned in the D&B are associated with the company')
+                    names = cross_check_person_linkedin(persons_dnb, org, 'nested')
+
+                    if names == []:
+                        # Extract founders/co-founders/directors/managing director/CEO from the crawled text AllenNLP
+                        founders, _list_ = extract_founders_allennlp(join_sentences,enrich_vocab_list + ['co founder','co-founder','co-founded', 'co founded','co found','co-found','managing director','director',' ceo ','coo ','founder', 'found','founding','executive director','chief executive officer','chief executive','chief operating officer',' owner '], org)
+                        print('Founders or Important Persons of the organization in the website:', str(founders))
+
+                        if founders != []:
+                            # Cross-check with LinkedIn
+                            print('Cross-checking founders/co-founders/managing directors etc. with LinkedIn profiles')
+                            names = cross_check_person_linkedin(founders, org, 'not nested')
+
+                            if names != []:
+                                # Update the output names by appending email addresses
+                                names = get_email_address(names)
+                                write_to_mongodb(names, entry_id)
+                                print('Important persons associated with company after LinkedIn cross-checking:', names)
+                                print('Updated MongoDB')
+
+                            if names == []:
+                                write_to_mongodb(names, entry_id)
+                                print('No important persons found')
+                                print('Updated MongoDB')
+
+                        if founders == []:
+                            write_to_mongodb(founders, entry_id)
+                            print('No important persons found')
+                            print('Updated MongoDB')
+
+                    if names != []:
+                        # Update the output names by appending email addresses
+                        names = get_email_address(names)
+                        write_to_mongodb(names, entry_id)
+                        print('Chairman/Important persons associated with company after LinkedIn cross-checking:', names)
+                        print('Updated MongoDB')
+
+
+                elif flag == True:
+                    # Extract founders/co-founders/directors/managing director/CEO from the crawled text AllenNLP
+                    founders, _list_ = extract_founders_allennlp(join_sentences,enrich_vocab_list + ['co founder', 'co-founder','co-founded', 'co founded','co found', 'co-found','managing director', 'director',' ceo ', ' coo ', 'founder', 'found','founding', 'executive director','chief executive officer','chief executive','chief operating officer', ' owner '], org)
+                    print('Founders or Important Persons of the organization in the website:', str(founders))
+
+                    # Cross-check with LinkedIn
+                    if founders != []:
+                        print('Cross-checking founders/co-founders/managing directors etc. with LinkedIn profiles')
+                        names = cross_check_person_linkedin(founders, org, 'not nested')
+
+                        if names != []:
+                            # Update the output names by appending email addresses
+                            names = get_email_address(names)
+                            write_to_mongodb(names, entry_id)
+                            print('Chairman/Important persons associated with company after linkedin cross-checking:', names)
+                            print('Updated MongoDB')
+
+                        if names == []:
+                            write_to_mongodb(names, entry_id)
+                            print('No important persons found')
+                            print('Updated MongoDB')
+
+                    if founders == []:
+                        write_to_mongodb(founders, entry_id)
+                        print('No important persons found')
+                        print('Updated MongoDB')
+
+            print('*** DONE ***')
 
 
 
@@ -729,100 +737,16 @@ def extract_founders_allennlp(join_sentences, enrich_vocab_list, org):
 
 def main():
 
-    ####################################################################################################################
-    mycol = refer_collection()
-    _id_ = None
 
-    _input_ = input('Input whether a link(L) or text(T): ')
-    if _input_ == 'L':
-        # Enter link to be deep crawled and to extract founders
-        link = 'www.sentral.com.au' # There exist founders in the deep crawled sites and the program can identify them successfully
-        #link = 'https://www.codelikeagirl.com/about/our-story/' # There exist founders in the deep crawled sites and the program can identify them successfully
-        _id_ = search_a_company(link, mycol)
+    # The founders/important persons of an organization can be found by running the main_founder_search(entry_id_list),
+    # eg: main_founder_search(['5eb703a2a86cec7b42163618', '5eb703b9a86cec7b42163619'])
+    # or
+    # The main_founder_search(entry_id_list) can be embedded in the main pipeline
 
-    if _input_ == 'T':
-        # Enter organization or the company name to be deep crawled and to extract founders
-        text = 'SENTRAL PTY LTD' # There exist founders in the deep crawled sites and the program can identify them successfully
-        #text = 'Jac and Jack pty ltd' # There exist founders in the deep crawled sites and the program can identify them successfully
-        _id_ = search_a_query(text, 1, mycol)
+    # The following entry ids are updated with the important_person_company key value pair, in the refer_cleaned_collection()
+    # updated_entry_id_list = ['5eb703a2a86cec7b42163618','5eb703b9a86cec7b42163619','5eb6a058cd265d6ef2ee766f','5eb66dabf3d5b58ef16a4c74','5eb7c4fd9a65a3d7609e4fd1','5eb7f2e0a97054c1c28ae403','5eb71606b7411bc8fe5ec287','5eb68e2fab2ce0451e2b4056','5eb762a5646627514dad781a','5eb67a4c109ddab70aec7b2d','5eb652de55de509b4a9efaf4','5eb76342646627514dad781f','5eb71564b7411bc8fe5ec282','5eb66bb449a0728d932475bc','5eb6a21fe632eaf0b1d593db','5eb65f2cde8cab37cd68dffd','5eb6820dcc1fecfea5009f48','5eb762fd646627514dad781c','5eb7d6a0f75273c9af329f7a','5eb6bbbee2f17c3f3238cec8','5eb689814e048265dd507dbc','5eb650acab06d680d6990351','5eb639ee2c60aae411d1ae8b','5eb8081955584ed5ddbe68f3','5eb7026aa86cec7b4216360a','5eb6734f61272a1489607d7c','5eb64a8e96bdd2bbbb3287e5','5eb672382cf60f5b673dc845','5eb8080355584ed5ddbe68f2','5eb6a930b440ebf60d42d6c2','5eb697cac579ca076779cb0f','5eb7c5bb9a65a3d7609e4fd4','5eb7c5d19a65a3d7609e4fd5','5eb7f3a7a97054c1c28ae40a','5eb64bc810a22fecd4eca987','5eb661a6796445df9bfd756d','5eb698a46de98c90f95a497d','5eb7f323a97054c1c28ae405','5eb70280a86cec7b4216360b','5eb7d6e4f75273c9af329f7d','5eb7f34ea97054c1c28ae407','5eb699a671806057e76f0141','5eb65433af5bcc3efe32c504','5eb727682d11eabb9aa47f83','5eb6567909d0de1b6b708cf8','5eb64f4ea0549166c51ca057','5eb6bdb1e7b6cc4614eb0edb','5eb6afc4e15b344d1a3aafa0','5eb695e1ffe996bbe09292fe','5eb6ab260aef4a583d77118f','5eb7273c2d11eabb9aa47f81','5eb7f364a97054c1c28ae408','5eb7f415a97054c1c28ae40f','5eb63539be65b70e5af0c7a9','5eb8085b55584ed5ddbe68f6','5eb7038ca86cec7b42163617','5eb70333a86cec7b42163613','5eb8084555584ed5ddbe68f5','5eb67bc12373d9a910e8750f','5eb646ce3b4442b4da91c057','5eb66a9b90f9dd06f1107866','5eb66ce4535d821544a14dee','5eb690bd8d99ac316303ffb6','5eb6944565d7b2466379f198','5eb7157ab7411bc8fe5ec283','5eb7639d646627514dad7822','5eb657e754ee9cbe1a7388c8','5eb651bc5fa088c453991725','5eb6556c29c37695bc97bec4','5eb68d458e708541f4671189','5eb7d6fbf75273c9af329f7e','5eb7f441a97054c1c28ae411','5eb634492802acb8c48e02aa','5eb70305a86cec7b42163611','5eb68405b8f3f1e1b3084a52','5eb67952c38498d75c86627f','5eb7d6b7f75273c9af329f7b','5eb6853a626f824ef428e315','5eb7f3d3a97054c1c28ae40c','5eb7d5d6f75273c9af329f72','5eb6631b245b7e033d0f92ed','5eb6b9158f232307ce0bdc13','5eb676209d0d155a1c6530f3','5eb6378b772150870b5c8d27','5eb76261646627514dad7817','5eb6af2a6012ca09c1728130','5eb762e6646627514dad781b','5eb76385646627514dad7821','5eb808f055584ed5ddbe68f9','5eb6688cf9acda3a876322e4','5eb68b52298db2bd4cebdd0e','5eb690038f7f6e26b6253fd5','5eb7d61bf75273c9af329f75','5eb62e2a134cc6fb9536e93d','5eb7d631f75273c9af329f76','5eb69a7d5587c492135fd56c','5eb6b71e5cd9b7b54c7d9961','5eb6311c86662885174692de','5eb808a355584ed5ddbe68f7','5eb682ecd810c81378eb806d','5eb7154eb7411bc8fe5ec281','5eb6479687b6932b9e6de098','5eb7f3e9a97054c1c28ae40d','5eb71591b7411bc8fe5ec284','5eb7d604f75273c9af329f74','5eb6783b3dd775bea489b02d','5eb6a8462d272649f7b4df95','5eb680d98c70c48229cd26b6','5eb7f338a97054c1c28ae406','5eb807ec55584ed5ddbe68f1','5eb6363894bd0b097f9c2734','5eb6ac1bfff106a6f58c42e7','5eb7161db7411bc8fe5ec288','5eb714ebb7411bc8fe5ec27d','5eb65942b46918d079adebe9','5eb640560732058562a400b3','5eb7628f646627514dad7819','5eb69c52d1ecab806f2beead','5eb67d3dd9818bcd44884d39','5eb694f59c10ae1d407b7c2a','5eb64e13158973dfa9982019','5eb6918fa2e66438837c2d83','5eb8091c55584ed5ddbe68fb','5eb68edce0b5b75b05fba1e6','5eb670c2382a70cea3c90149','5eb7d6cef75273c9af329f7c','5eb68c65501e64174bede873','5eb6b38eeb5e21b75a0d7cdb','5eb6b45f4dab807be8d7a28a','5eb69b6fc6cad85bd913e12a','5eb6bca1b68e7672cd0ef210','5eb67e66b7921dcf1c2e6805','5eb702d9a86cec7b4216360f','5eb7c4bb9a65a3d7609e4fcf','5eb69cefc81bdf1aac4bf6a1','5eb630147afe26eca4ba7bfa','5eb7277f2d11eabb9aa47f84','5eb66401b0e60a643fae0467','5eb6603b6e69c6f2e1092cf8','5eb675384beae11731a0ce35','5eb7031ca86cec7b42163612','5eb6a72dfc5d1c47d4ca9cd1','5eb7d689f75273c9af329f79','5eb7f2f8a97054c1c28ae404','5eb7f461a97054c1c28ae412','5eb7d5eef75273c9af329f73','5eb6925a31a5f94e1207b916','5eb7f37aa97054c1c28ae409','5eb76205646627514dad7813','5eb7c5149a65a3d7609e4fd2','5eb70376a86cec7b42163616','5eb7624b646627514dad7816','5eb70254a86cec7b42163609','5eb7c5e89a65a3d7609e4fd6','5eb727522d11eabb9aa47f82','5eb64cfc8c94747a21f39855','5eb702c2a86cec7b4216360e','5eb63c1e9c69232f6ed6edd8','5eb65d83728ad01002b3a5f6','5eb68a771a268ae85ef97960','5eb6ad1662db4e6c180a378b','5eb7621e646627514dad7814','5eb6bfc707fd60d7d77844de','5eb6b53fd8471918b43146b7','5eb7636f646627514dad7820','5eb6777b140e783b3524f4d9','5eb8093255584ed5ddbe68fc','5eb6746b3f8078c646a32068','5eb6ae390bdb0b194f41f9b3','5eb66682dc99a524418da337','5eb7f3bda97054c1c28ae40b','5eb76278646627514dad7818','5eb7f3ffa97054c1c28ae40e','5eb702efa86cec7b42163610','5eb6bad32c05d6f34cf32652','5eb7d72bf75273c9af329f7f','5eb7d652f75273c9af329f77','5eb715a7b7411bc8fe5ec285','5eb6a12f7ef80a97c531cc67','5eb63e1ee805d1cff3d80a25','5eb6beca47492aa1e0553de4','5eb70296a86cec7b4216360c','5eb7023ba86cec7b42163608','5eb688a782ee2ac4699515f2','5eb726fb2d11eabb9aa47f7f','5eb71538b7411bc8fe5ec280','5eb6b19b1c6e630676c62445','5eb648bf6bc924ef46ab60da','5eb67fa821374c1c36ea76bb','5eb69e087e9ea4385e20beed','5eb6b61fabf00d5fdb2d05a3','5eb71518b7411bc8fe5ec27f','5eb7f42aa97054c1c28ae410','5eb71501b7411bc8fe5ec27e','5eb6aa15b5b4db2c7393254c','5eb63ee743b668cb27ef8137','5eb715bdb7411bc8fe5ec286','5eb63aff81de1c4846fd91ab','5eb65b645417d406270e7e63','5eb65a927cb5b3a1ff4ae362','5eb70349a86cec7b42163614','5eb808d955584ed5ddbe68f8','5eb7d669f75273c9af329f78','5eb6b9dbb8b6b03010c4dcc6','5eb7c55d9a65a3d7609e4fd3','5eb6a63fc0820e4534126e94','5eb667a554cc6bc47dbfea44','5eb7d742f75273c9af329f80','5eb66e99e95b7d86f2518828','5eb63d1b9d2ec0b892c42dd5','5eb8082f55584ed5ddbe68f4','5eb66fa738555190120005d2','5eb6331597c8f5512179c4f1','5eb696f6ef36438bec383b7e','5eb714d5b7411bc8fe5ec27c','5eb69f48a04ce33b509b4895','5eb702aca86cec7b4216360d','5eb6651284c93e9e1b685024','5eb669883e6dc49bd6f1540f','5eb631f1fac479799dedd1f8','5eb6b2a5a9211572420260e9','5eb8090655584ed5ddbe68fa','5eb70360a86cec7b42163615','5eb714beb7411bc8fe5ec27b']
 
-    # Calling the deep crawling function just to extract the data from the initial website only
-    deep_crawl([ObjectId(_id_)], 3, 20)
-    print('*** FINISHED DEEP CRAWLING *** \n')
-
-    # Read the text file containing the GLOVE embeddings from Stanford
-    embeddings_dict = read_Glove_file()
-    # Enrich the vocabulary with similar meaning to founder
-    enrich_vocab_list = enrich_vocab(embeddings_dict)
-    print('enrich_vocab_list: ', enrich_vocab_list)
-    # Extract the data related to the title, description, header and paragraph text in form of an extended list
-    extracted_data = extract_data(_id_)
-    print('extracted_data:', extracted_data)
-    # Joining the sentences
-    join_sentences = ' '.join(extracted_data)
-
-    if _input_ == 'L':
-        # Get the main company name to be searched when a link is given
-        _netloc_ = urlparse(link).netloc
-        if _netloc_ != '':
-            if 'wiki' not in _netloc_:
-                org = get_main_organization_link(_netloc_)[0]
-            else:
-                _netloc_ = ''
-        if _netloc_ is '':
-            org = get_main_organization_link(link)[0]
-        print('Main Organization after parsing the url:', org)
-
-    elif _input_ == 'T':
-        # Some pre-processing to get the company only
-        org = get_main_organization_text(text)
-        print('Main Organization after pre-processing text:', org)
-    ####################################################################################################################
-
-    ####################################################################################################################
-    # Extract founders using spacy - in sentence level - Not Effective
-    #founders = extract_founders_spacy_sentence_lvl(join_sentences, enrich_vocab_list)
-    #print('No. of Founders or Important Persons:', len(founders))
-    #print('Founders or Important Persons associated with the organization:', founders)
-    ####################################################################################################################
-
-    ####################################################################################################################
-    # Extract founders using spacy - in keyword level - Not Effective
-    #founders = extract_founders_spacy_keyword_lvl(join_sentences, enrich_vocab_list)
-    #print('No. of Founders or Important Persons (using Spacy keyword level):', len(founders))
-    #print('Founders or Important Persons associated with the organization:', founders)
-    ####################################################################################################################
-
-    ####################################################################################################################
-    # Extract founders using nltk - Not Effective
-    #founders = extract_founders_nltk(join_sentences, enrich_vocab_list)
-    #print('No. of Founders or Important Persons:', len(founders))
-    #print('Founders or Important Persons associated with the organization:', founders)
-    ####################################################################################################################
-
-    ####################################################################################################################
-    # Extract founders using spacy - in keyword level using OpenIE - Not Effective
-    #founders = extract_founders_spacy_keyword_lvl_openie(join_sentences, enrich_vocab_list)
-    #print('No. of Founders or Important Persons (using Spacy & OpenIE):', len(founders))
-    #print('Founders or Important Persons associated with the organization:', str(founders))
-    ####################################################################################################################
-
-    ####################################################################################################################
-    # Extract founders using Spacy, AllenNLP - Not Effective
-    #founders = extract_founders_spacy_and_allennlp_keyword(join_sentences, enrich_vocab_list, org)
-    #print('No. of Founders or Important Persons (using Spacy & Allen NLP):', len(founders))
-    #print('Founders or Important Persons associated with the organization:', str(founders))
-    ####################################################################################################################
-
-    ####################################################################################################################
-    # Extract founders using AllenNLP and OpenIE to further fine-tune it
-    founders, _list_, filterd_person_names = extract_founders_allennlp(join_sentences, enrich_vocab_list, org)
-    print('No. of Founders or Important Persons (Allen NLP):', len(founders))
-    print('Founders or Important Persons associated with the organization:', str(founders))
-    print('Founders or Important Persons associated with the organization after filtering:', str(filterd_person_names))
-    print()
-    ####################################################################################################################
-
+    main_founder_search(['5eb62e2a134cc6fb9536e93d'])
 
 
 if __name__ == "__main__":
