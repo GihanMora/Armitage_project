@@ -17,7 +17,7 @@ import re
 # from Simplified_System.Initial_Crawling.get_n_search_results import getGoogleLinksForSearchText
 import sys
 sys.path.insert(0, 'F:/Armitage_project/crawl_n_depth/')
-from Simplified_System.Database.db_connect import refer_collection,refer_cleaned_collection
+from Simplified_System.Database.db_connect import refer_collection
 
 
 def get_browser():
@@ -101,7 +101,7 @@ def scrape_address_from_google(company_name):
 
 def get_ad_from_google(id_list):
     # mycol = refer_collection()
-    mycol = refer_cleaned_collection()
+    mycol = refer_collection()
     for entry_id in id_list:
         comp_data_entry = mycol.find({"_id": entry_id})
         data = [i for i in comp_data_entry]

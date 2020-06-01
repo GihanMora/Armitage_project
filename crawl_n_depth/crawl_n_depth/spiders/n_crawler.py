@@ -22,7 +22,7 @@ from scrapy.crawler import CrawlerRunner
 from scrapy.utils.log import configure_logging
 import sys
 sys.path.insert(0, 'F:/Armitage_project/crawl_n_depth/')
-from Simplified_System.Database.db_connect import refer_collection,refer_cleaned_collection
+from Simplified_System.Database.db_connect import refer_collection
 
 def add_parser(text):
     extracted_addresses = []
@@ -200,8 +200,8 @@ def run_sequential_crawlers_m(id_list,depth_limit,crawl_limit):#method used to r
     :param crawl_limit: max page count want to crawl
     :return:
     """
-    # mycol = refer_collection()
-    mycol = refer_cleaned_collection()
+    mycol = refer_collection()
+    # mycol = refer_cleaned_collection()
     for entry_id in id_list:#going for n depth for the each google search result
         comp_data_entry = mycol.find({"_id": entry_id})
         data=[i for i in comp_data_entry]
@@ -237,7 +237,7 @@ def run_sequential_crawlers_m(id_list,depth_limit,crawl_limit):#method used to r
     reactor.stop()
 
 def run_crawlers_m(id_list, depth_limit, crawl_limit):
-
+    print("came")
     run_sequential_crawlers_m(id_list, depth_limit, crawl_limit)
     # print(reactor.running)
 

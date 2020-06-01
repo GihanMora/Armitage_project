@@ -10,7 +10,7 @@ import json
 import os
 import time
 import pymongo
-from Simplified_System.Database.db_connect import refer_collection
+from Simplified_System.Database.db_connect import refer_collection,is_profile_exist
 # from ..Database.db_connect import refer_collection
 
 def search_a_company_alpha(comp_name, db_collection, query_entry,c_name):
@@ -36,6 +36,13 @@ def search_a_company_alpha(comp_name, db_collection, query_entry,c_name):
             filtered_sr.append(sr[i])
 
     if(len(filtered_sr)):
+
+        res_data = is_profile_exist(filtered_sr[0]['link'])
+
+        if (len(res_data)):
+            print("Profile " + filtered_sr[0]['link'] + " already existing at " + str(res_data[0]['_id']))
+            return 'exist'
+
         filtered_sr[0]['comp_name'] = c_name
         filtered_sr[0]['query_id'] = query_entry
         record_entry=db_collection.insert_one(filtered_sr[0])
@@ -73,6 +80,13 @@ def search_a_company(comp_name, db_collection, query_entry):
             filtered_sr.append(sr[i])
 
     if(len(filtered_sr)):
+        #is the link already taken
+        res_data =is_profile_exist(filtered_sr[0]['link'])
+
+        if(len(res_data)):
+            print("Profile "+filtered_sr[0]['link']+" already existing at "+str(res_data[0]['_id']))
+            return 'exist'
+
         filtered_sr[0]['comp_name'] = filtered_sr[0]['search_text']
         filtered_sr[0]['query_id'] = query_entry
         record_entry=db_collection.insert_one(filtered_sr[0])
@@ -125,6 +139,10 @@ def search_a_query(search_query,number_of_results,db_collection,query_entry):
             sr = getGoogleLinksForSearchText(received_domains[k], 3, 'normal')
             if(len(sr)>0):
                 print(sr[0])
+                res_data = is_profile_exist(sr[0]['link'])
+                if (len(res_data)):
+                    print("Profile " + sr[0]['link'] + " already existing at " + str(res_data[0]['_id']))
+                    continue
                 sr[0]['search_text'] = search_query
                 try:
                     c_name = received_domains[k].split("www.")[1]
