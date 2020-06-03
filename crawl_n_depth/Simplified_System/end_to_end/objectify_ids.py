@@ -4,7 +4,7 @@ from bson import ObjectId
 def obs(id):
     return ObjectId(id)
 
-f = open('owler.txt','r')
+f = open('to_fix.txt','r')
 ids_l = [obs(i.strip()) for i in f.readlines()]
 print(ids_l)
 

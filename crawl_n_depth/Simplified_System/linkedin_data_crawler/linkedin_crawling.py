@@ -133,4 +133,4 @@ def get_li_data(id_list):
             # mycol.update_one({'_id': entry_id},
             #                  {'$set': {'linkedin_cp_info': []}})
 
-get_li_data([ObjectId('5eb6b53fd8471918b43146b7')])
+# get_li_data([ObjectId('5eb6b53fd8471918b43146b7')])

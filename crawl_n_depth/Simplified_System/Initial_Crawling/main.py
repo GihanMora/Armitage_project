@@ -2,6 +2,8 @@
 #fix sys path if you want to run this seperately
 import sys
 
+from bson import ObjectId
+
 sys.path.insert(0, 'F:/Armitage_project/crawl_n_depth/')
 from Simplified_System.Initial_Crawling.get_n_search_results import getGoogleLinksForSearchText
 
@@ -62,22 +64,35 @@ def search_a_company(comp_name, db_collection, query_entry):
         count = count + 1
         print('captch detected and sleeping for n times n:', count)
         time.sleep(1200 * count)
-        sr = getGoogleLinksForSearchText(comp_name, 3, 'normal')
+        sr = getGoogleLinksForSearchText(comp_name, 4, 'normal')
 
     b_list_file = open('F:\Armitage_project\crawl_n_depth\Simplified_System\Initial_Crawling\\black_list.txt','r')
     black_list = b_list_file.read().splitlines()
     # 'www.dnb.com'
     received_links = [i['link'] for i in sr]
+    print(received_links)
+    #filter the links
+    filtered_sr_a = []
+    filtered_received_links = []
+    for i,each_l in enumerate(received_links):
+        if (('.com/' in each_l) or ('.education/' in each_l) or ('.io/' in each_l) or ('.com.au/' in each_l) or (
+                '.net/' in each_l) or ('.org/' in each_l) or ('.co.nz/' in each_l) or ('.nz/' in each_l) or (
+                '.au/' in each_l) or ('.biz/' in each_l)):
+            # print(each)
+            filtered_received_links.append(each_l)
+            filtered_sr_a.append(sr[i])
 
-    received_domains = [i.split("/")[2] for i in received_links]
+    print(filtered_sr_a)
+    received_domains = [i.split("/")[2] for i in filtered_received_links]
     filtered_sr = []
 
     print('rd', received_domains)
     for i, each in enumerate(received_domains):
-        if ('.gov.' in each or '.edu.' in each):  # filter non wanted websites
+        print(each)
+        if (('.gov.' in each) or ('.govt.' in each) or ('.edu.' in each) or ('.uk' in each)):  # filter non wanted websites
             continue
         if each not in black_list:
-            filtered_sr.append(sr[i])
+            filtered_sr.append(filtered_sr_a[i])
 
     if(len(filtered_sr)):
         #is the link already taken
@@ -104,7 +119,75 @@ def search_a_company(comp_name, db_collection, query_entry):
     #         results_writer.writerow([each_item['title'], each_item['link'], each_item['description']])
     #         break
     #     results_file.close()
+def update_a_company(comp_name, db_collection, entry_id):
+    print(entry_id)
+    sr = getGoogleLinksForSearchText(comp_name, 10, 'normal')
+    count = 0
+    while (sr == 'captcha'):
+        count = count + 1
+        print('captch detected and sleeping for n times n:', count)
+        time.sleep(1200 * count)
+        sr = getGoogleLinksForSearchText(comp_name, 10, 'normal')
 
+    b_list_file = open('F:\Armitage_project\crawl_n_depth\Simplified_System\Initial_Crawling\\black_list.txt','r')
+    black_list = b_list_file.read().splitlines()
+    # 'www.dnb.com'
+    received_links = [i['link'] for i in sr]
+    print(received_links)
+    #filter the links
+    filtered_received_links = []
+    filtered_sr_a = []
+    for i,each_l in enumerate(received_links):
+        if (('.com/' in each_l) or ('.education/' in each_l) or ('.io/' in each_l) or ('.com.au/' in each_l) or (
+                '.net/' in each_l) or ('.org/' in each_l) or ('.co.nz/' in each_l) or ('.nz/' in each_l) or (
+                '.au/' in each_l) or ('.biz/' in each_l)):
+            # print(each)
+            filtered_received_links.append(each_l)
+            filtered_sr_a.append(sr[i])
+
+    print(filtered_received_links)
+    print(filtered_sr_a)
+    received_domains = [i.split("/")[2] for i in filtered_received_links]
+    filtered_sr = []
+
+    print('rd', received_domains)
+    for i, each in enumerate(received_domains):
+        print(each)
+        if (('.gov.' in each) or ('.govt.' in each) or ('.edu.' in each) or ('.uk' in each)):  # filter non wanted websites
+            continue
+        if each not in black_list:
+            filtered_sr.append(filtered_sr_a[i])
+
+    if(len(filtered_sr)):
+        #is the link already taken
+        res_data =is_profile_exist(filtered_sr[0]['link'])
+        print('sss',filtered_sr[0])
+
+        # if(len(res_data)):
+        #     print("Profile "+filtered_sr[0]['link']+" already existing at "+str(res_data[0]['_id']))
+        #     return 'exist'
+
+        filtered_sr[0]['comp_name'] = filtered_sr[0]['search_text']
+        # filtered_sr[0]['query_id'] = query_entry
+
+        db_collection.update_one({'_id': ObjectId(entry_id)}, {'$set': filtered_sr[0]})
+        # record_entry=db_collection.insert_one(filtered_sr[0])
+        print(filtered_sr[0])
+        print("search record stored in db updated ")
+        print(entry_id)
+        return entry_id
+    else:
+        print("No results found!")
+        return None
+    #store data in a csv file
+    # with open('search_results.csv', mode='w',encoding='utf8') as results_file:  # store search results in to a csv file
+    #     results_writer = csv.writer(results_file, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
+    #     # print(filtered_sr[0])
+    #     for each_item in filtered_sr:
+    #         results_writer.writerow([each_item['title'], each_item['link'], each_item['description']])
+    #         break
+    #     results_file.close()
+# search_a_company('https://courselink.uoguelph.ca/','col','121')
 
 def search_a_query(search_query,number_of_results,db_collection,query_entry):
     sr = getGoogleLinksForSearchText(search_query, number_of_results, 'normal')
@@ -122,7 +205,16 @@ def search_a_query(search_query,number_of_results,db_collection,query_entry):
         for each_sr in sr:
             print(each_sr)
         received_links = [i['link'] for i in sr]
-        received_domains = [i.split("/")[2] for i in received_links]
+        filtered_received_links = []
+        for each_l in received_links:
+            if (('.com/' in each_l) or ('.education/' in each_l) or ('.io/' in each_l) or ('.com.au/' in each_l) or (
+                    '.net/' in each_l) or ('.org/' in each_l) or ('.co.nz/' in each_l) or ('.nz/' in each_l) or (
+                    '.au/' in each_l) or ('.biz/' in each_l)):
+                # print(each)
+                filtered_received_links.append(each_l)
+
+
+        received_domains = [i.split("/")[2] for i in filtered_received_links]
         print("received_domains",received_domains)
         received_domains = list(set(received_domains))
         print("received_domains", received_domains)
@@ -134,7 +226,7 @@ def search_a_query(search_query,number_of_results,db_collection,query_entry):
             black_list = b_list_file.read().splitlines()
             if(received_domains[k] in black_list):#filter non wanted websites
                 continue
-            if ('.gov.' in received_domains[k] or '.edu.' in received_domains[k] ):  # filter non wanted websites
+            if (('.gov.' in received_domains[k]) or ('.govt.' in received_domains[k]) or ('.edu.' in received_domains[k]) or ('.uk' in received_domains[k]) ):  # filter non wanted websites
                 continue
             sr = getGoogleLinksForSearchText(received_domains[k], 3, 'normal')
             if(len(sr)>0):
