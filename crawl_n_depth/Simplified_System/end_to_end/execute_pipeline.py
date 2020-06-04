@@ -16,6 +16,7 @@ from Simplified_System.Extract_contact_persons.main import extract_contact_perso
 from Classification.predict_class import predict_class_tags
 from Simplified_System.web_profile_data_crawler.scrape_dnb import get_dnb_data
 from Simplified_System.web_profile_data_crawler.scrape_oc import get_oc_data
+from Simplified_System.web_profile_data_crawler.scrape_crunchbase import get_cb_data
 from Simplified_System.linkedin_data_crawler.linkedin_crawling import get_li_data
 from Simplified_System.address_extraction.address_from_google import get_ad_from_google
 from Simplified_System.contacts_from_google.get_contacts_google import get_cp_from_google
@@ -70,6 +71,9 @@ def execute_for_a_company(comp_name):
 
         print(("***Predict the company type***"))
         predict_class_tags([entry_id])
+
+        print(("***Extract crunchbase profile data***"))
+        get_cb_data([entry_id])
 
         print(("***Extract linkedin profile data***"))
         get_li_data([entry_id])
@@ -144,6 +148,9 @@ def execute_for_a_company_alpha(comp_name,c_name):
         extract_contact_persons([entry_id],'query')
         print(("***Predict the company type***"))
         predict_class_tags([entry_id])
+        print(("***Extract crunchbase profile data***"))
+        get_cb_data([entry_id])
+
         print(("***Extract linkedin profile data***"))
         get_li_data([entry_id])
         print(("***Extract opencorporates profile data***"))
@@ -222,6 +229,9 @@ def execute_for_a_query(query):
         print("details for retrying,entry_id_list,query_id,started_time",
               [entry_id_list, record_entry.inserted_id, started])
         predict_class_tags(entry_id_list)
+
+        print(("***Extract crunchbase profile data***"))
+        get_cb_data(entry_id_list)
 
         print(("***Extract linkedin profile data***"))
         print("details for retrying,entry_id_list,query_id,started_time",

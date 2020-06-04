@@ -568,7 +568,7 @@ owler = [ObjectId('5eb72366ce65662b761e7cc5'), ObjectId('5eb702efa86cec7b4216361
 # print(all_ids_2045.index(ObjectId('5eb7031ca86cec7b42163612')))
 # simplified_update(all_ids_2045[135:])
 # contact_person_fix(all_ids_2045[156:])
-contact_person_fix(all_ids_2045[150:])
+# contact_person_fix(all_ids_2045[150:])
 # hq_fix(all_ids_2045[:150])
 # check_cp(all_ids_2045[150:])
 

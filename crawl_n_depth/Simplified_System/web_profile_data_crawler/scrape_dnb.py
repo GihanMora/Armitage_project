@@ -24,7 +24,14 @@ from Simplified_System.Initial_Crawling.get_n_search_results import getGoogleLin
 def get_browser():
     ua = UserAgent()
     # PROXY = proxy_generator()
-    userAgent = ua.random #get a random user agent
+    for k in range(5):
+        userAgent = ua.random  # get a random user agent
+        if ('Mobile' in userAgent):
+            print("got mobile")
+            continue
+        else:
+            break
+    print(userAgent)
     options = webdriver.ChromeOptions()  # use headless version of chrome to avoid getting blocked
     # options.add_argument('headless')
     options.add_argument(f'user-agent={userAgent}')

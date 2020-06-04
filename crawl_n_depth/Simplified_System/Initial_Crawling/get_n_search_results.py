@@ -31,6 +31,7 @@ def use_chrome():
     # options.add_argument("--disable-extensions")# // disabling extensions
     # options.add_argument("--disable-gpu")# // applicable to windows os only
     # options.add_argument("--disable-dev-shm-usage")# // overcome limited resource problems
+
     browser = webdriver.Chrome(chrome_options=options,  # give the path to selenium executable
                                # executable_path='F://Armitage_lead_generation_project//chromedriver.exe'
                                executable_path='F://Armitage_project//crawl_n_depth//utilities//chromedriver.exe'
