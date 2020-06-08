@@ -121,7 +121,7 @@ def search_a_company(comp_name, db_collection, query_entry):
     #     results_file.close()
 def update_a_company(comp_name, db_collection, entry_id):
     print(entry_id)
-    sr = getGoogleLinksForSearchText(comp_name, 10, 'normal')
+    sr = getGoogleLinksForSearchText(comp_name, 20, 'normal')
     count = 0
     while (sr == 'captcha'):
         count = count + 1
@@ -163,9 +163,9 @@ def update_a_company(comp_name, db_collection, entry_id):
         res_data =is_profile_exist(filtered_sr[0]['link'])
         print('sss',filtered_sr[0])
 
-        # if(len(res_data)):
-        #     print("Profile "+filtered_sr[0]['link']+" already existing at "+str(res_data[0]['_id']))
-        #     return 'exist'
+        if(len(res_data)):
+            print("Profile "+filtered_sr[0]['link']+" already existing at "+str(res_data[0]['_id']))
+            return 'exist'
 
         filtered_sr[0]['comp_name'] = filtered_sr[0]['search_text']
         # filtered_sr[0]['query_id'] = query_entry
