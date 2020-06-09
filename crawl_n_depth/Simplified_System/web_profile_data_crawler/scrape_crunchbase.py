@@ -48,7 +48,29 @@ def get_browser():
                                    )
     return browser
 
+def isvalid_hq(loc):
+    is_valid = False
+    check_list_a = ['VIC', 'NSW', 'ACT', 'QLD', 'NT', 'SA', 'TAS', 'WA', 'AU', 'NZ', 'AUS']
+    check_list_b = ['new south wales', 'victoria', 'queensland', 'western australia', 'south australia', 'tasmania',
+                    'northland', 'auckland', 'waikato', 'bay of plenty', 'gisborne', "hawkes bay", 'taranaki',
+                    'manawatu-whanganui', 'wellington', 'tasman', 'nelson', 'marlborough', 'west coast', 'canterbury',
+                    'otago', 'southland', 'australia',
+                    'new zealand', 'newzealand']
+    for c_c in check_list_a:
+        if c_c == 'SA':
+            if (((c_c in loc) and ('USA' not in loc))):
+                # print(((c_c in hq_li) and ('USA' not in hq_li)),((c_c in j_oc) and ('USA' not in j_oc)),((c_c in hq_g) and ('USA' not in hq_g)))
+                is_valid = True
+        else:
+            if ((c_c in loc)):
+                is_valid = True
 
+    for c_i in check_list_b:
+        if ((c_i in loc.lower())):
+            is_valid = True
+    if('united states' in loc.lower()):
+        is_valid = False
+    return is_valid
 # browser = get_browser()
 # browser.get("https://www.crunchbase.com/organization/2and2")
 # pageSource = browser.page_source
@@ -62,21 +84,22 @@ import requests
 from bs4 import BeautifulSoup as BS
 # "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.14; rv:66.0) Gecko/20100101 Firefox/66.0"
 def scrape_cb(url):
-    print(url)
+    # print(url)
     data_dict = {}
-    ua = UserAgent()
-    # PROXY = proxy_generator()
-    for k in range(5):
-        userAgent = ua.random  # get a random user agent
-        if ('Mobile' in userAgent):
-            print("got mobile")
-            continue
-        else:
-            break
-    print(userAgent)
+    # ua = UserAgent()
+    # # PROXY = proxy_generator()
+    # for k in range(5):
+    #     userAgent = ua.random  # get a random user agent
+    #     if ('Mobile' in userAgent):
+    #         print("got mobile")
+    #         continue
+    #     else:
+    #         break
+    # print(userAgent)
     headers = {"User-Agent":"Mozilla/5.0 (Macintosh; Intel Mac OS X 10.14; rv:66.0) Gecko/20100101 Firefox/66.0" , "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8", "Accept-Language": "en-US,en;q=0.5", "Accept-Encoding": "gzip, deflate", "DNT": "1", "Connection": "close", "Upgrade-Insecure-Requests": "1"}
 
     response = requests.get(url, headers=headers)
+    # print(response.text)
     soup = BeautifulSoup(response.text, 'html.parser')#bs4
     if('captcha' in response.text):
 
@@ -92,7 +115,7 @@ def scrape_cb(url):
     # if ('captcha' in pageSource):
     #     print("captcha detected!")
     #     return data_dict
-
+    # print(soup)
     header_ele = soup.findAll("div",attrs={'class': 'flex layout-column layout-align-center-center layout-align-gt-sm-center-start text-content'})
     c_name,descrip,head_q = '','',''
     for each_h in header_ele:
@@ -103,37 +126,82 @@ def scrape_cb(url):
         if(each_h.find("span", attrs={'class': 'component--field-formatter field-type-identifier-multi'})):
             head_q = each_h.find("span", attrs={'class': 'component--field-formatter field-type-identifier-multi'}).get_text()
 
-
-    tags_ele = soup.findAll("span",attrs={'class': 'cb-text-color-medium field-label flex-100 flex-gt-sm-25 ng-star-inserted'})+soup.findAll("span",attrs={'class':"cb-text-color-medium field-label flex-100 flex-gt-sm-25 last-field ng-star-inserted"})
-    details_ele = soup.findAll("span",attrs={'class': 'field-value flex-100 flex-gt-sm-75 ng-star-inserted'})+soup.findAll("span",attrs={'class':"field-value flex-100 flex-gt-sm-75 last-field ng-star-inserted"})
-    tags=[]
+    tags = []
     details = []
-    for each_tag in tags_ele:
-        # print(each_tag.get_text())
-        tags.append(each_tag.get_text().strip())
-    for each_det in details_ele:
-        # print(each_det.get_text())
-        det_text = each_det.get_text().strip()
-        if('facebook' in det_text.lower()):
-            # print(each_det)
-            a= each_det.find('a', href=True)
-            details.append(a['href'])
-        elif('twitter' in det_text.lower()):
-            # print(each_det)
-            a = each_det.find('a', href=True)
-            details.append(a['href'])
-        else:
-            details.append(det_text)
+    fields_cards = soup.findAll("fields-card", attrs={'class':'ng-star-inserted'})
+    for each_f_c in fields_cards:
+        ele_lists = each_f_c.findAll("li", attrs={'class':'ng-star-inserted'})
+        for each_e_l in ele_lists:
+            tag_e = each_e_l.find("span", attrs={'class':"wrappable-label-with-info ng-star-inserted"}).get_text()
+            det_e = each_e_l.find("field-formatter", attrs={'class':"ng-star-inserted"}).get_text()
+            tags.append(tag_e)
 
-    tags = [t+'_cb' for t in tags]
+            tag_e = tag_e.replace(" ","_").strip()
+
+            tag_e = tag_e+'_cb'
+            if ('facebook' in det_e.lower()):
+                # print(each_det)
+                a = each_e_l.find('a', href=True)
+                # print(tag_e,a['href'])
+                data_dict[tag_e]=a['href']
+                # details.append(a['href'])
+            elif ('twitter' in det_e.lower()):
+                # print(each_det)
+                a = each_e_l.find('a', href=True)
+                # print(tag_e,a['href'])
+                data_dict[tag_e] = a['href']
+                # details.append(a['href'])
+            elif ('linkedin' in det_e.lower()):
+                # print(each_det)
+                a = each_e_l.find('a', href=True)
+                # print(tag_e,a['href'])
+                data_dict[tag_e] = a['href']
+                # details.append(a['href'])
+            else:
+                data_dict[tag_e] = det_e
+                # print(tag_e,det_e)
+    # tags_ele = soup.findAll("span", attrs={'class': 'cb-text-color-medium field-label flex-100 flex-gt-sm-25 ng-star-inserted'}) + soup.findAll("span",
+    #                                                                                                          attrs={
+    #                                                                                                              'class': "cb-text-color-medium field-label flex-100 flex-gt-sm-25 last-field ng-star-inserted"})
+    # details_ele = soup.findAll("span",attrs={'class': 'field-value flex-100 flex-gt-sm-75 ng-star-inserted'}) + soup.findAll(
+    #     "span", attrs={'class': "field-value flex-100 flex-gt-sm-75 last-field ng-star-inserted"})
+
+
+    # for each_tag in tags_ele:
+    #     print(each_tag.get_text())
+    #     tags.append(each_tag.get_text().strip())
+    # for each_det in details_ele:
+    #     print(each_det.get_text())
+    #     det_text = each_det.get_text().strip()
+    #     if('facebook' in det_text.lower()):
+    #         # print(each_det)
+    #         a= each_det.find('a', href=True)
+    #         details.append(a['href'])
+    #     elif('twitter' in det_text.lower()):
+    #         # print(each_det)
+    #         a = each_det.find('a', href=True)
+    #         details.append(a['href'])
+    #     else:
+    #         details.append(det_text)
+
+    # tags = [t+'_cb' for t in tags]
     if(c_name!=''):data_dict['comp_name_cb']=c_name
     if (c_name != ''): data_dict['comp_description_cb'] = descrip
     if (c_name != ''): data_dict['comp_headquaters_cb'] = head_q
+    if(c_name=='List Australia'):
+        print('wrong crunchbase profile found')
+        return {}
+    if(not isvalid_hq(head_q)):
+        print('wrong crunchbase profile found')
+        return {}
 
-    if(len(tags)==len(details)):
-        for i in range(len(tags)):
-            data_dict[tags[i]]=details[i]
+    # print(len(tags),len(details))
+    # if(len(tags)==len(details)):
+    #     for i in range(len(tags)):
+    #         data_dict[tags[i]]=details[i]
 
+    # print('ss')
+    print(data_dict)
     return data_dict
 
 
@@ -183,3 +251,6 @@ all_ids_fixed = [ObjectId('5eb62e2a134cc6fb9536e93d'), ObjectId('5eb630147afe26e
 
 # print(all_ids_fixed.index(ObjectId('5ec2b1ca31b9046978d08ffd')))
 # get_cb_data(all_ids_fixed[1878:1900])
+# scrape_cb('https://www.crunchbase.com/organization/list-australia')
+mycol = refer_collection()
+mycol.collectionName.update_many({}, {'$rename':{"IPO Status_cb":"IPO_Status_cb"}})

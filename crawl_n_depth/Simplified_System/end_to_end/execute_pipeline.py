@@ -429,7 +429,7 @@ def update_data(entry_id_k):
 #     print("***phone numbers from google***")
 #     get_tp_from_google(id_list)
 #     print("***tp extraction completed***")
-# # update_data(ids_list[1421:])
+# update_data(ObjectId('5eb6603b6e69c6f2e1092cf8'))
 
 
 #

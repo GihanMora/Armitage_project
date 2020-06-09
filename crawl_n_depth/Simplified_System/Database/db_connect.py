@@ -164,25 +164,85 @@ def simplified_export(id_list):
             for each_a in attributes_a:
                 try:
                     if(each_a == 'address'):
-                        # if('google_address')
-                        # print("***********add")
-                        if('google_address' in attribute_keys):data_list.append(data[0]['google_address'][0])#from google
-                        elif(len(data[0]['addresses'])):data_list.append(data[0]['addresses'][0])#from website
-                        elif ('company_address_dnb' in attribute_keys):data_list.append(data[0]['company_address_dnb'])#from dnb
-                        elif ('registered_address_adr_oc' in attribute_keys):data_list.append(data[0]['registered_address_adr_oc'])#from opencorporates
-                        else:data_list.append("None")
+                        #address_fix
+                        try:
+                            g_add, w_ad, dnb_add, oc_add = '', '', '', ''
+                            if ('google_address' in attribute_keys):
+                                if (len(data[0]['google_address'])):
+                                    g_add = data[0]['google_address'][0]
+                            if (len(data[0]['addresses'])):
+                                for each in data[0]['addresses']:
+                                    if (isvalid_hq(each)):
+                                        w_ad = each
+                                        break
+                            if ('company_address_dnb' in attribute_keys):
+                                if (len(data[0]['company_address_dnb'])):
+                                    dnb_add = data[0]['company_address_dnb'][0]
+                            if ('registered_address_adr_oc' in attribute_keys):
+                                oc_add = data[0]['registered_address_adr_oc']
+
+                            if (isvalid_hq(g_add)):
+                                # print('g')
+                                data_list.append(g_add)  # from google
+                            elif (len(w_ad) != 0):
+                                # print('w')
+                                data_list.append(w_ad)
+                            elif (isvalid_hq(dnb_add)):
+                                # print('d')
+                                data_list.append(dnb_add)
+                            elif (isvalid_hq(oc_add.lower())):
+                                # print('o')
+                                data_list.append(oc_add)
+                            else:
+                                data_list.append('None')
+
+                        except KeyError:
+                            data_list.append('None')
 
                     if (each_a == 'email'):
                         # print("***********eml")
-                        if (len(data[0]['emails'])):data_list.append(data[0]['emails'][0])  # from website
-                        else:data_list.append("None")
+                        #email_fix
+                        try:
+                            if ('Contact Email_cb' in attribute_keys):
+                                data_list = data[0]['Contact Email_cb']
+                            elif (len(data[0]['emails'])):
+                                data_list.append(data[0]['emails'][0])  # from website
+                            else:
+                                data_list.append("None")
+                            # else:
+                            #     data_list.append("None")
+                        except KeyError:
+                            data_list.append('None')
 
                     if (each_a == 'telephone_number'):
                         # print("***********tp")
-                        if ('google_tp' in attribute_keys):data_list.append(data[0]['google_tp'][0])  # from google
-                        elif (len(data[0]['telephone_numbers'])):data_list.append(data[0]['telephone_numbers'][0])  # from website
-                        elif ('company_tp_dnb' in attribute_keys):data_list.append(data[0]['company_tp_dnb'])  # from dnb
-                        else:data_list.append("None")
+                        #tp_fix
+                        try:
+                            tp_cb_valid = False
+                            if ('Phone Number_cb' in attribute_keys):
+                                if ('comp_headquaters_cb' in attribute_keys):
+                                    hq_cb = data[0]['comp_headquaters_cb']
+                                    if (isvalid_hq(hq_cb)):
+                                        tp_cb_valid = True
+                            dnb_tp = []
+                            if ('company_tp_dnb' in attribute_keys):
+                                dnb_tp = data[0]['company_tp_dnb']  # from dnb
+
+                            if ('google_tp' in attribute_keys):
+                                data_list.append(data[0]['google_tp'][0])  # from google
+                            elif (tp_cb_valid):
+                                data_list.append(data[0]['Phone Number_cb'])
+                            elif (len(dnb_tp)):
+                                data_list.append(dnb_tp)  # from dnb
+                            elif (len(data[0]['telephone_numbers'])):
+                                data_list.append(data[0]['telephone_numbers'][0])  # from website
+                            else:
+                                data_list.append("None")
+
+                            # else:
+                            #     data_list.append("None")
+                        except KeyError:
+                            data_list.append('None')
 
                     if (each_a == 'keywords'):
                         # print("***********kw")
@@ -191,35 +251,156 @@ def simplified_export(id_list):
 
                     if (each_a == 'contact_person'):
                         # print("***********cp")
-                        if ('google_cp' in attribute_keys):data_list.append(data[0]['google_cp'])  # from google
-                        elif ('CEO_g' in attribute_keys):data_list.append(data[0]['CEO_g'])  # from google qa
-                        elif (len(data[0]['dnb_cp_info'])==3):data_list.append(data[0]['dnb_cp_info'][2])  # from dnb
-                        elif (len(data[0]['oc_cp_info'])==3):data_list.append(data[0]['oc_cp_info'][2])  # from oc
-                        elif ('agent_name_oc' in attribute_keys):data_list.append(data[0]['agent_name_oc'])  # from oc_agent
-                        elif (len(data[0]['linkedin_cp_info'])):data_list.append(data[0]['linkedin_cp_info'][0])  # from linkedin
-                        else:data_list.append("None")
+                        #contact_person_fix
+                        try:
+                            dnb_list = []
+                            if (len(data[0]['dnb_cp_info']) == 3):
+                                dnb_list = data[0]['dnb_cp_info'][2]
+                            oc_list = []
+                            if (len(data[0]['oc_cp_info']) == 3):
+                                oc_list = data[0]['oc_cp_info'][2]
+                            li_list = []
+                            if (len(data[0]['linkedin_cp_info'])):
+                                for each in data[0]['linkedin_cp_info']:
+                                    data_li = (each[0].split('|')[0]).split('-')
+                                    if (len(data_li) > 2):
+                                        # print('li cp',[data_li[0],data_li[1].strip()+'_'+data_li[2].strip()])
+                                        li_list.append([data_li[0], data_li[1].strip() + '_' + data_li[2].strip()])
+
+                            if ('google_cp' in attribute_keys):
+                                # print('g')
+                                det_gcp = data[0]['google_cp']
+                                # print('gog',det_gcp)
+                                data_list.extend(det_gcp[0])  # from google
+                            # crunchbase
+                            elif ('Founders_cb' in attribute_keys):
+                                det_cb = data[0]['Founders_cb']
+                                data_list.extend([det_cb, 'founder(s)'])
+
+                            elif (len(dnb_list)):
+                                # print('dnb',data[0]['dnb_cp_info'])
+                                # print('dnb',dnb_list[0])
+                                data_list.extend(dnb_list[0])  # from dnb
+                            elif ('CEO_g' in attribute_keys):
+                                # print('gc')
+                                # print('gogq',[data[0]['CEO_g'],'CEO'])
+                                data_list.extend([data[0]['CEO_g'], 'CEO'])  # from google qa
+                            elif (len(oc_list)):
+                                # print('oc')
+
+                                # print('oc',data[0]['oc_cp_info'])
+                                oc_cps = []
+                                for each_oc in data[0]['oc_cp_info'][2]:
+                                    # print(each_oc)
+                                    oc_det = each_oc[0].split(',')
+                                    if (len(oc_det) > 1):
+                                        oc_name = oc_det[0]
+                                        # print(oc_name)
+                                        if (len(oc_name) > 1):
+                                            oc_post = oc_det[1] + '_' + each_oc[1]
+                                            oc_cps.append([oc_name, oc_post])
+                                    else:
+                                        oc_cps.append([oc_det, 'agent_' + each_oc[1]])
+
+                                # print('oc',oc_cps[0])
+                                data_list.extend(oc_cps[0])  # from oc
+                            elif ('agent_name_oc' in attribute_keys):
+                                # print('oca')
+                                # print('oc_ag',[data[0]['agent_name_oc'],'agent'])
+                                data_list.extend([data[0]['agent_name_oc'], 'agent'])  # from oc_agent
+                            elif (len(li_list)):
+
+                                data_list.extend(li_list[0])  # from linkedin
+                                # print('*****')
+                            else:
+                                # print('None')
+                                data_list.append("None")
+
+                        except KeyError:
+                            data_list.append('None')
 
                     if (each_a == 'type_or_sector'):
+                        #sector_fix
                         # print("***********ty")
-                        if ('sector_g' in attribute_keys):data_list.append(data[0]['sector_g'])  # from google
-                        elif ('industry_li' in attribute_keys):data_list.append(data[0]['industry_li'])  # from linkedin
-                        elif ('comp_type_pred' in attribute_keys):data_list.append(data[0]['comp_type_pred'][0])  # from classification
-                        elif ('company_type_oc' in attribute_keys):data_list.append(data[0]['company_type_oc'])  # from oc
-                        elif ('company_type_dnb' in attribute_keys):data_list.append(data[0]['company_type_dnb'])  # from dnb
-                        else:data_list.append("None")
+                        try:
+                            if ('Industries_cb' in attribute_keys):
+                                print('cb', data[0]['Industries_cb'].split(', ')[:2])
+                                data_list.extend(data[0]['Industries_cb'].split(', ')[:2])
+                            elif ('industry_li' in attribute_keys):
+                                print('li', data[0]['industry_li'])
+                                data_list.extend([data[0]['industry_li']])  # from linkedin
+                            elif ('comp_type_pred' in attribute_keys):
+                                print('clas', data[0]['comp_type_pred'][0])
+                                data_list.extend([data[0]['comp_type_pred'][0][0] + ', ' + data[0]['comp_type_pred'][1][
+                                    0]])  # from classification
+                            else:
+                                data_list.append("None")
+
+                        except KeyError:
+                            data_list.append('None')
 
                     if (each_a == 'founded_year'):
+                        #fy_fix
                         # print("***********fy")
-                        if ('founded_year_g' in attribute_keys):data_list.append(data[0]['founded_year_g'])  # from google
-                        elif ('founded_li' in attribute_keys):data_list.append(data[0]['founded_li'])  # from linkedin
-                        elif ('incorporation_date_oc' in attribute_keys):data_list.append(data[0]['incorporation_date_oc'])  # from oc
-                        else:data_list.append("None")
+                        try:
+                            if ('Founded Date_cb' in attribute_keys):
+                                # print('cb',data[0]['Founded Date_cb'])
+                                data_list.append(data[0]['Founded Date_cb'])  # from linkedin
+                            elif ('founded_li' in attribute_keys):
+                                # print('li',data[0]['founded_li'])
+                                data_list.append(data[0]['founded_li'])  # from linkedin
+                            elif ('incorporation_date_oc' in attribute_keys):
+                                # print('oc', data[0]['incorporation_date_oc'].split(' (')[0])
+                                data_list.append(data[0]['incorporation_date_oc'].split(' (')[0])  # from oc
+                            elif ('founded_year_g' in attribute_keys):
+                                # print('g', data[0]['founded_year_g'])
+                                data_list.append(data[0]['founded_year_g'])  # from google
+                            else:
+                                data_list.append("None")
+                            # if ('Industries_cb' in attribute_keys):
+                            #     print('cb',data[0]['Industries_cb'].split(', ')[:2])
+                            #     data_list.extend(data[0]['Industries_cb'].split(', ')[:2])
+                            # elif ('industry_li' in attribute_keys):
+                            #     print('li',data[0]['industry_li'])
+                            #     data_list.extend([data[0]['industry_li']])  # from linkedin
+                            # elif ('comp_type_pred' in attribute_keys):
+                            #     print('clas',data[0]['comp_type_pred'][0])
+                            #     data_list.extend([data[0]['comp_type_pred'][0][0]+', '+ data[0]['comp_type_pred'][1][0]])  # from classification
+                            # else:
+                            #     data_list.append("None")
+
+                        except KeyError:
+                            data_list.append('None')
 
                     if (each_a == 'revenue'):
+                        #rev_fix
                         # print("***********rv")
-                        if ('revenue_g' in attribute_keys):data_list.append(data[0]['revenue_g'])  # from google
-                        elif('company_revenue_dnb' in attribute_keys):data_list.append(data[0]['company_revenue_dnb'])  # from dnb
-                        else:data_list.append("None")
+                        try:
+                            rev_d = []
+                            if ('company_revenue_dnb' in attribute_keys):
+                                if (len(data[0]['company_revenue_dnb'])):
+                                    rev_d = data[0]['company_revenue_dnb']
+
+                            if ('revenue_g' in attribute_keys):
+                                # print('g')
+                                data_list.append(data[0]['revenue_g'])  # from google
+                            elif (len(rev_d)):
+                                # print('d')
+                                a_rev = rev_d[0].split('|')[1]
+                                print(a_rev)
+                                data_list.append(a_rev)  # from dnb
+                            else:
+                                data_list.append("None")
+                            # if ('Contact Email_cb' in attribute_keys):
+                            #     data_list = data[0]['Contact Email_cb']
+                            # elif (len(data[0]['emails'])):
+                            #     data_list.append(data[0]['emails'][0])  # from website
+                            # else:
+                            #     data_list.append("None")
+                            # # else:
+                            # #     data_list.append("None")
+                        except KeyError:
+                            data_list.append('None')
 
                     if (each_a == 'funding'):
                         # print("***********f")
@@ -227,25 +408,65 @@ def simplified_export(id_list):
                         else:data_list.append("None")
 
                     if (each_a == 'headquarters'):
+                        #hq_fix
                         # print("***********hq")
-                        if ('headquarters_g' in attribute_keys):data_list.append(data[0]['headquarters_g'])  # from google
-                        elif ('headquarters_li' in attribute_keys):data_list.append(data[0]['headquarters_li'])  # from linkedin
-                        elif ('jurisdiction_oc' in attribute_keys):data_list.append(data[0]['jurisdiction_oc'])  # from oc
-                        else:data_list.append("None")
+                        try:
+                            hq_cb, hq_g, hq_li, j_oc = '', '', '', ''
+                            if ('comp_headquaters_cb' in attribute_keys):
+                                hq_cb = data[0]['comp_headquaters_cb']
+
+                            if ('headquarters_li' in attribute_keys):
+                                hq_li = data[0]['headquarters_li']
+
+                            if ('jurisdiction_oc' in attribute_keys):
+                                j_oc = data[0]['jurisdiction_oc']
+
+                            if ('headquarters_g' in attribute_keys):
+                                hq_g = data[0]['headquarters_g']
+
+                            if (isvalid_hq(hq_cb)):
+                                data_list.append(hq_cb)
+                            elif (isvalid_hq(hq_li)):
+                                data_list.append(hq_li)
+                            elif (isvalid_hq(hq_g)):
+                                data_list.append(hq_g)
+                            elif (isvalid_hq(j_oc)):
+                                data_list.append(j_oc)
+                            else:
+                                data_list.append("None")
+                            # else:
+                            #     data_list.append("None")
+                        except KeyError:
+                            data_list.append('None')
 
                     if (each_a == 'No_of_employees'):
+                        #fix_ne
                         # print("***********ne")
-                        if ('no_of_employees_g' in attribute_keys):data_list.append(data[0]['no_of_employees_g'])  # from googlecompany_size_li
-                        elif ('company_size_li' in attribute_keys):data_list.append(data[0]['company_size_li'])  # from company_size_li
-                        elif ('num_employees_li' in attribute_keys):data_list.append(data[0]['num_employees_li'])  # from linkedin
-                        else:data_list.append("None")
-                    # if ((each_a == 'addresses') or (each_a == 'emails') or (each_a == 'social_media_links') or (
-                    #         each_a == 'telephone_numbers')):
-                    #     data_list.append(data[0][each_a][:5])
-                    # elif ((each_a == 'wordcloud_results_tri')):
-                    #     data_list.append(data[0][each_a][:10])
-                    # else:
-                    #     data_list.append(data[0][each_a])
+                        try:
+                            data_lil = None
+                            if ('company_size_li' in attribute_keys):
+                                if (data[0]['company_size_li'] != None):
+                                    if (' employees' in data[0]['company_size_li']):
+                                        data_lil = data[0]['company_size_li'].replace(' employees', '')
+                            if ('Number of Employees_cb' in attribute_keys):
+                                # print('cb')
+                                data_list.append(data[0]['Number of Employees_cb'])  # from company_size_li
+                            elif (data_lil != None):
+                                data_list.append(data_lil)  # from company_size_li
+
+                            elif ('num_employees_li' in attribute_keys):
+                                # print('li')
+                                data_list.append(data[0]['num_employees_li'])  # from linkedin
+                            elif ('no_of_employees_g' in attribute_keys):
+                                # print('g')
+                                data_list.append(data[0]['no_of_employees_g'])  # from googlecompany_size_li
+                            else:
+                                data_list.append("None")
+                            # else:
+                            #     data_list.append("None")
+                        except KeyError:
+                            data_list.append('None')
+
                 except KeyError:
                     data_list.append('None')
 
@@ -637,26 +858,7 @@ def address_fix(id_list):
                 # print('o')
                 data_list.append(oc_add)
             else:data_list.append('None')
-            # print(entry_id)
-            # print('g',g_add)
-            # print('w',w_ad)
-            # print('dnb',dnb_add)
-            # print('oc',oc_add)
-            # print('**')
 
-            # if(isvalid_hq(g_add)):
-
-            # if('google_address' in attribute_keys):
-            #     # print(data[0]['google_address'][0])
-            #     data_list.append(data[0]['google_address'])#from google
-            # elif(len(data[0]['addresses'])):
-            #     data[0]['addresses'][0]
-            #     data_list.append(data[0]['addresses'][0])#from website
-            # elif ('company_address_dnb' in attribute_keys):
-            #     data_list.append(data[0]['company_address_dnb'])#from dnb
-            # elif ('registered_address_adr_oc' in attribute_keys):
-            #     data_list.append(data[0]['registered_address_adr_oc'])#from opencorporates
-            # else:data_list.append("None")
         except KeyError:
             data_list.append('None')
 
@@ -1073,7 +1275,7 @@ re_check = [ObjectId('5eb64cfc8c94747a21f39855'),ObjectId('5eb646ce3b4442b4da91c
 # rev_fix(all_ids_fixed[1400:])
 # email_fix(list_aus)
 # tp_fix(list_aus)
-check_cp(re_check)
+# check_cp([ObjectId('5eb6603b6e69c6f2e1092cf8')])
 # address_fix(all_ids_fixed[1400:])
 # sector_fix(list_aus)
 # fy_fix(list_aus)

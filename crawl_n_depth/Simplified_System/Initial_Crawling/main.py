@@ -58,7 +58,7 @@ def search_a_company_alpha(comp_name, db_collection, query_entry,c_name):
 
 
 def search_a_company(comp_name, db_collection, query_entry):
-    sr = getGoogleLinksForSearchText(comp_name, 3, 'normal')
+    sr = getGoogleLinksForSearchText(comp_name+" Australia", 3, 'normal')
     count = 0
     while (sr == 'captcha'):
         count = count + 1
@@ -88,7 +88,7 @@ def search_a_company(comp_name, db_collection, query_entry):
 
     print('rd', received_domains)
     for i, each in enumerate(received_domains):
-        print(each)
+        # print(each)
         if (('.gov.' in each) or ('.govt.' in each) or ('.edu.' in each) or ('.uk' in each)):  # filter non wanted websites
             continue
         if each not in black_list:
@@ -101,8 +101,26 @@ def search_a_company(comp_name, db_collection, query_entry):
         if(len(res_data)):
             print("Profile "+filtered_sr[0]['link']+" already existing at "+str(res_data[0]['_id']))
             return 'exist'
-
-        filtered_sr[0]['comp_name'] = filtered_sr[0]['search_text']
+        #should fix comp name
+        # print('fixing comp name')
+        c_n_link = filtered_sr[0]['link']
+        c_n_dom = c_n_link.split("/")[2]
+        try:
+            c_name = c_n_dom.split("www.")[1]
+        except IndexError:
+            c_name = c_n_dom
+        if ('.com' in c_name):
+            cc_name = c_name.split(".com")[0]
+        elif ('.org' in c_name):
+            cc_name = c_name.split(".org")[0]
+        elif ('.io' in c_name):
+            cc_name = c_name.split(".io")[0]
+        elif ('.net' in c_name):
+            cc_name = c_name.split(".net")[0]
+        else:
+            cc_name = c_name
+        # print(filtered_sr[0]['link'])
+        filtered_sr[0]['comp_name'] = cc_name
         filtered_sr[0]['query_id'] = query_entry
         record_entry=db_collection.insert_one(filtered_sr[0])
         print(filtered_sr[0])
@@ -119,6 +137,8 @@ def search_a_company(comp_name, db_collection, query_entry):
     #         results_writer.writerow([each_item['title'], each_item['link'], each_item['description']])
     #         break
     #     results_file.close()
+
+
 def update_a_company(comp_name, db_collection, entry_id):
     print(entry_id)
     sr = getGoogleLinksForSearchText(comp_name, 20, 'normal')
