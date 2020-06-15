@@ -141,6 +141,7 @@ def get_cp_oc(entry_id,mode):
 
     det=[comp_name]
     sr = getGoogleLinksForSearchText(comp_name + " opencorporates", 3, 'normal')
+
     filtered_oc = []
     for p in sr:
         if (('opencorporates.com/companies/nz' in p['link']) or ('opencorporates.com/companies/au' in p['link'])):

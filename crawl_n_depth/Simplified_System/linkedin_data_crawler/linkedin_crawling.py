@@ -40,7 +40,7 @@ def scrape_company(url):
         user_name = url.split('company/')[1]
         user_name = user_name.split('/')[0]
         # scrape a company
-        with CompanyScraper( cookie='AQEDATCqAAsEnwLsAAABceUL55UAAAFyCRhrlVYAHF3D2I07SBdYzkXulfZyZSL6M5Y_Ap17KE5qIXPGP5MiebSzuJFFIiQNI6Gj3LREGMgwtZdTtQk09LHenXAOIC9zEkedjhbHxoZDGC2ejC0MfNwS') as scraper:
+        with CompanyScraper( cookie='AQEDASFhktAB1cT_AAABbKA6VksAAAFysxri4VEAxZ7LEdUO8ZBWU7YYCzNzMSJ7J3E_bNHW-Tzf1_Jn1dH12XrTApiHesI2FoNy6M_CLj5rb7lqD-nbH_IsywW6cPBcBfGnVCd_XW3vjteLW9L6iCZO') as scraper:
             company = scraper.scrape(company=user_name)
         blockPrint()
         try:

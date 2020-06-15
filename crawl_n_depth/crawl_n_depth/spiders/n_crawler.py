@@ -8,7 +8,8 @@ import time
 import twisted
 
 import pymongo
-from scrapy import signals
+import scrapy
+from scrapy import signals, Request
 from scrapy.exceptions import CloseSpider
 import pyap
 from bs4 import BeautifulSoup
@@ -24,24 +25,86 @@ import sys
 sys.path.insert(0, 'F:/Armitage_project/crawl_n_depth/')
 from Simplified_System.Database.db_connect import refer_collection
 
+
+def is_valid_tp(tp):
+    ll = ''.join(filter(str.isdigit, tp))
+    if(len(tp)>20):
+        return False
+    if('.' in tp):
+        return False
+    if ('12345678' in tp):
+        return False
+    elif (len(ll) == 10 and (ll[0] == '1' or ll[0] == '0')):
+        return True
+    elif (len(ll) == 11 and ll[0:2] == '61'):
+        return True
+    elif (len(ll) == 12 and ll[0:2] == '61'):
+        return True
+    elif ((len(ll) == 10 or len(ll) == 9) and (ll[0] == '0')):
+        return True
+    elif ((len(ll) == 10 or len(ll) == 11 or len(ll) == 12) and (ll[0:2] == '64')):
+        return True
+    else:return False
+def clean_add(add_list):
+    cleaned_add = []
+    for each_ad in add_list:
+        if(' Act ' in each_ad or ' act ' in each_ad):
+            continue
+        if (' Sa ' in each_ad or ' sa ' in each_ad):
+            continue
+        if (' Wa ' in each_ad or ' wa ' in each_ad):
+            continue
+        if (' tas ' in each_ad or ' Tas ' in each_ad):
+            continue
+        w_ori_list = each_ad.split(" ")
+        w_list = each_ad.lower().split(" ")
+        if('level' in w_list):
+            cl_ad = (" ").join(w_ori_list[w_list.index('level'):])
+            each_ad = cl_ad
+        if ('post' in w_list and 'box' in w_list):
+            cl_ad = (" ").join(w_ori_list[w_list.index('post'):])
+            each_ad = cl_ad
+        if ('po' in w_list and 'box' in w_list):
+            cl_ad = (" ").join(w_ori_list[w_list.index('po'):])
+            each_ad = cl_ad
+
+        each_ad = each_ad.replace('\\n','')
+        each_ad = each_ad.replace('\n', '')
+        each_ad = each_ad.replace('\\', '')
+        each_ad = each_ad.replace('+', '')
+        each_ad = each_ad.replace('<br','')
+        each_ad = each_ad.replace('/>', '')
+        cleaned_add.append(each_ad)
+    return cleaned_add
 def add_parser(text):
     extracted_addresses = []
     addregexau = re.compile(
-        r"(?i)(\b(PO BOX|post box)[,\s|.\s|,.|\s]*)?(\b(\d+))(\b(?:(?!\s{2,}).){1,60})\b(New South Wales|Victoria|Queensland|Western Australia|South Australia|Tasmania|VIC|NSW|ACT|QLD|NT|SA|TAS|WA).?[,\s|.\s|,.|\s]*(\b\d{4}).?[,\s|.\s|,.|\s]*(\b(Australia|Au))?")
-    searchau = addregexau.findall(text)
-    if (len(searchau)):
-        add_r = (" ").join(list(searchau[0]))
-        add_r = add_r.strip()
-        extracted_addresses.append(add_r)
+        r"(?i)(\b(PO BOX|post box)[,\s|.\s|,.|\s]*)?(\b(\d+))(\b(?:(?!\s{5,}).){1,60})\b(New South Wales|Victoria|Queensland|Western Australia|South Australia|Tasmania|VIC|NSW|ACT|QLD|NT|SA|TAS|WA|Pymble).?[,\s|.\s|,.|\s]*(\b\d{4}).?[,\s|.\s|,.|\s]*(\b(Australia|Au))?")
+    searchau = re.findall(addregexau, text)
+    for each in searchau:
+        add_l = []
+        add_r = list(each)
+        for each_r in add_r:
+            if (each_r.strip() not in add_l):
+                # print(each_r,len(each_r.strip()))
+                add_l.append(each_r.strip())
+        # print(add_l)
+        add_f = (" ").join(add_l).strip()
+        extracted_addresses.append(add_f)
         # print("au", add_r)
 
     addregexnz = re.compile(
-        r"(?i)(\b(PO BOX|post box)[,\s|.\s|,.|\s]*)?(\b(\d+))(\b(?:(?!\s{2,}).){1,60})\b(Northland|Auckland|Waikato|Bay of Plenty|Gisborne|Hawke's Bay|Taranaki|Manawatu-Whanganui|Wellington|Tasman|Nelson|Marlborough|West Coast|Canterbury|Otago|Southland).?[,\s|.\s|,.|\s]*(\b\d{4}).?[,\s|.\s|,.|\s]*(\b(New zealand|Newzealand|Nz))?")
+        r"(?i)(\b(PO BOX|post box)[,\s|.\s|,.|\s]*)?(\b(\d+))(\b(?:(?!\s{5,}).){1,60})\b(Northland|Auckland|Waikato|Bay of Plenty|Gisborne|Hawke's Bay|Taranaki|Manawatu-Whanganui|Wellington|Tasman|Nelson|Marlborough|West Coast|Canterbury|Otago|Southland).?[,\s|.\s|,.|\s]*(\b\d{4}).?[,\s|.\s|,.|\s]*(\b(New zealand|Newzealand|Nz))?")
     searchnz = addregexnz.findall(text)
-    if (len(searchnz)):
-        add_nz = (" ").join(list(searchnz[0]))
-        add_nz = add_nz.strip()
-        extracted_addresses.append(add_nz)
+    for each in searchnz:
+        add_ln = []
+        add_rn = list(each)
+        for each_rn in add_rn:
+            if (each_rn.strip() not in add_ln):
+                add_ln.append(each_rn.strip())
+        # print(add_l)
+        add_fn = (" ").join(add_ln).strip()
+        extracted_addresses.append(add_fn)
         # print("nz", add_nz)
 
     return extracted_addresses
@@ -99,7 +162,7 @@ class NCrawlerSpider(CrawlSpider):
         self.telephone_numbers = list(set(self.telephone_numbers))
         print(self.social_media_links)
         n_depth_data={
-             'crawled_links': self.crawled_links,
+            'crawled_links': self.crawled_links,
             'header_text': self.header_text,
             'paragraph_text': self.paragraph_text,
             'emails': self.emails,
@@ -108,7 +171,8 @@ class NCrawlerSpider(CrawlSpider):
             'telephone_numbers': self.telephone_numbers
                                    }
         print("size", len(self.paragraph_text))
-        print(self.addresses)
+        print("address",self.addresses)
+        print("telephone", self.telephone_numbers)
         try:
             mycol = refer_collection()
             mycol.update_one({'_id': self.entry_id},
@@ -124,7 +188,14 @@ class NCrawlerSpider(CrawlSpider):
 
             print("Successfully extended the data entry", self.entry_id)
 
+    # def start_requests(self):
+    #     requests = []
+    #     for item in self.start_urls:
+    #         requests.append(Request(url=item, headers={'Referer': 'www.google.com'}))
+    #     return requests
+
     def parse_items(self, response):#paring to n depth
+
 
         print(response.request.headers['User-Agent'])#shows the current random agent using
         print('Got a response from %s.' % response.url)#shows current url crawling
@@ -140,6 +211,7 @@ class NCrawlerSpider(CrawlSpider):
         self.crawled_links.append(response.url)#populating crawled link list
         self.header_text.extend(extracted_header_text)#populating header text list
         ##add url to paragraph
+        # yield Request( headers={'Referer': response.url})
 
 
 
@@ -153,23 +225,39 @@ class NCrawlerSpider(CrawlSpider):
 
         ]
         text = soup.find_all(text=True)#extract and concatenate all text in the site
+        text_strip = [t.strip() for t in text]
+        text_adds = (" ").join(text_strip)
+
+            # print(text)
         for t in text:
             if t.parent.name not in blacklist:
                 all_text_in_page += '{} '.format(t)
 
-        extracted_tp_numbers = re.findall(r'[\+\(]?[1-9][0-9 .\-\(\)]{8,}[0-9]', all_text_in_page)#extracting tp numbers
-        self.telephone_numbers.extend(extracted_tp_numbers)
+        # if(response.url == 'https://www.codelikeagirl.com/'):
+        #     print(all_text_in_page)
+        extracted_tp_numbers = re.findall(r'[(]?[+]?[0-9][0-9 .\-\(\)]{8,}[0-9]', all_text_in_page)#extracting tp numbers
+        filtered_tp = []
+        for each_tp in extracted_tp_numbers:
+            if (each_tp.count('(') == 1 and each_tp.count(')') == 0):
+                each_tp = each_tp.replace('(', "")
+            # print(tp)
+            if(is_valid_tp(each_tp)):
+                filtered_tp.append(each_tp)
+        self.telephone_numbers.extend(filtered_tp)
 
         extracted_emails = re.findall(r"[a-z0-9\.\-+_]+@[a-z0-9\.\-+_]+\.[a-z]+", all_text_in_page)#extracting emails
         self.emails.extend(extracted_emails)
 
-        extracted_addresses = pyap.parse(all_text_in_page, country='US')#extracting addresses(Us address parser)
-        extracted_addresses = [str(i) for i in extracted_addresses]
-        self.addresses.extend(extracted_addresses)
-
-        adds_from_reg = add_parser(all_text_in_page)
+        # extracted_addresses = pyap.parse(all_text_in_page, country='US')#extracting addresses(Us address parser)
+        # extracted_addresses = [str(i) for i in extracted_addresses]
+        # self.addresses.extend(extracted_addresses)
+        # print(all_text_in_page)
+        adds_from_reg = add_parser(text_adds)
+        adds_from_reg = clean_add(adds_from_reg)
         self.addresses.extend(adds_from_reg)
-
+        # if (response.url == 'https://www.2and2.com.au/contact'):
+        #
+        #     print(adds_from_reg)
         sm_sites = ['twitter.com', 'facebook.com', 'linkedin.com', 'youtube.com']
         extracted_sm_sites = []
 

@@ -20,6 +20,12 @@ def get_li_emp(entry_id,mode):
         comp_name = data[0]['link'].split("/")[2]
 
     sr = getGoogleLinksForSearchText('"' + comp_name + '"' + " manager linkedin australia or newzealand", 10, 'normal')
+    if(len(sr)==0):
+        sr = getGoogleLinksForSearchText('"' + comp_name + '"' + " manager linkedin australia or newzealand", 10,
+                                         'normal')
+        if(len(sr)==0):
+            sr = getGoogleLinksForSearchText('"' + comp_name + '"' + " manager linkedin australia or newzealand", 10,
+                                             'normal')
     filtered_li = []
     for p in sr:
         if 'linkedin.com' in p['link']:
