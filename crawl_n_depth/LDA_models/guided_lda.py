@@ -1,3 +1,5 @@
+#if any trouble occured during guidedlda installation follow below instructions
+# https://github.com/dex314/GuidedLDA_WorkAround/blob/master/READ_ME_GUIDEDLDA.txt
 import json
 # Gensim
 import gensim

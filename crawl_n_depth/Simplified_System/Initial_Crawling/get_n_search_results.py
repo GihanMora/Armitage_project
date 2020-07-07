@@ -4,6 +4,8 @@
 import time
 import sys
 
+from selenium.common.exceptions import WebDriverException
+
 sys.path.insert(0, 'F:\Armitage_project\crawl_n_depth\\')
 import requests
 from selenium.webdriver.firefox.options import Options
@@ -68,108 +70,114 @@ def getGoogleLinksForSearchText(searchText,number_of_results,mode):#given a sear
     #buildingsearch query
     searchGoogle = URL = f"https://google.com/search?q={searchText}"+"&num=" + str(number_of_results)
 
+    try:
+        browser = use_chrome()#get a chrome instance
+        browser.get(searchGoogle)
+        time.sleep(5)
+        pageSource = browser.page_source
+        browser.quit()
 
-    browser = use_chrome()#get a chrome instance
-    browser.get(searchGoogle)
-    time.sleep(5)
-    pageSource = browser.page_source
-    browser.quit()
+        soup = BeautifulSoup(pageSource, 'html.parser')#bs4
+        is_captcha_on_page = soup.find("div", id="recaptcha") is not None
 
-    soup = BeautifulSoup(pageSource, 'html.parser')#bs4
-    is_captcha_on_page = soup.find("div", id="recaptcha") is not None
+        if(is_captcha_on_page):#a captcha triggered
+            return 'captcha'
+        # while (is_captcha_on_page):
+        #     count = count + 1
+        #     print("captch is detected " + str(count) + " times")
+        #     print("waiting more time", count * 1000)
+        #     time.sleep(count * 1000)
+        #     browser = use_chrome()
+        #
+        #     browser.get(searchGoogle)
+        #     pageSource = browser.page_source
+        #     soup = BeautifulSoup(pageSource, 'html.parser')  #
+        #     # r = requests.get(searchGoogle, headers=headers)
+        #     # soup = BeautifulSoup(r.text, 'html.parser')
+        #     is_captcha_on_page = soup.find("div", id="recaptcha") is not None
+        results = []
+        result_div = soup.find_all('div', attrs={'class': 'g'})
 
-    if(is_captcha_on_page):#a captcha triggered
-        return 'captcha'
-    # while (is_captcha_on_page):
-    #     count = count + 1
-    #     print("captch is detected " + str(count) + " times")
-    #     print("waiting more time", count * 1000)
-    #     time.sleep(count * 1000)
-    #     browser = use_chrome()
-    #
-    #     browser.get(searchGoogle)
-    #     pageSource = browser.page_source
-    #     soup = BeautifulSoup(pageSource, 'html.parser')  #
-    #     # r = requests.get(searchGoogle, headers=headers)
-    #     # soup = BeautifulSoup(r.text, 'html.parser')
-    #     is_captcha_on_page = soup.find("div", id="recaptcha") is not None
-    results = []
-    result_div = soup.find_all('div', attrs={'class': 'g'})
+        for r in result_div:
+            # Checks if each element is present, else, raise exception
+            try:
+                link = r.find('a', href=True)['href']#extracting the link
+                title = None
+                title = r.find('h3')
 
-    for r in result_div:
-        # Checks if each element is present, else, raise exception
-        try:
-            link = r.find('a', href=True)['href']#extracting the link
-            title = None
-            title = r.find('h3')
+                if isinstance(title,Tag):#extracting the title of the link
+                    title = title.get_text()
 
-            if isinstance(title,Tag):#extracting the title of the link
-                title = title.get_text()
+                description = None
+                description = r.find('span', attrs={'class': 'st'})#extracting the description
 
-            description = None
-            description = r.find('span', attrs={'class': 'st'})#extracting the description
+                if isinstance(description, Tag):
+                    description = description.get_text()
 
-            if isinstance(description, Tag):
-                description = description.get_text()
+                # Check to make sure everything is present before appending
+                if (link not in ['',None]) and (title not in ['',None]) and (description not in ['',None]):#remove links if information is not available
+                    rich_description = []
+                    if(mode=='initial'):
+                        print("initial")
+                        browser = use_chrome()
+                        browser.get(link)
+                        time.sleep(5)
+                        pageSource = browser.page_source
+                        browser.quit()
+                        # browser.close()
+                        soup = BeautifulSoup(pageSource, 'html.parser')
+                        metas = soup.find_all('meta')
+                        # print(metas)
+                        meta_description = [meta.attrs['content'] for meta in metas if
+                                            'name' in meta.attrs and meta.attrs['name'] == 'description']
+                        og_description = [meta.attrs['content'] for meta in metas if
+                                          'property' in meta.attrs and meta.attrs['property'] == 'og:description']
+                        # twitter_description =  [meta.attrs['content'] for meta in metas if 'name' in meta.attrs and meta.attrs['name'] == 'twitter:description']
+                        if (meta_description != og_description):
+                            rich_description = meta_description + og_description
+                        else:
+                            rich_description = meta_description
 
-            # Check to make sure everything is present before appending
-            if (link not in ['',None]) and (title not in ['',None]) and (description not in ['',None]):#remove links if information is not available
-                rich_description = []
-                if(mode=='initial'):
-                    print("initial")
-                    browser = use_chrome()
-                    browser.get(link)
-                    time.sleep(5)
-                    pageSource = browser.page_source
-                    browser.quit()
-                    # browser.close()
-                    soup = BeautifulSoup(pageSource, 'html.parser')
-                    metas = soup.find_all('meta')
-                    # print(metas)
-                    meta_description = [meta.attrs['content'] for meta in metas if
-                                        'name' in meta.attrs and meta.attrs['name'] == 'description']
-                    og_description = [meta.attrs['content'] for meta in metas if
-                                      'property' in meta.attrs and meta.attrs['property'] == 'og:description']
-                    # twitter_description =  [meta.attrs['content'] for meta in metas if 'name' in meta.attrs and meta.attrs['name'] == 'twitter:description']
-                    if (meta_description != og_description):
-                        rich_description = meta_description + og_description
-                    else:
-                        rich_description = meta_description
+                        rich_description = '_'.join(rich_description)
+                        rich_description = rich_description.replace(',',' ')
+                        print(rich_description)
 
-                    rich_description = '_'.join(rich_description)
-                    rich_description = rich_description.replace(',',' ')
-                    print(rich_description)
+                    item = {
+                        "search_text":searchText,
+                        "title": title.replace(',','_'),
+                        "link": link,
+                        "description": description.replace(',',' '),
+                        "rich_description":rich_description
+                    }
 
-                item = {
-                    "search_text":searchText,
-                    "title": title.replace(',','_'),
-                    "link": link,
-                    "description": description.replace(',',' '),
-                    "rich_description":rich_description
-                }
-
-                # rich_descriptions = list(set(rich_descriptions))
-                # print(rich_descriptions)
-
-
-                # print("*************************************************")
-                results.append(item)
+                    # rich_descriptions = list(set(rich_descriptions))
+                    # print(rich_descriptions)
 
 
+                    # print("*************************************************")
+                    results.append(item)
 
-        # Next loop if one element is not present
-        except Exception as e:
-            print(e)
-            continue
 
-    # with open('first_n_results.csv', mode='w', encoding='utf8') as results_file:#store search results in to a csv file
-    #     results_writer = csv.writer(results_file, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
-    #
-    #     for each_item in results:
-    #         results_writer.writerow([each_item['title'], each_item['link'], each_item['description']])
-    #     results_file.close()
-    print("got "+str(len(results))+" results")
-    return results
+
+            # Next loop if one element is not present
+            except Exception as e:
+                print(e)
+                continue
+
+        # with open('first_n_results.csv', mode='w', encoding='utf8') as results_file:#store search results in to a csv file
+        #     results_writer = csv.writer(results_file, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
+        #
+        #     for each_item in results:
+        #         results_writer.writerow([each_item['title'], each_item['link'], each_item['description']])
+        #     results_file.close()
+        print("got "+str(len(results))+" results")
+        return results
+    except WebDriverException:
+        print("Browser Issue Occured!")
+        return 'error'
+    except Exception as e:
+        print("Exception Occured!", e)
+        return 'error'
 
 #To run this scrpit individually use following line and run the script
 # searchResults = getGoogleLinksForSearchText(text_to_search,number_of_results_required)

@@ -1,42 +1,204 @@
+import ast
+import os
 import sys
 import threading
 import time
 
+from azure.storage.queue import QueueClient
 from bson import ObjectId
 #fix this path variable when using in another machine
+
+
 sys.path.insert(0, 'F:\Armitage_project\crawl_n_depth\\')
 from fake_useragent import UserAgent
 from selenium import webdriver
 from datetime import datetime
+from multiprocessing import Process
 from Simplified_System.Initial_Crawling.main import search_a_company,search_a_query,search_a_company_alpha,update_a_company
-from Simplified_System.Deep_Crawling.main import deep_crawl
-from Simplified_System.Database.db_connect import refer_collection,export_profiles,refer_query_col,simplified_export
-from Simplified_System.Feature_Extraction.main import extract_features
-from Simplified_System.Extract_contact_persons.main import extract_contact_persons
-from Classification.predict_class import predict_class_tags
-from Simplified_System.web_profile_data_crawler.scrape_dnb import get_dnb_data
-from Simplified_System.web_profile_data_crawler.scrape_oc import get_oc_data
-from Simplified_System.web_profile_data_crawler.scrape_crunchbase import get_cb_data
+from Simplified_System.Deep_Crawling.main import deep_crawl,add_to_deep_crawling_queue,run_crawlers_via_queue_chain
+from Simplified_System.Database.db_connect import refer_collection,export_profiles,refer_query_col,simplified_export,simplified_export_via_queue,add_to_simplified_export_queue
+from Simplified_System.Feature_Extraction.main import extract_features,extract_features_via_queue_chain
+from Classification.predict_class import predict_class_tags,predict_class_tags_via_queue
+from Simplified_System.web_profile_data_crawler.scrape_dnb import get_dnb_data,add_to_dnb_queue,get_dnb_data_via_queue
+from Simplified_System.web_profile_data_crawler.scrape_oc import get_oc_data,add_to_oc_queue,get_oc_data_via_queue
+from Simplified_System.web_profile_data_crawler.scrape_crunchbase import get_cb_data,add_to_cb_queue,get_cb_data_via_queue
+from Simplified_System.web_profile_data_crawler.avention_scraper import get_aven_data,add_to_avention_queue,get_aven_data_via_queue
 from Simplified_System.linkedin_data_crawler.linkedin_crawling import get_li_data
-from Simplified_System.address_extraction.address_from_google import get_ad_from_google
-from Simplified_System.contacts_from_google.get_contacts_google import get_cp_from_google
-from Simplified_System.phone_number_extraction.get_tp_num import get_tp_from_google
-from Simplified_System.google_for_data.testbs import get_qa_from_google
-# # from crawl_n_depth.Simplified_System.Deep_Crawling.main import deep_crawl
-
-# from Feature_Extraction.main import extract_features
-
-# from crawl_n_depth.spiders.n_crawler import run_crawlers_m
-# sys.path.insert(0, 'F:/Armitage_project/crawl_n_depth/')
-# from crawl_n_depth.crawl_n_depth.spiders.n_crawler import run_crawlers_m
-# from crawl_n_depth.spiders.n_crawler import run_crawlers_m
+from Simplified_System.google_for_data.address_extraction.address_from_google import get_ad_from_google,add_to_ad_queue,get_ad_from_google_via_queue
+from Simplified_System.google_for_data.contacts_from_google.get_contacts_google import get_cp_from_google,add_to_cp_queue,get_cp_from_google_via_queue
+from Simplified_System.google_for_data.scrape_owler_data.owler_extractor import get_qa_from_google,add_to_qa_queue,get_qa_from_google_via_queue
+from Simplified_System.google_for_data.phone_number_extraction.scrape_linkedin_employees import get_li_emp,add_to_li_cp_queue,get_tp_from_google_via_queue
+from Simplified_System.google_for_data.get_li_employees.get_tp_num import get_tp_from_google,add_to_tp_queue,get_li_emp_via_queue
 
 
-# sys.path.insert(0, 'F:/Armitage_project/crawl_n_depth/')
-# from crawl_n_depth.spiders.n_crawler import run_crawlers_m
-#
-# mycol = refer_collection()
-#
+def execute_pipeline_via_queue():
+    if __name__ == '__main__':
+        p1 = Process(target=run_crawlers_via_queue_chain)
+        p1.start()
+        p2 = Process(target=extract_features_via_queue_chain)
+        p2.start()
+        p3 = Process(target=predict_class_tags_via_queue)
+        p3.start()
+        p4 = Process(target=get_qa_from_google_via_queue)
+        p4.start()
+        p5 = Process(target=get_li_emp_via_queue)
+        p5.start()
+        p6 = Process(target=get_cp_from_google_via_queue)
+        p6.start()
+        p7 = Process(target=get_oc_data_via_queue)
+        p7.start()
+        p8 = Process(target=get_aven_data_via_queue)
+        p8.start()
+        p9 = Process(target=get_ad_from_google_via_queue)
+        p9.start()
+        p10 = Process(target=get_dnb_data_via_queue)
+        p10.start()
+        p11 = Process(target=get_tp_from_google_via_queue)
+        p11.start()
+        p12 = Process(target=get_cb_data_via_queue)
+        p12.start()
+        p13 = Process(target=simplified_export_via_queue)
+        p13.start()
+    connect_str = os.getenv('AZURE_STORAGE_CONNECTION_STRING')
+    ic_client = QueueClient.from_connection_string(connect_str, "initial-crawling-queue")
+    mycol = refer_collection()
+    while (True):
+        rows = ic_client.receive_messages()
+        for msg in rows:
+            # time.sleep(120)
+            row = msg.content
+            row = ast.literal_eval(row)
+            print(row[0])
+
+            input_d = row[0].split("--")
+            try:
+                mode = input_d[1]
+                s_text = input_d[0]
+                if mode == 'query':
+                    query = s_text.strip()
+                    print("Searching a query")
+                    dateTimeObj = datetime.now()
+                    query_collection = refer_query_col()
+                    data_q = {'started_time_stamp': dateTimeObj, 'search_query': query}
+                    record_entry = query_collection.insert_one(data_q)
+                    print("Started on", dateTimeObj)
+                    started = time.time()
+                    print("***Initial Crawling Phrase***")
+                    entry_id_list = search_a_query(query, 10, mycol, record_entry.inserted_id)
+                    if (entry_id_list == None):
+                        for i in range(3):
+                            print("Initial crawling incomplete..retrying", i)
+                            entry_id_list = search_a_query(query, 10, mycol, record_entry.inserted_id)
+                            time.sleep(5)
+                            if (entry_id_list != None): break
+                    if (entry_id_list == None):
+                        print("Initial crawling incomplete..retrying unsuccessful")
+                    elif (entry_id_list == 'error'):
+                        print("Error occured while executing..")
+                    else:
+                        entry_id_list = [ObjectId(k) for k in entry_id_list]
+                        print("Initial crawling successful")
+                        print("Dequeue message from initial crawling queue")
+                        ic_client.delete_message(msg)
+                        print("Adding to deep_crawling_chain(deep_crawling,feature_extraction,classification_model)")
+                        add_to_deep_crawling_queue(entry_id_list)
+                        print("Adding to Owler QA extraction queue")
+                        add_to_qa_queue(entry_id_list)
+                        print("Adding to google contact person extraction queue")
+                        add_to_cp_queue(entry_id_list)
+                        print("Adding to Opencorporates extraction queue")
+                        add_to_oc_queue(entry_id_list)
+                        print("Adding to google address extraction queue")
+                        add_to_ad_queue(entry_id_list)
+                        print("Adding to DNB extraction queue")
+                        add_to_dnb_queue(entry_id_list)
+                        print("Adding to google tp extraction queue")
+                        add_to_tp_queue(entry_id_list)
+                        print("Adding to Avention extraction queue")
+                        add_to_avention_queue(entry_id_list)
+                        print("Adding to Crunchbase extraction queue")
+                        add_to_cb_queue(entry_id_list)
+                        print("Adding to linkedin cp extraction queue")
+                        add_to_li_cp_queue(entry_id_list)
+                        print("Adding to simplified dump queue")
+                        add_to_simplified_export_queue(entry_id_list)
+
+
+
+                elif mode == 'comp':
+
+                    comp_name = s_text.strip()
+                    print("Searching a company")
+                    dateTimeObj = datetime.now()
+                    query_collection = refer_query_col()
+                    data_q = {'started_time_stamp': dateTimeObj, 'search_query': comp_name}
+                    record_entry = query_collection.insert_one(data_q)
+                    print("Started on", dateTimeObj)
+                    started = time.time()
+                    print("***Initial Crawling Phrase***")
+                    entry_id = search_a_company(comp_name, mycol, record_entry.inserted_id)
+                    if (entry_id == None):
+                        for i in range(3):
+                            print("Initial crawling incomplete..retrying", i)
+                            entry_id = search_a_company(comp_name, mycol, record_entry.inserted_id)
+                            time.sleep(5)
+                            if (entry_id != None): break
+                    if (entry_id == None):
+                        print("Initial crawling incomple..retrying unsuccessful")
+                    elif (entry_id == 'error'):
+                        print("Error occured while executing..")
+                    elif (entry_id == 'exist'):
+                        print("Existing profile found. pipeline exits")
+                    else:
+                        print("Initial crawling successful")
+                        print("Dequeue message from initial crawling queue")
+                        ic_client.delete_message(msg)
+                        print("Adding to deep_crawling_chain(deep_crawling,feature_extraction,classification_model)")
+                        add_to_deep_crawling_queue([ObjectId(entry_id)])
+                        print("Adding to Owler QA extraction queue")
+                        add_to_qa_queue([ObjectId(entry_id)])
+                        print("Adding to google contact person extraction queue")
+                        add_to_cp_queue([ObjectId(entry_id)])
+                        print("Adding to Opencorporates extraction queue")
+                        add_to_oc_queue([ObjectId(entry_id)])
+                        print("Adding to google address extraction queue")
+                        add_to_ad_queue([ObjectId(entry_id)])
+                        print("Adding to DNB extraction queue")
+                        add_to_dnb_queue([ObjectId(entry_id)])
+                        print("Adding to google tp extraction queue")
+                        add_to_tp_queue([ObjectId(entry_id)])
+                        print("Adding to Avention extraction queue")
+                        add_to_avention_queue([ObjectId(entry_id)])
+                        print("Adding to Crunchbase extraction queue")
+                        add_to_cb_queue([ObjectId(entry_id)])
+                        print("Adding to linkedin cp extraction queue")
+                        add_to_li_cp_queue([ObjectId(entry_id)])
+                        print("Adding to simplified dump queue")
+                        add_to_simplified_export_queue([ObjectId(entry_id)])
+
+
+
+                else:
+                    print("Mode did not recognized!")
+            except IndexError:
+                print("Query is not in required format")
+
+
+
+
+
+
+
+
+
+def add_to_initial_crawling_queue(name_list):
+    mycol = refer_collection()
+    connect_str = os.getenv('AZURE_STORAGE_CONNECTION_STRING')
+    ic_client = QueueClient.from_connection_string(connect_str, "initial-crawling-queue")
+    for name in name_list:
+        print(name)
+        ic_client.send_message([str(name)])
+
 def execute_for_a_company(comp_name):
     mycol = refer_collection()
     print("Searching a company")
@@ -50,12 +212,14 @@ def execute_for_a_company(comp_name):
     entry_id = search_a_company(comp_name,mycol,record_entry.inserted_id)
     if (entry_id == None):
         for i in range(3):
-            print("Initial crawling incomple..retrying", i)
+            print("Initial crawling incomplete..retrying", i)
             entry_id = search_a_company(comp_name,mycol,record_entry.inserted_id)
             time.sleep(5)
             if (entry_id != None): break
     if (entry_id == None):
-        print("Initial crawling incomple..retrying unsuccessful")
+        print("Initial crawling incomplete..retrying unsuccessful")
+    elif (entry_id == 'error'):
+        print("Error occured while executing..")
     elif(entry_id == 'exist'):
         print("Existing profile found. pipeline exits")
     else:
@@ -67,7 +231,7 @@ def execute_for_a_company(comp_name):
         extract_features([entry_id])
 
         print("***Contact Person Extraction Phrase***")
-        extract_contact_persons([entry_id],'comp')
+        get_li_emp([entry_id])
 
         print(("***Predict the company type***"))
         predict_class_tags([entry_id])
@@ -115,7 +279,7 @@ def execute_for_a_company(comp_name):
     # entry_id = search_a_company(comp_name, mycol)
     # print("entry id received ", entry_id)
 
-def execute_for_a_company_alpha(comp_name,c_name):
+def execute_for_a_company_alpha(comp_name,company_link):
     mycol = refer_collection()
     print("Searching a company")
     dateTimeObj = datetime.now()
@@ -125,11 +289,11 @@ def execute_for_a_company_alpha(comp_name,c_name):
     print("Started on", dateTimeObj)
     started = time.time()
     print("***Initial Crawling Phrase***")
-    entry_id = search_a_company_alpha(comp_name,mycol,record_entry.inserted_id,c_name)
+    entry_id = search_a_company_alpha(comp_name,mycol,record_entry.inserted_id,company_link)
     if(entry_id==None):
         for i in range(3):
             print("Initial crawling incomple..retrying",i)
-            entry_id = search_a_company_alpha(comp_name, mycol, record_entry.inserted_id, c_name)
+            entry_id = search_a_company_alpha(comp_name, mycol, record_entry.inserted_id, company_link)
             time.sleep(5)
             if (entry_id != None):break
     if (entry_id == None):
@@ -145,7 +309,7 @@ def execute_for_a_company_alpha(comp_name,c_name):
         print("***Feature Extraction Phrase***")
         extract_features([entry_id])
         print("***Contact Person Extraction Phrase***")
-        extract_contact_persons([entry_id],'query')
+        get_li_emp([entry_id])
         print(("***Predict the company type***"))
         predict_class_tags([entry_id])
         print(("***Extract crunchbase profile data***"))
@@ -209,7 +373,8 @@ def execute_for_a_query(query):
             if(entry_id_list!=None):break
     if (entry_id_list == None):
         print("Initial crawling incomplete..retrying unsuccessful")
-
+    elif (entry_id_list == 'error'):
+        print("Error occured while executing..")
     else:
         print("entry ids received ", entry_id_list)
         print("***Deep Crawling Phrase***")
@@ -223,7 +388,7 @@ def execute_for_a_query(query):
         print("***Contact Person Extraction Phrase***")
         print("details for retrying,entry_id_list,query_id,started_time",
               [entry_id_list, record_entry.inserted_id, started])
-        extract_contact_persons(entry_id_list, 'query')
+        get_li_emp(entry_id_list)
 
         print(("***Predicting the company type***"))
         print("details for retrying,entry_id_list,query_id,started_time",
@@ -277,6 +442,9 @@ def execute_for_a_query(query):
         query_collection.update_one({'_id': record_entry.inserted_id},
                          {'$set': completion_data})
         print("Pipeline execution completed, elapsed time:",duration)
+
+
+
 comps_list = ['KAMAR --comp','MUSAC --comp','Assembly --comp','PCSchool --comp','Velpic --comp','classcover.com.au --comp','edval.com.au --comp','parentpaperwork.com --comp','schoolbox.com.au --comp','seqta.com.au --comp','3plearning.com --comp','cashtivity.com --comp','canva.com --comp','clickview.com.au --comp','edrolo.com.au --comp','literacyplanet.com --comp','makersempire.com --comp','mathspace.co --comp','mathspathway.com --comp','matific.com --comp','pallasals.com --comp','quizlingapp.com --comp','songroom.org.au --comp','versolearning.com --comp','vettrak.com.au --comp','inkerz.com --comp','janison.com --comp','learnosity.com --comp','literatu.com --comp','markmanager.edu.au --comp','https://www.totaralearning.com/ --comp','https://passtab.com/ --comp','https://schoolpro.com.au/ --comp','https://nearpod.com/ --comp','http://www.etap.co.nz/ --comp','http://www.schoology.com/ --comp','https://school-links.co.nz/ --comp','https://www.txtstream.co.nz --comp']
 def execute_pp(search_text):
     input_d = search_text.split("--")
@@ -429,8 +597,10 @@ def update_data(entry_id_k):
 #     print("***phone numbers from google***")
 #     get_tp_from_google(id_list)
 #     print("***tp extraction completed***")
-# update_data(ObjectId('5eb6603b6e69c6f2e1092cf8'))
-
+# pp = [ObjectId('5ed394144eb75866dfdcdc0d')]
+to_update_left_set =  [ObjectId('5eb7c0a011ad0e77a8454c2c'), ObjectId('5eb81dd8312f24e51eaa1667'), ObjectId('5eb81e2a312f24e51eaa166a'), ObjectId('5eb94caf01a53921bf21f86d'), ObjectId('5ebc44847ce40c9ba7bb9565'), ObjectId('5ebc452ac7057c1a4cbb9565')]
+#
+# update_data(to_update_left_set[4])
 
 #
 # links_fix = [ObjectId('5eb66bf5c1cd3d67511e7cc5'), ObjectId('5eb66c7efae3969f0e1e7cc5'), ObjectId('5eb66f73241434c0231e7cc5'), ObjectId('5eb6e92a73b223baa71e7cc5'), ObjectId('5eb71dca81f016c91a1e7cc5'), ObjectId('5eb74daa8e571dfa141e7cc5'), ObjectId('5eb78a6f081724025f640214'), ObjectId('5eb78aba081724025f640218'), ObjectId('5eb7ab5a52f1054848f55843'), ObjectId('5eb7abda52f1054848f55848'), ObjectId('5eb7bf9a11ad0e77a8454c21'), ObjectId('5eb7c01411ad0e77a8454c25'), ObjectId('5eb7c08e11ad0e77a8454c2b'), ObjectId('5eb7c0a011ad0e77a8454c2c'), ObjectId('5eb81da1312f24e51eaa1664'), ObjectId('5eb81db3312f24e51eaa1665'), ObjectId('5eb81dc6312f24e51eaa1666'), ObjectId('5eb81dd8312f24e51eaa1667'), ObjectId('5eb81dfd312f24e51eaa1669'), ObjectId('5eb81e2a312f24e51eaa166a'), ObjectId('5eb81e3d312f24e51eaa166b'), ObjectId('5eb88e682df9b5110721f86d'), ObjectId('5eb8921599a8e5b1f621f86d'), ObjectId('5eb8b16eeb46817aa921f86d'), ObjectId('5eb8d4fdabcf9fb65c21f86d'), ObjectId('5eb8ffde228b9dcd4721f86d'), ObjectId('5eb906b4ac1b87756821f86d'), ObjectId('5eb92ba8400dbda15921f86d'), ObjectId('5eb94caf01a53921bf21f86d'), ObjectId('5eb956c2bcbd15f71721f86d'), ObjectId('5eb9c465c47657758321f86d'), ObjectId('5eba329963a55f0c8c6aa0f6'), ObjectId('5eba38c76af7ef3b7e6aa0f6'), ObjectId('5eba4f212327b4ff6a6aa0f6'), ObjectId('5eba55801730aa03736aa0f6'), ObjectId('5ebad67ab7380cbd126aa0f6'), ObjectId('5ebadbf9a0a8b573246aa0f6'), ObjectId('5ebadfc61660f1acf06aa0f6'), ObjectId('5ebaf8c4ae83bb5e476aa0f6'), ObjectId('5ebb038bd7e6a0bebc6aa0f6'), ObjectId('5ebbc0696cbe306f756aa0f6'), ObjectId('5ebc00c75da3de695b97178d'), ObjectId('5ebc034d1034c24aad97178d'), ObjectId('5ebc075694bc2c707997178d'), ObjectId('5ebc09a74efa0725f497178d'), ObjectId('5ebc0acbe84a4f5ebc97178d'), ObjectId('5ebc0bd6237a0574d297178d'), ObjectId('5ebc0ee1d9892b0c1b97178d'), ObjectId('5ebc150e82d13b7b3697178d'), ObjectId('5ebc1adac6d203564e97178d'), ObjectId('5ebc1c5f3a0803f22f97178d'), ObjectId('5ebc2a0004edb50ae697178d'), ObjectId('5ebc2bd7c815a5eb3197178d'), ObjectId('5ebc2c7a12c0462f6597178d'), ObjectId('5ebc2ee30d89056a5397178d'), ObjectId('5ebc35b8f60ec679e997178d'), ObjectId('5ebc37fdd57cee6b8097178d'), ObjectId('5ebc3937d67ddeedc697178d'), ObjectId('5ebc3a2d3d43846c8097178d'), ObjectId('5ebc3b8c8f905cc1e997178d'), ObjectId('5ebc3d0f0f1bbea78f97178d'), ObjectId('5ebc3d972739abfa2597178d'), ObjectId('5ebc3f2f65d503e38b97178d'), ObjectId('5ebc3fe0843419ca2497178d'), ObjectId('5ebc44847ce40c9ba7bb9565'), ObjectId('5ebc452ac7057c1a4cbb9565'), ObjectId('5ebc475c409fdd7855bb9565'), ObjectId('5ebc4c4bff166bccf3bb9565'), ObjectId('5ebc4dc1a821835a79bb9565'), ObjectId('5ebc70d663d25e7626bb9565'), ObjectId('5ebc845c0d4da08c6cbb9565'), ObjectId('5ebc9a1c3e0aa5990cbb9565'), ObjectId('5ebccc66d9df03169dbb9565'), ObjectId('5ebcef579014fddb7dbb9565'), ObjectId('5ebceffc85e7506011bb9565'), ObjectId('5ebcf108f63f96f109bb9565'), ObjectId('5ebcf2cfd0b71e96f4bb9565'), ObjectId('5ebcf577f441e92192bb9565'), ObjectId('5ebcf6bd7316da96c6bb9565'), ObjectId('5ebd015476f2c8cf87bb9565'), ObjectId('5ebd2a999e04ea59e8bb9565'), ObjectId('5ebdcc63b52e86ccbb23510e'), ObjectId('5ebdd26e1c338de66323510e'), ObjectId('5ebe371fee35df244c23510e'), ObjectId('5ebe4eb5ca87309d1c23510e'), ObjectId('5ec21919b2f7815b96d08ffd'), ObjectId('5ec21c219357b0c1eed08ffd'), ObjectId('5ec2269cac51bcdc4dd08ffd'), ObjectId('5ec27d29c1215c372ad08ffd'), ObjectId('5ec28c3711f50cb049d08ffd'), ObjectId('5ec28d33a1eaf8b38dd08ffd'), ObjectId('5ec28e72c900d3c5aad08ffd'), ObjectId('5ec28f7ea98b43e760d08ffd'), ObjectId('5ec2909b1642056f60d08ffd'), ObjectId('5ec29188a970126b6cd08ffd'), ObjectId('5ec29205199b47a279d08ffd'), ObjectId('5ec2943099671b3926d08ffd'), ObjectId('5ec2957cf9ac784f00d08ffd'), ObjectId('5ec296461cd121f455d08ffd'), ObjectId('5ec297b81ea52b7eead08ffd'), ObjectId('5ec298f4f5f0dd0ccdd08ffd'), ObjectId('5ec29f29d804f0761cd08ffd'), ObjectId('5ec2a06ee9d5ed6f19d08ffd'), ObjectId('5ec2b1ca31b9046978d08ffd'), ObjectId('5ec2bfbf01a412bb1fd08ffd')]
@@ -457,5 +627,5 @@ def update_data(entry_id_k):
 # execute_for_a_query('Software to manage relief teachers')
 # execute_for_a_query('Veterinary diagnostics')
 # execute_for_a_query('Medical equipment repair Australia')
-print('yes')
+# print('yes')
 # update_data(links_fix[0])

@@ -1,3 +1,4 @@
+# python3 -m spacy download en(sudo might needed)
 import json
 # Gensim
 import gensim

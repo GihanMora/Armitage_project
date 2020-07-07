@@ -1,4 +1,9 @@
+play.google.com
+www.netflix.com
+www.amazon.com
+apps.apple.com
 www.crunchbase.com
+www.tutorialspoint.com
 www.capterra.com
 www.softwareadvice.com
 www.gartner.com
@@ -12,6 +17,7 @@ www.trustradius.com
 books.google.lk
 www.noodle.com
 www.researchgate.net
+www.campusreview.com.au
 www.futurebridge.com
 www.neoteryx.com
 www.businesswire.com

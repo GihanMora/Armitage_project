@@ -34,8 +34,8 @@ def clean_add(add_list):
     return cleaned_add
 
 
-add_list = ['119 of 1995, Trade Practices Act 1974', '427 City Road<br />  South Melbourne VIC 3205', '1968 - Act no 63 of 1968, Trade Marks Act 1995']
-clean_add(add_list)
+# add_list = ['119 of 1995, Trade Practices Act 1974', '427 City Road<br />  South Melbourne VIC 3205', '1968 - Act no 63 of 1968, Trade Marks Act 1995']
+# clean_add(add_list)
 
 
 
@@ -97,8 +97,13 @@ def is_valid_tp(tp):
 def add_parser(text):
     extracted_addresses = []
     addregexau = re.compile(
-        r"(?i)(\b(PO BOX|post box)[,\s|.\s|,.|\s]*)?(\b(\d+))(\b(?:(?!\s{2,}).){1,60})\b(New South Wales|Victoria|Queensland|Western Australia|South Australia|Tasmania|VIC|NSW|ACT|QLD|NT|SA|TAS|WA).?[,\s|.\s|,.|\s]*(\b\d{4}).?[,\s|.\s|,.|\s]*(\b(Australia|Au))?")
+        r"(?i)(\b(PO BOX|post box)[,\s|.\s|,.|\s]*)?(\b(\d+))(\b(?:(?!\s{5,}).){1,60})\b(New South Wales|Victoria|Queensland|Western Australia|South Australia|Tasmania|VIC|NSW|ACT|QLD|NT|SA|TAS|WA|Pymble).?[,\s|.\s|,.|\s]*(\b(\d{4})).?[,\s|.\s|,.|\s]*(\b(Australia|Au))?")
+    addregexau1 = re.compile(
+        r"(?i)(\b(PO BOX|post box)[,\s|.\s|,.|\s]*)?(\b(\d+))(\b(?:(?!\s{5,}).){1,60})\b(New South Wales|Victoria|Queensland|Western Australia|South Australia|Tasmania|VIC|NSW|ACT|QLD|NT|SA|TAS|WA|Pymble).?[,\s|.\s|,.|\s]*(\b(Australia|Au))?[,\s|.\s|,.|\s]*(\b(\d{4})).?")
+
     searchau = re.findall(addregexau, text)
+    searchau1 = re.findall(addregexau1, text)
+    searchau=searchau+searchau1
     for each in searchau:
         add_l = []
         add_r = list(each)
@@ -112,7 +117,7 @@ def add_parser(text):
         # print("au", add_r)
 
     addregexnz = re.compile(
-        r"(?i)(\b(PO BOX|post box)[,\s|.\s|,.|\s]*)?(\b(\d+))(\b(?:(?!\s{2,}).){1,60})\b(Northland|Auckland|Waikato|Bay of Plenty|Gisborne|Hawke's Bay|Taranaki|Manawatu-Whanganui|Wellington|Tasman|Nelson|Marlborough|West Coast|Canterbury|Otago|Southland).?[,\s|.\s|,.|\s]*(\b\d{4}).?[,\s|.\s|,.|\s]*(\b(New zealand|Newzealand|Nz))?")
+        r"(?i)(\b(PO BOX|post box)[,\s|.\s|,.|\s]*)?(\b(\d+))(\b(?:(?!\s{5,}).){1,60})\b(Northland|Auckland|Waikato|Bay of Plenty|Gisborne|Hawke's Bay|Taranaki|Manawatu-Whanganui|Wellington|Tasman|Nelson|Marlborough|West Coast|Canterbury|Otago|Southland).?[,\s|.\s|,.|\s]*(\b(\d{4})).?[,\s|.\s|,.|\s]*(\b(New zealand|Newzealand|Nz))?")
     searchnz = addregexnz.findall(text)
     for each in searchnz:
         add_ln = []
@@ -127,5 +132,12 @@ def add_parser(text):
 
     return extracted_addresses
 
-# text = "PO Box 393, Kumeu Auckland 0841, New Zealand"
-# print(add_parser(text))
+text = """
+['16 ,046  11. Typsy Education , Hospitality , Video Armadale , Victoria Australia', '13 ,193  8. Cluey Learning Education Sydney , New South Wales Australia', '13 ,687  10. Cluey Learning Education Sydney , New South Wales Australia', '14 . Artesian VC 165 4 Sydney , New South Wales Australia', '10 ,085  5. Zookal E-Commerce , Education , Rental Sydney , New South Wales Australia', '10 ,085  6. Zookal E-Commerce , Education , Rental Sydney , New South Wales Australia', '2017 ) Melbourne , Victoria Australia', '701 4. Moodle E-Learning , Education , Open Source Perth , Western Australia Australia', '701 3. Moodle E-Learning , Education , Open Source Perth , Western Australia Australia', '1 . Dave Spicer Founder School of Music Online Brisbane , Queensland Australia', '292 6. OpenLearning EdTech , Education , Software Sydney , New South Wales Australia', '292 7. OpenLearning EdTech , Education , Software Sydney , New South Wales Australia', '2 . InsideSherpa E-Learning , Education , Employment Sydney , New South Wales Australia', '10 . Schrole Group Education , Professional Services Osborne , New South Wales Australia', '12 . Schrole Group Education , Professional Services Osborne , New South Wales Australia', '16 ,046  9. Typsy Education , Hospitality , Video Armadale , Victoria Australia', '409 UX in Higher Education Melbourne August 2017 Melbourne , Victoria Australia Au', '3 . InsideSherpa E-Learning , Education , Employment Sydney , New South Wales Australia', '366 2. Samir Bhana Founder School of Music Online Brisbane , Queensland Australia']
+
+
+
+"""
+p = add_parser(text)
+for j in p:
+    print(j)
