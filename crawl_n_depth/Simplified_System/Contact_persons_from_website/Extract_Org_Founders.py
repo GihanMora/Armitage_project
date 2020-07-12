@@ -35,7 +35,11 @@ from stanfordnlp.server import CoreNLPClient
 #nlp.add_pipe(nlp.create_pipe('sentencizer'))
 
 
-sys.path.insert(0, 'C:/Users/user/Desktop/LaTrobe/Projects/Proj_Armitage/Armitage_project-master/crawl_n_depth//')
+from os.path import dirname as up
+three_up = up(up(up(__file__)))
+sys.path.insert(0, three_up)
+
+# sys.path.insert(0, 'C:/Users/user/Desktop/LaTrobe/Projects/Proj_Armitage/Armitage_project-master/crawl_n_depth//')
 from Simplified_System.Deep_Crawling.main import deep_crawl
 from scrape_linkedin import ProfileScraper, HEADLESS_OPTIONS
 from Simplified_System.Initial_Crawling.main import search_a_query

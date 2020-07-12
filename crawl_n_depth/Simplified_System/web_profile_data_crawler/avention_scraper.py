@@ -1,3 +1,4 @@
+# setx AVENTION_PASSWORD "<password>"
 import ast
 import os
 import time
