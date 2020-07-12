@@ -55,6 +55,7 @@ def run_crawlers_via_queue():
     run_crawlers_m_via_queue(3,100)
 
 def run_crawlers_via_queue_chain():
+    print("Deep crawling queue is live")
     run_crawlers_m_via_queue_chain(3,100)
 # run_crawlers_via_queue()
 # add_to_deep_crawling_queue(to_check)

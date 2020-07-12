@@ -81,6 +81,7 @@ def extract_features_via_queue():
                 print("Error occured!..try again",e)
 
 def extract_features_via_queue_chain():
+    print("Feature extraction queue is live")
     my_col = refer_collection()
     connect_str = os.getenv('AZURE_STORAGE_CONNECTION_STRING')
     f_e_client = QueueClient.from_connection_string(connect_str, "feature-extraction-queue")

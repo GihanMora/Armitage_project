@@ -112,7 +112,83 @@ def is_valid_tp(tp):
         return True
     else:return False
 
-def get_confidence(input_tp,tp_list):
+def get_tps_with_sources(entry_id):
+    mycol = refer_collection()
+    csv_dump_col = refer_simplified_dump_col_min()
+    comp_data_entry = mycol.find({"_id": entry_id})
+    data = [i for i in comp_data_entry]
+    comp_data_entry_min = csv_dump_col.find({"_id": entry_id})
+    tp_with_sources = []
+    attribute_keys = list(data[0].keys())
+
+    try:
+
+        tp_cb_valid = False
+        if ('Phone_Number_cb' in attribute_keys):
+            # print('cb',data[0]['Phone_Number_cb'])
+            if (is_valid_tp(data[0]['Phone_Number_cb'])):
+                tp_cb_valid = True
+        tp_google_valid = False
+        if ('google_tp' in attribute_keys):
+            # print('cb',data[0]['Phone_Number_cb'])
+            if (is_valid_tp(data[0]['google_tp'])):
+                tp_google_valid = True
+        dnb_tp = []
+        if ('company_tp_dnb' in attribute_keys):
+            dnb_tp = data[0]['company_tp_dnb'][0]  # from dnb
+            # print(data_list,type(data_list))
+        w_tp = []
+        if (len(data[0]['telephone_numbers_with_sources'])):
+            plus_t = []
+            s_six = []
+            other_t = []
+            for each_tl in data[0]['telephone_numbers_with_sources']:
+                each_t = each_tl[0]
+                if (each_t[:3] in ['+61', '+64']):
+                    if (is_valid_tp(each_t)):
+                        plus_t.append(each_tl)
+                if (each_t[:2] in ['61', '64']):
+                    if (is_valid_tp(each_t)):
+                        s_six.append(each_tl)
+                if ((each_t[0] in ['0']) or (each_t[:4] in ['1300', '1800', '0800'])):
+                    if (is_valid_tp(each_t)):
+                        other_t.append(each_tl)
+            w_tp = plus_t + s_six + other_t
+
+        if (len(w_tp)):
+            for each_tp in w_tp:
+                tp_with_sources.append([each_tp[0], 'website'])
+                # print([each_tp[0], 'website'])
+
+        if (tp_google_valid):
+            tp_with_sources.append([data[0]['google_tp'], 'google'])  # from google
+            # print([data[0]['google_tp'], 'google'])
+
+        if (tp_cb_valid):
+            tp_with_sources.append([data[0]['Phone_Number_cb'], 'crunchbase'])
+            # print([data[0]['Phone_Number_cb'], 'crunchbase'])
+
+        if ('Tel:_aven' in attribute_keys):
+            # print(data[0]['Tel:_aven'])
+            tp_with_sources.append([data[0]['Tel:_aven'], 'avention'])
+            # print([data[0]['Tel:_aven'], 'avention'])
+
+        if ('phone_li' in attribute_keys):
+            # print(data[0]['phone_li'].split("\n")[0])
+            tp_with_sources.append([data[0]['phone_li'].split("\n")[0], 'linkein'])
+            # print([data[0]['phone_li'].split("\n")[0], 'linkein'])
+
+        if (len(dnb_tp)):
+            tp_with_sources.append([dnb_tp, 'dnb'])  # from dnb
+            # print([dnb_tp, 'dnb'])
+
+        return tp_with_sources
+
+    except KeyError:
+        print("error")
+        return tp_with_sources
+
+def get_confidence_tp(input_tp,tp_list):
     tp_sources = []
     for k in tp_list:
         if(k[1] not in tp_sources):tp_sources.append(k[1])
@@ -128,7 +204,7 @@ def get_confidence(input_tp,tp_list):
             if(tp_list[i][1] not in commons):
                 commons.append(tp_list[i][1])
     if((len(tp_sources)-1)==0):
-        print(input_tp[0],"cannot measure")
+        # print(input_tp[0],"cannot measure")
         confidence_val = None
     else:
         # print(input_address[0],"score "+str((len(commons))/(len(av_sources)-1)))
@@ -162,6 +238,22 @@ def get_confidence_all_tp(tp_list):
     print("sorted on conf",tp_with_conf)
     return tp_with_conf
 
+def get_tp_confidence(selected_tp,entry_id):
+    tp_list = get_tps_with_sources(entry_id)
+    selected_tp_with_source = None
+
+    for each_a_s in tp_list:
+        # print(each_a_s,selected_tp)
+        if (restructure_tp(each_a_s[0]) == selected_tp):
+            selected_tp_with_source = each_a_s
+    return get_confidence_tp(selected_tp_with_source,tp_list)
+
+def get_every_tp_confidence(entry_id):
+    tp_list = get_tps_with_sources(entry_id)
+    return get_confidence_all_tp(tp_list)
+
+
+
 def tp_conf(id_list):
     mycol = refer_collection()
     csv_dump_col = refer_simplified_dump_col_min()
@@ -186,73 +278,9 @@ def tp_conf(id_list):
                 print("cannot measure confidence,selected tp number is None")
                 data_to_write.extend(['None', 'None'])
             else:
-                tp_with_sources = []
-                attribute_keys = list(data[0].keys())
-
-                try:
-
-                    tp_cb_valid = False
-                    if ('Phone_Number_cb' in attribute_keys):
-                        # print('cb',data[0]['Phone_Number_cb'])
-                        if (is_valid_tp(data[0]['Phone_Number_cb'])):
-                            tp_cb_valid = True
-                    tp_google_valid = False
-                    if ('google_tp' in attribute_keys):
-                        # print('cb',data[0]['Phone_Number_cb'])
-                        if (is_valid_tp(data[0]['google_tp'])):
-                            tp_google_valid = True
-                    dnb_tp = []
-                    if ('company_tp_dnb' in attribute_keys):
-                        dnb_tp = data[0]['company_tp_dnb'][0]  # from dnb
-                        # print(data_list,type(data_list))
-                    w_tp = []
-                    if (len(data[0]['telephone_numbers_with_sources'])):
-                        plus_t = []
-                        s_six = []
-                        other_t = []
-                        for each_tl in data[0]['telephone_numbers_with_sources']:
-                            each_t = each_tl[0]
-                            if (each_t[:3] in ['+61', '+64']):
-                                if (is_valid_tp(each_t)):
-                                    plus_t.append(each_tl)
-                            if (each_t[:2] in ['61', '64']):
-                                if (is_valid_tp(each_t)):
-                                    s_six.append(each_tl)
-                            if ((each_t[0] in ['0']) or (each_t[:4] in ['1300', '1800', '0800'])):
-                                if (is_valid_tp(each_t)):
-                                    other_t.append(each_tl)
-                        w_tp = plus_t + s_six + other_t
-
-                    if (len(w_tp)):
-                        for each_tp in w_tp:
-                            tp_with_sources.append([each_tp[0],'website'])
-                            # print([each_tp[0], 'website'])
-
-                    if (tp_google_valid):
-                        tp_with_sources.append([data[0]['google_tp'], 'google'])  # from google
-                        # print([data[0]['google_tp'], 'google'])
-
-                    if (tp_cb_valid):
-                        tp_with_sources.append([data[0]['Phone_Number_cb'], 'crunchbase'])
-                        # print([data[0]['Phone_Number_cb'], 'crunchbase'])
-
-                    if ('Tel:_aven' in attribute_keys):
-                        # print(data[0]['Tel:_aven'])
-                        tp_with_sources.append([data[0]['Tel:_aven'], 'avention'])
-                        # print([data[0]['Tel:_aven'], 'avention'])
-
-                    if ('phone_li' in attribute_keys):
-                        # print(data[0]['phone_li'].split("\n")[0])
-                        tp_with_sources.append([data[0]['phone_li'].split("\n")[0], 'linkein'])
-                        # print([data[0]['phone_li'].split("\n")[0], 'linkein'])
-
-                    if (len(dnb_tp)):
-                        tp_with_sources.append([dnb_tp, 'dnb'])  # from dnb
-                        # print([dnb_tp, 'dnb'])
+                tp_with_sources = get_tps_with_sources(entry_id)
 
 
-                except KeyError:
-                    print("error")
 
                 # print('tp_with_sources', tp_with_sources)
                 # print('selected_tp', selected_tp)
@@ -262,7 +290,7 @@ def tp_conf(id_list):
                     if (restructure_tp(each_a_s[0]) == selected_tp):
                         selected_tp_with_source = each_a_s
 
-                confidence_v = get_confidence(selected_tp_with_source, tp_with_sources)
+                confidence_v = get_confidence_tp(selected_tp_with_source, tp_with_sources)
 
                 if (confidence_v != None):
                     print('selected_tp_with_source', selected_tp_with_source+[confidence_v])
@@ -287,4 +315,4 @@ edu_set = [ObjectId('5eb62e2a134cc6fb9536e93d'), ObjectId('5eb630147afe26eca4ba7
 left_set = [item for item in all_ids_fixed if item not in edu_set]
 
 
-tp_conf(edu_set)
+# tp_conf(edu_set)

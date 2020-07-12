@@ -187,6 +187,7 @@ def get_oc_data(id_list):
             print("No opencorporates profile found!")
 
 def get_oc_data_via_queue():
+    print("Opencorporates extraction queue is live")
     mycol = refer_collection()
     connect_str = os.getenv('AZURE_STORAGE_CONNECTION_STRING')
     oc_client = QueueClient.from_connection_string(connect_str, "opencorporates-extraction-queue")

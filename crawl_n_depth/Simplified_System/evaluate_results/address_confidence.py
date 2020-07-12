@@ -49,6 +49,64 @@ def isvalid_hq(loc):
             is_valid = True
     return is_valid
 
+
+def get_address_with_sources(entry_id):
+    adds_with_sources = []
+    mycol = refer_collection()
+    csv_dump_col = refer_simplified_dump_col_min()
+    comp_data_entry = mycol.find({"_id": entry_id})
+    data = [i for i in comp_data_entry]
+    comp_data_entry_min = csv_dump_col.find({"_id": entry_id})
+    data_min = [i for i in comp_data_entry_min]
+    attribute_keys = list(data[0].keys())
+    try:
+        g_add, w_ad, dnb_add, oc_add = '', [], '', ''
+        if ('google_address' in attribute_keys):
+            if (len(data[0]['google_address'])):
+                # if(type(g_add)=='ty')
+                g_add = data[0]['google_address']
+
+        if (len(data[0]['addresses'])):
+            for each in data[0]['addresses']:
+                w_ad.append(each)
+                # break
+        if ('company_address_dnb' in attribute_keys):
+            if (len(data[0]['company_address_dnb'])):
+                dnb_add = data[0]['company_address_dnb'][0]
+        if ('registered_address_adr_oc' in attribute_keys):
+            oc_add = data[0]['registered_address_adr_oc']
+            # print('oc_ad', oc_add)
+        aven_add = ''
+        if ('address_aven' in attribute_keys):
+            aven_add = data[0]['address_aven']
+
+        if (isvalid_hq(g_add)):
+            # print('g')
+            adds_with_sources.append([g_add, 'google'])
+
+        if (len(w_ad) != 0):
+            # print(w_ad)
+            for each_adr in w_ad:
+                adds_with_sources.append([each_adr, 'website'])
+
+        if (isvalid_hq(dnb_add)):
+            # print('d')
+            adds_with_sources.append([dnb_add, 'dnb'])
+
+        if (isvalid_hq(oc_add.lower())):
+            # print('o')
+            adds_with_sources.append([oc_add, 'oc'])
+
+        if (isvalid_hq(aven_add)):
+            # print('o')
+            adds_with_sources.append([aven_add, 'avention'])
+
+        return adds_with_sources
+
+    except KeyError:
+        print('error')
+        return adds_with_sources
+
 def get_address_vector(address):
 
     lowered = address.lower()
@@ -84,7 +142,7 @@ def get_confidence_all_ad(adds):
     print("sorted on conf",adds_with_conf)
     return adds_with_conf
 
-def get_confidence(input_address,address_list):
+def get_confidence_ad(input_address,address_list):
     av_sources = []
     for k in address_list:
         if(k[1] not in av_sources):av_sources.append(k[1])
@@ -100,12 +158,25 @@ def get_confidence(input_address,address_list):
             if(address_list[i][1] not in commons):
                 commons.append(address_list[i][1])
     if((len(av_sources)-1)==0):
-        print(input_address[0],"cannot measure")
+        # print(input_address[0],"cannot measure")
         confidence_val = None
     else:
         # print(input_address[0],"score "+str((len(commons))/(len(av_sources)-1)))
         confidence_val = ((len(commons))/(len(av_sources)-1))
     return confidence_val
+
+def get_address_confidence(selected_address,entry_id):
+    address_list = get_address_with_sources(entry_id)
+    selected_address_with_source = None
+    for each_a_s in address_list:
+        if (each_a_s[0] == selected_address):
+            selected_address_with_source = each_a_s
+    return get_confidence_ad(selected_address_with_source,address_list)
+
+def get_every_address_confidence(entry_id):
+    address_list = get_address_with_sources(entry_id)
+    return get_confidence_all_ad(address_list)
+
 
 def address_conf(id_list):
     mycol = refer_collection()
@@ -132,55 +203,7 @@ def address_conf(id_list):
                 data_to_write.extend(['None','None'])
                 # return None
             else:
-                adds_with_sources = []
-                attribute_keys = list(data[0].keys())
-
-                try:
-                    g_add, w_ad, dnb_add, oc_add = '', [], '', ''
-                    if ('google_address' in attribute_keys):
-                        if (len(data[0]['google_address'])):
-
-                            # if(type(g_add)=='ty')
-                            g_add = data[0]['google_address']
-
-                    if (len(data[0]['addresses'])):
-                        for each in data[0]['addresses']:
-                            w_ad.append(each)
-                            # break
-                    if ('company_address_dnb' in attribute_keys):
-                        if (len(data[0]['company_address_dnb'])):
-                            dnb_add = data[0]['company_address_dnb'][0]
-                    if ('registered_address_adr_oc' in attribute_keys):
-                        oc_add = data[0]['registered_address_adr_oc']
-                        # print('oc_ad', oc_add)
-                    aven_add = ''
-                    if ('address_aven' in attribute_keys):
-                        aven_add = data[0]['address_aven']
-
-                    if (isvalid_hq(g_add)):
-                        # print('g')
-                        adds_with_sources.append([g_add, 'google'])
-
-                    if (len(w_ad) != 0):
-                        # print(w_ad)
-                        for each_adr in w_ad:
-                            adds_with_sources.append([each_adr,'website'])
-
-                    if (isvalid_hq(dnb_add)):
-                        # print('d')
-                        adds_with_sources.append([dnb_add, 'dnb'])
-
-                    if (isvalid_hq(oc_add.lower())):
-                        # print('o')
-                        adds_with_sources.append([oc_add, 'oc'])
-
-                    if (isvalid_hq(aven_add)):
-                        # print('o')
-                        adds_with_sources.append([aven_add, 'avention'])
-
-                except KeyError:
-                    print('error')
-
+                adds_with_sources = get_address_with_sources(entry_id)
                 print('addresses_with_sources',adds_with_sources)
                 print('selected_address',selected_address)
                 selected_address_with_source = None
@@ -188,7 +211,7 @@ def address_conf(id_list):
                     if(each_a_s[0]==selected_address):
                         selected_address_with_source=each_a_s
 
-                confidence_v = get_confidence(selected_address_with_source,adds_with_sources)
+                confidence_v = get_confidence_ad(selected_address_with_source,adds_with_sources)
                 # print(confidence_v)
                 if (confidence_v != None):
                     print('selected_address_with_source', selected_address_with_source+[confidence_v])
@@ -213,4 +236,4 @@ left_set = [item for item in all_ids_fixed if item not in edu_set]
 # for each_id in edu_set:
 #     address_conf(each_id)
 
-address_conf(edu_set)
+# address_conf(edu_set)

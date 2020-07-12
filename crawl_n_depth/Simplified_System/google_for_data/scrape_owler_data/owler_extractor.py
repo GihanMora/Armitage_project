@@ -185,6 +185,7 @@ def get_qa_from_google(id_list):
             print("No google qa data found!")
 
 def get_qa_from_google_via_queue():
+    print("Owler extraction queue is live")
     # mycol = refer_collection()
     mycol = refer_collection()
     connect_str = os.getenv('AZURE_STORAGE_CONNECTION_STRING')

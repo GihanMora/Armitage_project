@@ -1,9 +1,6 @@
 import json
 import os
-import pandas as pd
-from nltk import word_tokenize
-from sklearn.metrics import classification_report
-from sklearn.model_selection import train_test_split
+
 from tqdm import tqdm
 #import the modules
 from sklearn.cluster import KMeans

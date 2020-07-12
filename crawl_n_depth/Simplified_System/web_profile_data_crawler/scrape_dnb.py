@@ -289,6 +289,7 @@ def get_dnb_data(id_list):
             print("No dnb profile found!")
 
 def get_dnb_data_via_queue():
+    print("DNB extraction queue is live")
     mycol = refer_collection()
     connect_str = os.getenv('AZURE_STORAGE_CONNECTION_STRING')
     dnb_client = QueueClient.from_connection_string(connect_str, "dnb-extraction-queue")

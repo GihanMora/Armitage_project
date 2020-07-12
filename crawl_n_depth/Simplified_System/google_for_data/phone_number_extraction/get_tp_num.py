@@ -140,6 +140,7 @@ def get_tp_from_google(id_list):
 
 
 def get_tp_from_google_via_queue():
+    print("Google TP extraction queue is live")
     mycol = refer_collection()
     connect_str = os.getenv('AZURE_STORAGE_CONNECTION_STRING')
     tp_client = QueueClient.from_connection_string(connect_str, "google-tp-queue")

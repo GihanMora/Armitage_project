@@ -53,6 +53,7 @@ def get_li_emp(id_list):
 
 
 def get_li_emp_via_queue():
+    print("Linkedin cp extraction queue is live")
     mycol = refer_collection()
     connect_str = os.getenv('AZURE_STORAGE_CONNECTION_STRING')
     li_cp_client = QueueClient.from_connection_string(connect_str, "li-cp-extraction-queue")

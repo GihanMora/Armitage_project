@@ -19,6 +19,7 @@ def loop_b():
         print("b")
 
 if __name__ == '__main__':
+    print('fine')
     p1 = Process(target=run_crawlers_via_queue_chain)
     p1.start()
     p2 = Process(target=extract_features_via_queue_chain)

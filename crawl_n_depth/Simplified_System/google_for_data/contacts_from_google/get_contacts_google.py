@@ -187,6 +187,7 @@ def get_cp_from_google(id_list):
 
 def get_cp_from_google_via_queue():
     # mycol = refer_collection()
+    print("Google cp extraction queue is live")
     mycol = refer_collection()
     connect_str = os.getenv('AZURE_STORAGE_CONNECTION_STRING')
     cp_client = QueueClient.from_connection_string(connect_str, "google-cp-queue")

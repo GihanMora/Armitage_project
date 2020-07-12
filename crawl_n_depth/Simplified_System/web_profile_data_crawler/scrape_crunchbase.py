@@ -268,6 +268,7 @@ def get_cb_data(id_list):
 
 
 def get_cb_data_via_queue():
+    print("Crunchbase extraction queue is live")
     mycol = refer_collection()
     connect_str = os.getenv('AZURE_STORAGE_CONNECTION_STRING')
     cb_client = QueueClient.from_connection_string(connect_str, "crunchbase-extraction-queue")

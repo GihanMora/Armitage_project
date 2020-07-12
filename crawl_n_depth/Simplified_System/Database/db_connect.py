@@ -2,8 +2,9 @@
 #dump csv path
 import ast
 import os
+import sys
 import time
-from datetime import datetime
+from datetime import datetime, timedelta
 import gensim
 
 import spacy
@@ -12,6 +13,16 @@ import pymongo
 from azure.storage.queue import QueueClient
 from bson import ObjectId
 import csv
+
+from os.path import dirname as up
+three_up = up(up(up(__file__)))
+sys.path.insert(0, three_up)
+
+from Simplified_System.evaluate_results.address_confidence import get_address_confidence,get_every_address_confidence
+from Simplified_System.evaluate_results.cp_confidence import get_cp_confidence,get_every_cp_confidence
+from Simplified_System.evaluate_results.hq_confidence import get_hq_confidence,get_every_hq_confidence
+from Simplified_System.evaluate_results.tp_confidence import get_tp_confidence,get_every_tp_confidence
+
 
 nz_prefixes = ['0320','0321','0322','0323','0324','0326','0327','0328','0330','0331','0332','0333','0334','0335','0336','0337','0338','03409','0341','0343','0344','0345','0346','0347','0348','0352','0354','0357','0361','0368','0369','0373','0375','0376','0378','0390','03927','0394','0395','0396','0397','0398','0423','0429','043','044','045','0480','0490','049','0627','0630','0632','0634','0635','0636','0637','0638','0675','0676','0683','0684','0685','0686','0687','0694','0695','0696','0697','0698','0730','0731','0732','0733','0734','0735','0736','0737','0738','0754','0757','0756','0782','0783','0784','0785','0786','0787','0788','0789','0790','0792','0793','0795','0796','0923','092','093','0940','0941','0942','0943','0944','0947','0948','095','096','098','0990','0998','099','0201','0202','0203','0204','0205','0206','0207','0208','0209','021','022','023','024','025','026','027','0280','028','0284','02885','02886','02889','02896','029']
 au_prefixes = ['0233','0237','0238','0239','0240','0241','0242','0243','0244','0245','0246','0247','0248','0249','0250','0251','0252','0253','0254','0255','0256','0257','0258','0259','0260','0261','0262','0263','0264','0265','0266','0267','0268','0269','027','028','029','0332','0333','0334','0340','0341','0342','0343','0344','0345','0346','0347','0348','0349','0350','0351','0352','0353','0354','0355','0356','0357','0358','0359','0361','0362','0363','0364','0365','0367','037','038','039','072','073','0740','0741','0742','0743','0744','0745','0746','0747','0748','0749','0752','0753','0754','0755','0756','0757','0770','0775','0776','0777','0779','0825','0826','0851','0852','0853','0854','0855','0858','0860','0861','0862','0863','0864','0865','0866','0867','0868','0869','0870','0871','0872','0873','0874','0875','0876','0877','0878','0879','0880','0880','0881','0882','0883','0884','0885','0886','0887','0888','0889','0890','0891','0892','0893','0894','0895','0896','0897','0898','0899','040','041','042','043','044','045','046','047','048','049']
@@ -201,8 +212,11 @@ def export_profiles(id_list,query_id):
     print("CSV export completed!")
 # export_profiles([ObjectId('5eb3fe2233b62d98401f8944')],ObjectId('5eb3fde433b62d98401f8943'))
 
+
+
 # clear_the_collection()
 def simplified_export_via_queue():
+    print("Simplified export queue is live")
     mycol = refer_collection()
     csv_dump_col = refer_simplified_dump_col_min()
     query_collection = refer_query_col()
@@ -225,7 +239,7 @@ def simplified_export_via_queue():
             data = [i for i in comp_data_entry]
             #check_for_the_completion_of_components
             try:
-                if(data[0]['deep_crawling_state']==data[0]['feature_extraction_state']==data[0]['classification_state']==data[0]['owler_qa_state']==data[0]['li_cp_state']==data[0]['google_cp_state']==data[0]['oc_extraction_state']==data[0]['google_address_state']==data[0]['dnb_extraction_state']==data[0]['google_tp_state']==data[0]['crunchbase_extraction_state']=='Completed'):
+                if(data[0]['deep_crawling_state']==data[0]['feature_extraction_state']==data[0]['classification_state']==data[0]['owler_qa_state']==data[0]['li_cp_state']==data[0]['google_cp_state']==data[0]['oc_extraction_state']==data[0]['google_address_state']==data[0]['dnb_extraction_state']==data[0]['google_tp_state']==data[0]['avention_extraction_state']==data[0]['crunchbase_extraction_state']=='Completed'):
                     data_list = []
                     data_list.extend([data[0]['_id'], data[0]['search_text'], data[0]['title'], data[0]['link'],
                                       data[0]['description'], data[0]['comp_name']])
@@ -271,6 +285,23 @@ def simplified_export_via_queue():
                                         data_list.append(oc_add)
                                     else:
                                         data_list.append('None')
+
+                                    print("selected_address", data_list[-1])
+                                    if (data_list[-1] != 'None'):
+                                        a_conf = get_address_confidence(data_list[-1], entry_id)
+                                        print('confidence of selected address', a_conf)
+                                        if (a_conf != None):
+                                            if (a_conf > 0):
+                                                continue
+                                            else:
+                                                all_ads_with_conf = get_every_address_confidence(entry_id)
+                                                print('confidence of all addresses', all_ads_with_conf)
+                                                if (all_ads_with_conf != None):
+                                                    highest_ads_with_conf = all_ads_with_conf[-1:]
+                                                    print('highest', highest_ads_with_conf)
+                                                    if (highest_ads_with_conf[0][2] > 0):
+                                                        data_list[-1] = highest_ads_with_conf[0][0]
+                                                        print('updated with highest confidence')
 
                                 except KeyError:
                                     data_list.append('None')
@@ -342,6 +373,23 @@ def simplified_export_via_queue():
                                     else:
                                         data_list.append("None")
                                     data_list[-1] = restructure_tp(data_list[-1])
+
+                                    print("selected_tp", data_list[-1])
+                                    if (data_list[-1] != 'None'):
+                                        a_conf = get_tp_confidence(data_list[-1], entry_id)
+                                        print('confidence of selected tp', a_conf)
+                                        if (a_conf != None):
+                                            if (a_conf > 0):
+                                                continue
+                                            else:
+                                                all_ads_with_conf = get_every_tp_confidence(entry_id)
+                                                print('confidence of all tps', all_ads_with_conf)
+                                                if (all_ads_with_conf != None):
+                                                    highest_ads_with_conf = all_ads_with_conf[-1:]
+                                                    print('highest', highest_ads_with_conf)
+                                                    if (highest_ads_with_conf[0][2] > 0):
+                                                        data_list[-1] = restructure_tp(highest_ads_with_conf[0][0])
+                                                        print('updated with highest confidence')
                                     # else:
                                     #     data_list.append("None")
                                 except KeyError:
@@ -377,27 +425,32 @@ def simplified_export_via_queue():
                                                     [data_li[0], data_li[1].strip() + '_' + data_li[2].strip()])
 
                                     if (len(wb_list)):
-                                        # print('g')
-                                        data_list.extend(wb_list)  # from google
+                                        # print('web')
+                                        data_list.append(wb_list)  # from google
 
                                     elif ('google_cp' in attribute_keys):
                                         # print('g')
                                         det_gcp = data[0]['google_cp']
                                         # print('gog',det_gcp)
-                                        data_list.extend(det_gcp)  # from google
+                                        data_list.append(det_gcp)  # from google
                                     # crunchbase
                                     elif ('Founders_cb' in attribute_keys):
+                                        # print('cb')
                                         det_cb = data[0]['Founders_cb']
-                                        data_list.extend([det_cb, 'founder(s)'])
+                                        det_cb = [cb.strip() for cb in det_cb.split(',')][0]
+                                        data_list.append([det_cb, 'founder(s)'])
+
                                     elif ('contacts_aven' in attribute_keys):
-                                        det_aven = data[0]['contacts_aven'][:1]
-                                        data_list.extend(det_aven)
+                                        # print('aven')
+                                        det_aven = data[0]['contacts_aven'][0]
+                                        data_list.append(det_aven)
 
                                     elif ('company_contacts_dnb' in attribute_keys):
+                                        # print('dnb')
                                         # print('dnb',data[0]['dnb_cp_info'])
                                         # print('dnb',dnb_list[0])
                                         det_dnb = data[0]['company_contacts_dnb']
-                                        data_list.extend(det_dnb)  # from dnb
+                                        data_list.append(det_dnb[0])  # from dnb
 
                                     elif ('directors_or_officers_oc' in attribute_keys):
                                         # print('oc')
@@ -419,22 +472,41 @@ def simplified_export_via_queue():
                                                 oc_cps.append([oc_det, 'agent_' + each_oc[1]])
 
                                         # print('oc',oc_cps[0])
-                                        data_list.extend(oc_cps[0])  # from oc
+                                        data_list.append(oc_cps[0])  # from oc
                                     elif ('CEO_g' in attribute_keys):
                                         # print('gc')
                                         # print('gogq',[data[0]['CEO_g'],'CEO'])
-                                        data_list.extend([data[0]['CEO_g'], 'CEO'])  # from google qa
+                                        data_list.append([data[0]['CEO_g'], 'CEO'])  # from google qa
                                     elif ('agent_name_oc' in attribute_keys):
                                         # print('oca')
                                         # print('oc_ag',[data[0]['agent_name_oc'],'agent'])
-                                        data_list.extend([data[0]['agent_name_oc'], 'agent'])  # from oc_agent
+                                        data_list.append([data[0]['agent_name_oc'][0], 'agent'])  # from oc_agent
                                     elif (len(li_list)):
 
-                                        data_list.extend(li_list[0])  # from linkedin
-                                        # print('*****')
+                                        data_list.append(li_list[0])  # from linkedin
+                                        # print('li')
                                     else:
                                         # print('None')
                                         data_list.append("None")
+
+                                    print("selected_contact_person", data_list[-1])
+                                    print('data_list',data_list)
+                                    if (data_list[-1] != 'None'):
+                                        a_conf = get_cp_confidence(data_list[-1][0], entry_id)
+                                        print('confidence of selected cp', a_conf)
+                                        if (a_conf != None):
+                                            if (a_conf > 0):
+                                                continue
+                                            else:
+                                                all_ads_with_conf = get_every_cp_confidence(entry_id)
+                                                print('confidence of all cps', all_ads_with_conf)
+                                                if (all_ads_with_conf != None):
+                                                    highest_ads_with_conf = all_ads_with_conf[-1:]
+                                                    print('highest', highest_ads_with_conf)
+                                                    if (highest_ads_with_conf[0][3] > 0):
+                                                        data_list[-1] = [highest_ads_with_conf[0][0],
+                                                                         highest_ads_with_conf[0][1]]
+                                                        print('updated with highest confidence')
 
                                 except KeyError:
                                     data_list.append('None')
@@ -564,6 +636,22 @@ def simplified_export_via_queue():
                                         data_list.append("None")
                                     # else:
                                     #     data_list.append("None")
+
+                                    if (data_list[-1] != 'None'):
+                                        a_conf = get_hq_confidence(data_list[-1], entry_id)
+                                        print('confidence of selected hq', a_conf)
+                                        if (a_conf != None):
+                                            if (a_conf > 0):
+                                                continue
+                                            else:
+                                                all_ads_with_conf = get_every_hq_confidence(entry_id)
+                                                print('confidence of all hqs', all_ads_with_conf)
+                                                if (all_ads_with_conf != None):
+                                                    highest_ads_with_conf = all_ads_with_conf[-1:]
+                                                    print('highest', highest_ads_with_conf)
+                                                    if (highest_ads_with_conf[0][2] > 0):
+                                                        data_list[-1] = highest_ads_with_conf[0][0]
+                                                        print('updated with highest confidence')
                                 except KeyError:
                                     data_list.append('None')
 
@@ -613,17 +701,28 @@ def simplified_export_via_queue():
                     q_data_entry = query_collection.find({"_id": query_id})
                     q_data = [i for i in q_data_entry]
                     started = q_data[0]['started_time_stamp']
-                    ended = time.time()
+                    ended = datetime.now()
+
                     duration = ended - started
-                    dateTimeObj_e = datetime.now()
-                    completion_data = {'completed_time_stamp': dateTimeObj_e, 'elapsed_time': duration}
+                    time_difference_in_minutes = duration / timedelta(minutes=1)
+
+                    # print('ended',[ended , type(ended)])
+                    # print('started', [started, type(started)])
+                    # duration = ended - started
+
+                    # dateTimeObj_e = datetime.now()
+                    completion_data = {'completed_time_stamp': ended, 'elapsed_time': time_difference_in_minutes}
                     print(completion_data)
                     query_collection.update_one({'_id': query_id},
                                                 {'$set': completion_data})
-                    print("Pipeline execution completed, elapsed time:", duration)
+                    print("Pipeline execution completed, elapsed time(minutes):", time_difference_in_minutes)
 
             except KeyError as e:
                 print('key not found',e)
+            except IndexError as e:
+                print('yet raw entry not available')
+            except Exception as e:
+                print("Exception Occured during dumping ",e)
 
             # for k in data[0].keys():
             #     print(k)
@@ -707,6 +806,23 @@ def simplified_export(id_list):
                             else:
                                 data_list.append('None')
 
+                            print("selected_address", data_list[-1])
+                            if (data_list[-1] != 'None'):
+                                a_conf = get_address_confidence(data_list[-1], entry_id)
+                                print('confidence of selected address', a_conf)
+                                if (a_conf != None):
+                                    if (a_conf > 0):
+                                        continue
+                                    else:
+                                        all_ads_with_conf = get_every_address_confidence(entry_id)
+                                        print('confidence of all addresses', all_ads_with_conf)
+                                        if (all_ads_with_conf != None):
+                                            highest_ads_with_conf = all_ads_with_conf[-1:]
+                                            print('highest', highest_ads_with_conf)
+                                            if (highest_ads_with_conf[0][2] > 0):
+                                                data_list[-1] = highest_ads_with_conf[0][0]
+                                                print('updated with highest confidence')
+
                         except KeyError:
                             data_list.append('None')
 
@@ -777,6 +893,24 @@ def simplified_export(id_list):
                             else:
                                 data_list.append("None")
                             data_list[-1] = restructure_tp(data_list[-1])
+
+                            print("selected_tp", data_list[-1])
+                            if (data_list[-1] != 'None'):
+                                a_conf = get_tp_confidence(data_list[-1], entry_id)
+                                print('confidence of selected tp', a_conf)
+                                if (a_conf != None):
+                                    if (a_conf > 0):
+                                        continue
+                                    else:
+                                        all_ads_with_conf = get_every_tp_confidence(entry_id)
+                                        print('confidence of all tps', all_ads_with_conf)
+                                        if (all_ads_with_conf != None):
+                                            highest_ads_with_conf = all_ads_with_conf[-1:]
+                                            print('highest', highest_ads_with_conf)
+                                            if (highest_ads_with_conf[0][2] > 0):
+                                                data_list[-1] = restructure_tp(highest_ads_with_conf[0][0])
+                                                print('updated with highest confidence')
+
                             # else:
                             #     data_list.append("None")
                         except KeyError:
@@ -810,26 +944,27 @@ def simplified_export(id_list):
 
                             if (len(wb_list)):
                                 # print('g')
-                                data_list.extend(wb_list)  # from google
+                                data_list.append(wb_list)  # from google
 
                             elif ('google_cp' in attribute_keys):
                                 # print('g')
                                 det_gcp = data[0]['google_cp']
                                 # print('gog',det_gcp)
-                                data_list.extend(det_gcp)  # from google
+                                data_list.append(det_gcp)  # from google
                             # crunchbase
                             elif ('Founders_cb' in attribute_keys):
                                 det_cb = data[0]['Founders_cb']
-                                data_list.extend([det_cb, 'founder(s)'])
+                                det_cb = [cb.strip() for cb in det_cb.split(',')][0]
+                                data_list.append([det_cb, 'founder(s)'])
                             elif('contacts_aven' in attribute_keys):
                                 det_aven = data[0]['contacts_aven'][:1]
-                                data_list.extend(det_aven)
+                                data_list.append(det_aven)
 
                             elif ('company_contacts_dnb' in attribute_keys):
                                 # print('dnb',data[0]['dnb_cp_info'])
                                 # print('dnb',dnb_list[0])
                                 det_dnb = data[0]['company_contacts_dnb']
-                                data_list.extend(det_dnb)  # from dnb
+                                data_list.append(det_dnb[0])  # from dnb
 
                             elif ('directors_or_officers_oc' in attribute_keys):
                                 # print('oc')
@@ -851,22 +986,40 @@ def simplified_export(id_list):
                                         oc_cps.append([oc_det, 'agent_' + each_oc[1]])
 
                                 # print('oc',oc_cps[0])
-                                data_list.extend(oc_cps[0])  # from oc
+                                data_list.append(oc_cps[0])  # from oc
                             elif ('CEO_g' in attribute_keys):
                                 # print('gc')
                                 # print('gogq',[data[0]['CEO_g'],'CEO'])
-                                data_list.extend([data[0]['CEO_g'], 'CEO'])  # from google qa
+                                data_list.append([data[0]['CEO_g'], 'CEO'])  # from google qa
                             elif ('agent_name_oc' in attribute_keys):
                                 # print('oca')
                                 # print('oc_ag',[data[0]['agent_name_oc'],'agent'])
-                                data_list.extend([data[0]['agent_name_oc'], 'agent'])  # from oc_agent
+                                data_list.append([data[0]['agent_name_oc'][0], 'agent'])  # from oc_agent
                             elif (len(li_list)):
 
-                                data_list.extend(li_list[0])  # from linkedin
+                                data_list.append(li_list[0])  # from linkedin
                                 # print('*****')
                             else:
                                 # print('None')
                                 data_list.append("None")
+
+                            print("selected_contact_person", data_list[-1])
+                            if (data_list[-1] != 'None'):
+                                a_conf = get_cp_confidence(data_list[-1][0], entry_id)
+                                print('confidence of selected cp', a_conf)
+                                if (a_conf != None):
+                                    if (a_conf > 0):
+                                        continue
+                                    else:
+                                        all_ads_with_conf = get_every_cp_confidence(entry_id)
+                                        print('confidence of all cps', all_ads_with_conf)
+                                        if (all_ads_with_conf != None):
+                                            highest_ads_with_conf = all_ads_with_conf[-1:]
+                                            print('highest', highest_ads_with_conf)
+                                            if (highest_ads_with_conf[0][3] > 0):
+                                                data_list[-1] = [highest_ads_with_conf[0][0],
+                                                                 highest_ads_with_conf[0][1]]
+                                                print('updated with highest confidence')
 
                         except KeyError:
                             data_list.append('None')
@@ -877,16 +1030,16 @@ def simplified_export(id_list):
                         try:
                             if ('Industries_cb' in attribute_keys):
                                 print('cb', data[0]['Industries_cb'].split(', ')[:2])
-                                data_list.extend(data[0]['Industries_cb'].split(', ')[:2])
+                                data_list.append(data[0]['Industries_cb'].split(', ')[:2])
                             elif ('Industry:_aven' in attribute_keys):
                                 print('aven', data[0]['Industry:_aven'])
-                                data_list.extend([data[0]['Industry:_aven']])
+                                data_list.append([data[0]['Industry:_aven']])
                             elif ('industry_li' in attribute_keys):
                                 print('li', data[0]['industry_li'])
-                                data_list.extend([data[0]['industry_li']])  # from linkedin
+                                data_list.append([data[0]['industry_li']])  # from linkedin
                             elif ('comp_type_pred' in attribute_keys):
                                 print('clas', data[0]['comp_type_pred'][0])
-                                data_list.extend([data[0]['comp_type_pred'][0][0] + ', ' + data[0]['comp_type_pred'][1][
+                                data_list.append([data[0]['comp_type_pred'][0][0] + ', ' + data[0]['comp_type_pred'][1][
                                     0]])  # from classification
                             else:
                                 data_list.append("None")
@@ -993,6 +1146,22 @@ def simplified_export(id_list):
                                 data_list.append("None")
                             # else:
                             #     data_list.append("None")
+
+                            if (data_list[-1] != 'None'):
+                                a_conf = get_hq_confidence(data_list[-1], entry_id)
+                                print('confidence of selected hq', a_conf)
+                                if (a_conf != None):
+                                    if (a_conf > 0):
+                                        continue
+                                    else:
+                                        all_ads_with_conf = get_every_hq_confidence(entry_id)
+                                        print('confidence of all hqs', all_ads_with_conf)
+                                        if (all_ads_with_conf != None):
+                                            highest_ads_with_conf = all_ads_with_conf[-1:]
+                                            print('highest', highest_ads_with_conf)
+                                            if (highest_ads_with_conf[0][2] > 0):
+                                                data_list[-1] = highest_ads_with_conf[0][0]
+                                                print('updated with highest confidence')
                         except KeyError:
                             data_list.append('None')
 
@@ -1028,6 +1197,9 @@ def simplified_export(id_list):
 
                 except KeyError:
                     data_list.append('None')
+                except Exception as e:
+                    data_list.append('None')
+                    print("Exception Occured during dumping ", e)
 
             results_writer.writerow(data_list)
             dict_to_dump = {}
@@ -1108,6 +1280,25 @@ def simplified_update(id_list):
                             else:
                                 data_list.append('None')
 
+
+                            print("selected_address",data_list[-1])
+                            if(data_list[-1]!='None'):
+                                a_conf = get_address_confidence(data_list[-1],entry_id)
+                                print('confidence of selected address',a_conf)
+                                if(a_conf != None):
+                                    if(a_conf>0):
+                                        continue
+                                    else:
+                                        all_ads_with_conf = get_every_address_confidence(entry_id)
+                                        print('confidence of all addresses', all_ads_with_conf)
+                                        if(all_ads_with_conf!=None):
+                                            highest_ads_with_conf = all_ads_with_conf[-1:]
+                                            print('highest',highest_ads_with_conf)
+                                            if(highest_ads_with_conf[0][2]>0):
+                                                data_list[-1] = highest_ads_with_conf[0][0]
+                                                print('updated with highest confidence')
+
+
                         except KeyError:
                             data_list.append('None')
 
@@ -1123,6 +1314,8 @@ def simplified_update(id_list):
                                 data_list.append("None")
                             # else:
                             #     data_list.append("None")
+
+
                         except KeyError:
                             data_list.append('None')
 
@@ -1181,6 +1374,24 @@ def simplified_update(id_list):
                             # else:
                             #     data_list.append("None")
                             data_list[-1] = restructure_tp(data_list[-1])
+
+                            print("selected_tp", data_list[-1])
+                            if (data_list[-1] != 'None'):
+                                a_conf = get_tp_confidence(data_list[-1], entry_id)
+                                print('confidence of selected tp', a_conf)
+                                if (a_conf != None):
+                                    if (a_conf > 0):
+                                        continue
+                                    else:
+                                        all_ads_with_conf = get_every_tp_confidence(entry_id)
+                                        print('confidence of all tps', all_ads_with_conf)
+                                        if (all_ads_with_conf != None):
+                                            highest_ads_with_conf = all_ads_with_conf[-1:]
+                                            print('highest', highest_ads_with_conf)
+                                            if (highest_ads_with_conf[0][2] > 0):
+                                                data_list[-1] = restructure_tp(highest_ads_with_conf[0][0])
+                                                print('updated with highest confidence')
+
                         except KeyError:
                             data_list.append('None')
 
@@ -1212,25 +1423,26 @@ def simplified_update(id_list):
 
                             if (len(wb_list)):
                                 # print('g')
-                                data_list.extend(wb_list)  # from google
+                                data_list.append(wb_list)  # from google
 
                             elif ('google_cp' in attribute_keys):
                                 # print('g')
                                 det_gcp = data[0]['google_cp']
                                 # print('gog',det_gcp)
-                                data_list.extend(det_gcp)  # from google
+                                data_list.append(det_gcp)  # from google
                             # crunchbase
                             elif ('Founders_cb' in attribute_keys):
                                 det_cb = data[0]['Founders_cb']
-                                data_list.extend([det_cb, 'founder(s)'])
+                                det_cb = [cb.strip() for cb in det_cb.split(',')][0]
+                                data_list.append([det_cb, 'founder(s)'])
                             elif ('contacts_aven' in attribute_keys):
-                                det_aven = data[0]['contacts_aven'][:1]
-                                data_list.extend(det_aven)
+                                det_aven = data[0]['contacts_aven'][0]
+                                data_list.append(det_aven)
                             elif ('company_contacts_dnb' in attribute_keys):
                                 # print('dnb',data[0]['dnb_cp_info'])
                                 # print('dnb',dnb_list[0])
                                 det_dnb = data[0]['company_contacts_dnb']
-                                data_list.extend(det_dnb)  # from dnb
+                                data_list.append(det_dnb[0])  # from dnb
 
                             elif ('directors_or_officers_oc' in attribute_keys):
                                 # print('oc')
@@ -1252,22 +1464,39 @@ def simplified_update(id_list):
                                         oc_cps.append([oc_det, 'agent_' + each_oc[1]])
 
                                 # print('oc',oc_cps[0])
-                                data_list.extend(oc_cps[0])  # from oc
+                                data_list.append(oc_cps[0])  # from oc
                             elif ('CEO_g' in attribute_keys):
                                 # print('gc')
                                 # print('gogq',[data[0]['CEO_g'],'CEO'])
-                                data_list.extend([data[0]['CEO_g'], 'CEO'])  # from google qa
+                                data_list.append([data[0]['CEO_g'], 'CEO'])  # from google qa
                             elif ('agent_name_oc' in attribute_keys):
                                 # print('oca')
                                 # print('oc_ag',[data[0]['agent_name_oc'],'agent'])
-                                data_list.extend([data[0]['agent_name_oc'], 'agent'])  # from oc_agent
+                                data_list.append([data[0]['agent_name_oc'][0], 'agent'])  # from oc_agent
                             elif (len(li_list)):
 
-                                data_list.extend(li_list[0])  # from linkedin
+                                data_list.append(li_list[0])  # from linkedin
                                 # print('*****')
                             else:
                                 # print('None')
                                 data_list.append("None")
+
+                            print("selected_contact_person", data_list[-1])
+                            if (data_list[-1] != 'None'):
+                                a_conf = get_cp_confidence(data_list[-1][0], entry_id)
+                                print('confidence of selected cp', a_conf)
+                                if (a_conf != None):
+                                    if (a_conf > 0):
+                                        continue
+                                    else:
+                                        all_ads_with_conf = get_every_cp_confidence(entry_id)
+                                        print('confidence of all cps', all_ads_with_conf)
+                                        if (all_ads_with_conf != None):
+                                            highest_ads_with_conf = all_ads_with_conf[-1:]
+                                            print('highest', highest_ads_with_conf)
+                                            if (highest_ads_with_conf[0][3] > 0):
+                                                data_list[-1] = [highest_ads_with_conf[0][0],highest_ads_with_conf[0][1]]
+                                                print('updated with highest confidence')
 
                         except KeyError:
                             data_list.append('None')
@@ -1278,16 +1507,16 @@ def simplified_update(id_list):
                         try:
                             if ('Industries_cb' in attribute_keys):
                                 print('cb', data[0]['Industries_cb'].split(', ')[:2])
-                                data_list.extend(data[0]['Industries_cb'].split(', ')[:2])
+                                data_list.append(data[0]['Industries_cb'].split(', ')[:2])
                             elif ('Industry:_aven' in attribute_keys):
                                 print('aven', data[0]['Industry:_aven'])
-                                data_list.extend([data[0]['Industry:_aven']])
+                                data_list.append([data[0]['Industry:_aven']])
                             elif ('industry_li' in attribute_keys):
                                 print('li', data[0]['industry_li'])
-                                data_list.extend([data[0]['industry_li']])  # from linkedin
+                                data_list.append([data[0]['industry_li']])  # from linkedin
                             elif ('comp_type_pred' in attribute_keys):
                                 print('clas', data[0]['comp_type_pred'][0])
-                                data_list.extend([data[0]['comp_type_pred'][0][0] + ', ' + data[0]['comp_type_pred'][1][
+                                data_list.append([data[0]['comp_type_pred'][0][0] + ', ' + data[0]['comp_type_pred'][1][
                                     0]])  # from classification
                             else:
                                 data_list.append("None")
@@ -1394,6 +1623,23 @@ def simplified_update(id_list):
                                 data_list.append("None")
                             # else:
                             #     data_list.append("None")
+                            print("selected_hq", data_list[-1])
+
+                            if (data_list[-1] != 'None'):
+                                a_conf = get_hq_confidence(data_list[-1], entry_id)
+                                print('confidence of selected hq', a_conf)
+                                if (a_conf != None):
+                                    if (a_conf > 0):
+                                        continue
+                                    else:
+                                        all_ads_with_conf = get_every_hq_confidence(entry_id)
+                                        print('confidence of all hqs', all_ads_with_conf)
+                                        if (all_ads_with_conf != None):
+                                            highest_ads_with_conf = all_ads_with_conf[-1:]
+                                            print('highest', highest_ads_with_conf)
+                                            if (highest_ads_with_conf[0][2] > 0):
+                                                data_list[-1] = highest_ads_with_conf[0][0]
+                                                print('updated with highest confidence')
                         except KeyError:
                             data_list.append('None')
 
@@ -1429,6 +1675,9 @@ def simplified_update(id_list):
 
                 except KeyError:
                     data_list.append('None')
+                except Exception as e:
+                    data_list.append('None')
+                    print("Exception Occured during dumping ", e)
 
             results_writer.writerow(data_list)
             dict_to_dump = {}
@@ -1443,6 +1692,7 @@ def simplified_update(id_list):
     print("CSV export completed!")
 
 def simplified_export_with_sources(id_list):
+    print('simplified export with sources')
     mycol = refer_collection()
     csv_dump_col = refer_simplified_dump_col_min()
     # store data in a csv file
@@ -1538,6 +1788,38 @@ def simplified_export_with_sources(id_list):
                             else:
                                 data_list.append('None')
 
+                            print("selected_address", data_list[-1])
+                            if (data_list[-1] != 'None'):
+                                a_conf = get_address_confidence(data_list[-1][0], entry_id)
+                                print('confidence of selected address', a_conf)
+                                if (a_conf != None):
+                                    if (a_conf > 0):
+                                        continue
+                                    else:
+                                        all_ads_with_conf = get_every_address_confidence(entry_id)
+                                        print('confidence of all addresses', all_ads_with_conf)
+                                        if (all_ads_with_conf != None):
+                                            highest_ads_with_conf = all_ads_with_conf[-1:]
+                                            print('highest', highest_ads_with_conf)
+                                            if (highest_ads_with_conf[0][2] > 0):
+                                                if(highest_ads_with_conf[0][1]=='google'):
+                                                    data_list[-1] = [highest_ads_with_conf[0][0],google_address_source]
+                                                if (highest_ads_with_conf[0][1] =='website'):
+                                                    for each in data[0]['website_addresses_with_sources']:
+                                                        if (each[0]==highest_ads_with_conf[0][0]):
+                                                            w_ad = each
+                                                            break
+                                                    data_list[-1] = w_ad
+                                                if (highest_ads_with_conf[0][1] == 'dnb'):
+                                                    data_list[-1] = [highest_ads_with_conf[0][0], link_dnb]
+                                                if (highest_ads_with_conf[0][1] == 'oc'):
+                                                    data_list[-1] = [highest_ads_with_conf[0][0], site_url_oc]
+                                                if (highest_ads_with_conf[0][1] == 'avention'):
+                                                    data_list[-1] = [highest_ads_with_conf[0][0], link_aven]
+
+
+                                                print('updated with highest confidence')
+
                         except KeyError:
                             data_list.append('None')
 
@@ -1615,6 +1897,40 @@ def simplified_export_with_sources(id_list):
 
                             # else:
                             #     data_list.append("None")
+                            print("selected_tp", data_list[-1])
+                            if (data_list[-1] != 'None'):
+                                a_conf = get_tp_confidence(data_list[-1][0], entry_id)
+                                print('confidence of selected tp', a_conf)
+                                if (a_conf != None):
+                                    if (a_conf > 0):
+                                        continue
+                                    else:
+                                        all_ads_with_conf = get_every_tp_confidence(entry_id)
+                                        print('confidence of all tps', all_ads_with_conf)
+                                        if (all_ads_with_conf != None):
+                                            highest_ads_with_conf = all_ads_with_conf[-1:]
+                                            print('highest', highest_ads_with_conf)
+                                            if (highest_ads_with_conf[0][2] > 0):
+                                                if (highest_ads_with_conf[0][1] == 'google'):
+                                                    data_list[-1] = [highest_ads_with_conf[0][0], google_tp_source]
+                                                if (highest_ads_with_conf[0][1] == 'website'):
+                                                    for each in data[0]['telephone_numbers_with_sources']:
+                                                        if (each[0] == highest_ads_with_conf[0][0]):
+                                                            w_ad = each
+                                                            break
+                                                    data_list[-1] = w_ad
+                                                if (highest_ads_with_conf[0][1] == 'crunchbase'):
+                                                    data_list[-1] = [restructure_tp(highest_ads_with_conf[0][0]), link_cb]
+                                                if (highest_ads_with_conf[0][1] == 'dnb'):
+                                                    data_list[-1] = [restructure_tp(highest_ads_with_conf[0][0]), link_dnb]
+                                                if (highest_ads_with_conf[0][1] == 'linkein'):
+                                                    data_list[-1] = [restructure_tp(highest_ads_with_conf[0][0]), link_li]
+                                                if (highest_ads_with_conf[0][1] == 'avention'):
+                                                    data_list[-1] = [restructure_tp(highest_ads_with_conf[0][0]), link_aven]
+
+
+
+                                                print('updated with highest confidence')
                         except KeyError:
                             data_list.append('None')
 
@@ -1656,17 +1972,18 @@ def simplified_export_with_sources(id_list):
                             # crunchbase
                             elif ('Founders_cb' in attribute_keys):
                                 det_cb = data[0]['Founders_cb']
+                                det_cb = [cb.strip() for cb in det_cb.split(',')][0]
                                 data_list.append([det_cb, 'founder(s)',link_cb])
 
                             elif ('contacts_aven' in attribute_keys):
-                                det_aven = data[0]['contacts_aven'][:1]
+                                det_aven = data[0]['contacts_aven'][0]
                                 data_list.append([det_aven,link_aven])
 
                             elif ('company_contacts_dnb' in attribute_keys):
                                 # print('dnb',data[0]['dnb_cp_info'])
                                 # print('dnb',dnb_list[0])
                                 det_dnb = data[0]['company_contacts_dnb']
-                                data_list.append([det_dnb,link_dnb])  # from dnb
+                                data_list.append([det_dnb[0],link_dnb])  # from dnb
 
                             elif ('directors_or_officers_oc' in attribute_keys):
                                 # print('oc')
@@ -1696,7 +2013,7 @@ def simplified_export_with_sources(id_list):
                             elif ('agent_name_oc' in attribute_keys):
                                 # print('oca')
                                 # print('oc_ag',[data[0]['agent_name_oc'],'agent'])
-                                data_list.append([data[0]['agent_name_oc'], 'agent',site_url_oc])  # from oc_agent
+                                data_list.append([data[0]['agent_name_oc'][0], 'agent',site_url_oc])  # from oc_agent
                             elif (len(li_list)):
 
                                 data_list.append([li_list[0],'from linkedin search google'])  # from linkedin
@@ -1704,6 +2021,42 @@ def simplified_export_with_sources(id_list):
                             else:
                                 # print('None')
                                 data_list.append("None")
+
+                            print("selected_contact_person", data_list[-1])
+                            if (data_list[-1] != 'None'):
+                                if(len(data_list[-1][0])==2):
+                                    a_conf = get_cp_confidence(data_list[-1][0][0], entry_id)
+                                else:
+                                    a_conf = get_cp_confidence(data_list[-1][0], entry_id)
+                                print('confidence of selected cp', a_conf)
+                                if (a_conf != None):
+                                    if (a_conf > 0):
+                                        continue
+                                    else:
+                                        all_ads_with_conf = get_every_cp_confidence(entry_id)
+                                        print('confidence of all cps', all_ads_with_conf)
+                                        if (all_ads_with_conf != None):
+                                            highest_ads_with_conf = all_ads_with_conf[-1:]
+                                            print('highest', highest_ads_with_conf)
+                                            if (highest_ads_with_conf[0][3] > 0):
+                                                if (highest_ads_with_conf[0][2] == 'google'):
+                                                    data_list[-1] = [highest_ads_with_conf[0][0:2], google_cp_source]
+                                                if (highest_ads_with_conf[0][2] == 'website'):
+                                                    data_list[-1] = [highest_ads_with_conf[0][0:2], 'website']
+                                                if (highest_ads_with_conf[0][2] == 'crunchbase'):
+                                                    data_list[-1] = [highest_ads_with_conf[0][0:2], link_cb]
+                                                if (highest_ads_with_conf[0][2] == 'dnb'):
+                                                    data_list[-1] = [highest_ads_with_conf[0][0:2], link_dnb]
+                                                if (highest_ads_with_conf[0][2] == 'oc'):
+                                                    data_list[-1] = [highest_ads_with_conf[0][0:2], site_url_oc]
+                                                if (highest_ads_with_conf[0][2] == 'owler'):
+                                                    data_list[-1] = [highest_ads_with_conf[0][0:2], link_owler]
+                                                if (highest_ads_with_conf[0][2] == 'linkedin'):
+                                                    data_list[-1] = [highest_ads_with_conf[0][0:2], link_li]
+                                                if (highest_ads_with_conf[0][2] == 'avention'):
+                                                    data_list[-1] = [highest_ads_with_conf[0][0:2], link_aven]
+
+                                                print('updated with highest confidence')
 
                         except KeyError:
                             data_list.append('None')
@@ -1830,6 +2183,32 @@ def simplified_export_with_sources(id_list):
                                 data_list.append("None")
                             # else:
                             #     data_list.append("None")
+
+                            if (data_list[-1] != 'None'):
+                                a_conf = get_hq_confidence(data_list[-1][0], entry_id)
+                                print('confidence of selected hq', a_conf)
+                                if (a_conf != None):
+                                    if (a_conf > 0):
+                                        continue
+                                    else:
+                                        all_ads_with_conf = get_every_hq_confidence(entry_id)
+                                        print('confidence of all hqs', all_ads_with_conf)
+                                        if (all_ads_with_conf != None):
+                                            highest_ads_with_conf = all_ads_with_conf[-1:]
+                                            print('highest', highest_ads_with_conf)
+                                            if (highest_ads_with_conf[0][2] > 0):
+                                                if (highest_ads_with_conf[0][1] == 'crunchbase'):
+                                                    data_list[-1] = [highest_ads_with_conf[0][0], link_cb]
+                                                if (highest_ads_with_conf[0][1] == 'oc'):
+                                                    data_list[-1] = [highest_ads_with_conf[0][0], site_url_oc]
+                                                if (highest_ads_with_conf[0][1] == 'owler'):
+                                                    data_list[-1] = [highest_ads_with_conf[0][0], link_owler]
+                                                if (highest_ads_with_conf[0][1] == 'linkedin'):
+                                                    data_list[-1] = [highest_ads_with_conf[0][0], link_li]
+
+                                                print('updated with highest confidence')
+
+
                         except KeyError:
                             data_list.append('None')
 
@@ -1865,6 +2244,9 @@ def simplified_export_with_sources(id_list):
 
                 except KeyError:
                     data_list.append('None')
+                except Exception as e:
+                    data_list.append('None')
+                    print("Exception Occured during dumping ", e)
 
             results_writer.writerow(data_list)
             # dict_to_dump = {}
@@ -2125,11 +2507,12 @@ def flat_csv(id_list):
                             # crunchbase
                             if ('Founders_cb' in attribute_keys):
                                 det_cb = data[0]['Founders_cb']
+                                det_cb = [cb.strip() for cb in det_cb.split(',')][0]
                                 data_list.append([det_cb, 'founder(s)',link_cb])
                             else:
                                 data_list.append('None')
                             if ('contacts_aven' in attribute_keys):
-                                det_aven = data[0]['contacts_aven'][:1]
+                                det_aven = data[0]['contacts_aven'][0]
                                 data_list.append([det_aven,link_aven])
                             else:
                                 data_list.append('None')
@@ -2137,7 +2520,7 @@ def flat_csv(id_list):
                                 # print('dnb',data[0]['dnb_cp_info'])
                                 # print('dnb',dnb_list[0])
                                 det_dnb = data[0]['company_contacts_dnb']
-                                data_list.append([det_dnb,link_dnb])  # from dnb
+                                data_list.append([det_dnb[0],link_dnb])  # from dnb
                             else:
                                 data_list.append('None')
                             if ('directors_or_officers_oc' in attribute_keys):
@@ -2172,7 +2555,7 @@ def flat_csv(id_list):
                             if ('agent_name_oc' in attribute_keys):
                                 # print('oca')
                                 # print('oc_ag',[data[0]['agent_name_oc'],'agent'])
-                                data_list.append([data[0]['agent_name_oc'], 'agent',site_url_oc])  # from oc_agent
+                                data_list.append([data[0]['agent_name_oc'][0], 'agent',site_url_oc])  # from oc_agent
                             else:
                                 data_list.append('None')
                             if (len(li_list)):
@@ -2368,6 +2751,9 @@ def flat_csv(id_list):
 
                 except KeyError:
                     data_list.append('None')
+                except Exception as e:
+                    data_list.append('None')
+                    print("Exception Occured during dumping ", e)
             print(data_list)
             results_writer.writerow(data_list)
             # dict_to_dump = {}
@@ -2421,9 +2807,9 @@ def hq_fix(id_list):
             data_list.append('None')
 
 
-        print(data_list)
+        print(data_list,entry_id)
 
-        csv_dump_col.update_one({'_id': entry_id}, {'$set': {'headquarters':data_list}})
+        csv_dump_col.update_one({'_id': entry_id}, {'$set': {'headquarters':data_list[0]}})
         # csv_dump_col.update_one({'_id': entry_id}, {'$unset': {'headquarters': 1}})
         print("hq updated")
 
@@ -3201,11 +3587,12 @@ def  contact_person_fix(id_list):
             #crunchbase
             elif ('Founders_cb' in attribute_keys):
                 det_cb = data[0]['Founders_cb']
+                det_cb = [cb.strip() for cb in det_cb.split(',')][0]
                 data_list.extend([det_cb, 'founder(s)'])
 
             elif ('contacts_aven' in attribute_keys):
 
-                det_aven = data[0]['contacts_aven'][:1]
+                det_aven = data[0]['contacts_aven'][0]
                 print('aven', det_aven)
                 data_list.extend(det_aven)
 
@@ -3213,7 +3600,7 @@ def  contact_person_fix(id_list):
                 # print('dnb',data[0]['dnb_cp_info'])
                 # print('dnb',dnb_list[0])
                 det_dnb = data[0]['company_contacts_dnb']
-                data_list.extend(det_dnb)  # from dnb
+                data_list.extend(det_dnb[0])  # from dnb
 
             elif ('directors_or_officers_oc' in attribute_keys):
                 # print('oc')
@@ -3243,7 +3630,7 @@ def  contact_person_fix(id_list):
             elif ('agent_name_oc' in attribute_keys):
                 # print('oca')
                 # print('oc_ag',[data[0]['agent_name_oc'],'agent'])
-                data_list.extend([data[0]['agent_name_oc'],'agent'])  # from oc_agent
+                data_list.extend([data[0]['agent_name_oc'][0],'agent'])  # from oc_agent
             elif (len(li_list)):
 
                 data_list.extend(li_list[0])  # from linkedin
@@ -3340,6 +3727,7 @@ def  dump_contact_person_fix(id_list):
                 #crunchbase
                 if ('Founders_cb' in attribute_keys):
                     det_cb = data[0]['Founders_cb']
+                    det_cb = [cb.strip() for cb in det_cb.split(',')][0]
                     data_to_write.append([det_cb, 'founder(s)',link_cb])
                 else:
                     data_to_write.append("None")
@@ -3348,7 +3736,7 @@ def  dump_contact_person_fix(id_list):
                     # print('dnb',data[0]['dnb_cp_info'])
                     # print('dnb',dnb_list[0])
                     det_dnb = data[0]['company_contacts_dnb']
-                    data_to_write.append([det_dnb,link_dnb])  # from dnb
+                    data_to_write.append([det_dnb[0],link_dnb])  # from dnb
                 else:
                     data_to_write.append("None")
                 if ('directors_or_officers_oc' in attribute_keys):
@@ -3385,7 +3773,7 @@ def  dump_contact_person_fix(id_list):
                 if ('agent_name_oc' in attribute_keys):
                     # print('oca')
                     # print('oc_ag',[data[0]['agent_name_oc'],'agent'])
-                    data_to_write.append([data[0]['agent_name_oc'],'agent',site_url_oc])  # from oc_agent
+                    data_to_write.append([data[0]['agent_name_oc'][0],'agent',site_url_oc])  # from oc_agent
                 else:
                     data_to_write.append("None")
 
@@ -3396,7 +3784,7 @@ def  dump_contact_person_fix(id_list):
                     data_to_write.append("None")
                     # print('*****')
                 if ('contacts_aven' in attribute_keys):
-                    det_aven = data[0]['contacts_aven'][:1]
+                    det_aven = data[0]['contacts_aven'][0]
                     data_to_write.append(det_aven)  # from linkedin
                 else:
                     data_to_write.append("None")

@@ -184,6 +184,7 @@ def get_ad_from_google(id_list):
 
 def get_ad_from_google_via_queue():
     # mycol = refer_collection()
+    print("Google address extraction queue is live")
     mycol = refer_collection()
     connect_str = os.getenv('AZURE_STORAGE_CONNECTION_STRING')
     ad_client = QueueClient.from_connection_string(connect_str, "google-address-queue")

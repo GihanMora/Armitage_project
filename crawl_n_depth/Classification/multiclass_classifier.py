@@ -1,10 +1,7 @@
 import json
 import os
-import pandas as pd
-from bson import ObjectId
-from nltk import word_tokenize
+
 from sklearn.metrics import classification_report
-from sklearn.model_selection import train_test_split
 from tqdm import tqdm
 # from crawl_n_depth.word_embeddings.wordtovec_model import sort_on_relevance
 
@@ -12,8 +9,7 @@ from Simplified_System.Database.db_connect import refer_collection
 
 tqdm.pandas(desc="progress-bar")
 from gensim.models import Doc2Vec, doc2vec
-from sklearn import utils
-import gensim
+
 from gensim.models.doc2vec import TaggedDocument
 import re
 
