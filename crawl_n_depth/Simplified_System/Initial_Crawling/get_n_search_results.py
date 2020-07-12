@@ -6,7 +6,11 @@ import sys
 
 from selenium.common.exceptions import WebDriverException
 
-sys.path.insert(0, 'F:\Armitage_project\crawl_n_depth\\')
+from os.path import dirname as up
+three_up = up(up(up(__file__)))
+sys.path.insert(0, three_up)
+
+
 import requests
 from selenium.webdriver.firefox.options import Options
 from selenium import webdriver
@@ -36,7 +40,7 @@ def use_chrome():
 
     browser = webdriver.Chrome(chrome_options=options,  # give the path to selenium executable
                                # executable_path='F://Armitage_lead_generation_project//chromedriver.exe'
-                               executable_path='F://Armitage_project//crawl_n_depth//utilities//chromedriver.exe'
+                               executable_path=three_up+'//utilities//chromedriver.exe',
                                )
     return browser
 
@@ -55,7 +59,7 @@ def use_firefox():
 
     profile.update_preferences()
     browser = webdriver.Firefox(firefox_options=options, firefox_profile=profile,
-                                executable_path='utilities/geckodriver')
+                                executable_path=three_up+'utilities/geckodriver')
     return browser
 
 def getGoogleLinksForSearchText(searchText,number_of_results,mode):#given a search query get first n results from google
