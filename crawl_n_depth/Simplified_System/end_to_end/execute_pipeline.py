@@ -26,7 +26,7 @@ from Simplified_System.web_profile_data_crawler.scrape_dnb import get_dnb_data,a
 from Simplified_System.web_profile_data_crawler.scrape_oc import get_oc_data,add_to_oc_queue,get_oc_data_via_queue
 from Simplified_System.web_profile_data_crawler.scrape_crunchbase import get_cb_data,add_to_cb_queue,get_cb_data_via_queue
 from Simplified_System.web_profile_data_crawler.avention_scraper import get_aven_data,add_to_avention_queue,get_aven_data_via_queue
-from Simplified_System.linkedin_data_crawler.linkedin_crawling import get_li_data
+# from Simplified_System.linkedin_data_crawler.linkedin_crawling import get_li_data
 from Simplified_System.google_for_data.address_extraction.address_from_google import get_ad_from_google,add_to_ad_queue,get_ad_from_google_via_queue
 from Simplified_System.google_for_data.contacts_from_google.get_contacts_google import get_cp_from_google,add_to_cp_queue,get_cp_from_google_via_queue
 from Simplified_System.google_for_data.scrape_owler_data.owler_extractor import get_qa_from_google,add_to_qa_queue,get_qa_from_google_via_queue
@@ -251,8 +251,8 @@ def execute_for_a_company(comp_name):
         print(("***Extract crunchbase profile data***"))
         get_cb_data([entry_id])
 
-        print(("***Extract linkedin profile data***"))
-        get_li_data([entry_id])
+        # print(("***Extract linkedin profile data***"))
+        # get_li_data([entry_id])
 
         print(("***Extract opencorporates profile data***"))
         get_oc_data([entry_id])
@@ -327,8 +327,8 @@ def execute_for_a_company_alpha(comp_name,company_link):
         print(("***Extract crunchbase profile data***"))
         get_cb_data([entry_id])
 
-        print(("***Extract linkedin profile data***"))
-        get_li_data([entry_id])
+        # print(("***Extract linkedin profile data***"))
+        # get_li_data([entry_id])
         print(("***Extract opencorporates profile data***"))
         get_oc_data([entry_id])
         print(("***Extract dnb profile data***"))
@@ -413,7 +413,7 @@ def execute_for_a_query(query):
         print(("***Extract linkedin profile data***"))
         print("details for retrying,entry_id_list,query_id,started_time",
               [entry_id_list, record_entry.inserted_id, started])
-        get_li_data(entry_id_list)
+        # get_li_data(entry_id_list)
 
         print(("***Extract opencorporates profile data***"))
         print("details for retrying,entry_id_list,query_id,started_time",

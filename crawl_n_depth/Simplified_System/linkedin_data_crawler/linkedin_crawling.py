@@ -1,4 +1,5 @@
 # pip install git+git://github.com/austinoboyle/scrape-linkedin-selenium.git
+# add linkedin-scraper library
 #chrome driver should contain in the folder
 #fix sys path if you want to run this script individually
 #replace linkedin live cookie value
@@ -6,12 +7,13 @@
 import sys, os
 import time
 
+
 sys.path.insert(0, 'F:/Armitage_project/crawl_n_depth/')
 
 from Simplified_System.Initial_Crawling.get_n_search_results import getGoogleLinksForSearchText
 from Simplified_System.Database.db_connect import refer_collection
-from scrape_linkedin import ProfileScraper,HEADLESS_OPTIONS
-from scrape_linkedin import CompanyScraper
+from scrape_linkedin import ProfileScraper,HEADLESS_OPTIONS,CompanyScraper
+
 
 
 from bson import ObjectId
