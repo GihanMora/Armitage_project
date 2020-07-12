@@ -7,8 +7,10 @@
 import sys, os
 import time
 
+from os.path import dirname as up
+three_up = up(up(up(__file__)))
+sys.path.insert(0, three_up)
 
-sys.path.insert(0, 'F:/Armitage_project/crawl_n_depth/')
 
 from Simplified_System.Initial_Crawling.get_n_search_results import getGoogleLinksForSearchText
 from Simplified_System.Database.db_connect import refer_collection

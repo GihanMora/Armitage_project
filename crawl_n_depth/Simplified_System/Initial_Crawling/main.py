@@ -4,7 +4,9 @@ import sys
 
 from bson import ObjectId
 
-sys.path.insert(0, 'F:/Armitage_project/crawl_n_depth/')
+from os.path import dirname as up
+three_up = up(up(up(__file__)))
+sys.path.insert(0, three_up)
 from Simplified_System.Initial_Crawling.get_n_search_results import getGoogleLinksForSearchText
 
 import csv
@@ -24,7 +26,7 @@ def search_a_company_alpha(comp_name, db_collection, query_entry,c_name):
         time.sleep(1200 * count)
         sr = getGoogleLinksForSearchText(comp_name, 3, 'normal')
 
-    b_list_file = open('F:\Armitage_project\crawl_n_depth\Simplified_System\Initial_Crawling\\black_list.txt','r')
+    b_list_file = open(three_up+'//Simplified_System//Initial_Crawling//black_list.txt','r')
     black_list = b_list_file.read().splitlines()
     # 'www.dnb.com'
     received_links = [i['link'] for i in sr]
@@ -67,7 +69,7 @@ def search_a_company(comp_name, db_collection, query_entry):
             time.sleep(1200 * count)
             sr = getGoogleLinksForSearchText(comp_name, 5, 'normal')
 
-        b_list_file = open('F:\Armitage_project\crawl_n_depth\Simplified_System\Initial_Crawling\\black_list.txt','r')
+        b_list_file = open(three_up+'//Simplified_System//Initial_Crawling//black_list.txt','r')
         black_list = b_list_file.read().splitlines()
         # 'www.dnb.com'
         received_links = [i['link'] for i in sr]
@@ -155,7 +157,7 @@ def update_a_company(comp_name, db_collection, entry_id):
         time.sleep(1200 * count)
         sr = getGoogleLinksForSearchText(comp_name, 50, 'normal')
 
-    b_list_file = open('F:\Armitage_project\crawl_n_depth\Simplified_System\Initial_Crawling\\black_list.txt','r')
+    b_list_file = open(three_up+'//Simplified_System//Initial_Crawling//black_list.txt','r')
     black_list = b_list_file.read().splitlines()
     # 'www.dnb.com'
     received_links = [i['link'] for i in sr]
@@ -249,7 +251,7 @@ def search_a_query(search_query,number_of_results,db_collection,query_entry):
             for k in range(len(received_domains)):
                 time.sleep(10)
                 print(received_links[k],received_domains[k])
-                b_list_file = open('F:\Armitage_project\crawl_n_depth\Simplified_System\Initial_Crawling\\black_list.txt','r')
+                b_list_file = open(three_up+'//Simplified_System//Initial_Crawling//black_list.txt','r')
                 black_list = b_list_file.read().splitlines()
                 if(received_domains[k] in black_list):#filter non wanted websites
                     continue
