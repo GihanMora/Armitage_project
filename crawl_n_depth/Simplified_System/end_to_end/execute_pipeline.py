@@ -9,7 +9,10 @@ from bson import ObjectId
 #fix this path variable when using in another machine
 
 
-sys.path.insert(0, 'F:\Armitage_project\crawl_n_depth\\')
+
+from os.path import dirname as up
+three_up = up(up(up(__file__)))
+sys.path.insert(0, three_up)
 from fake_useragent import UserAgent
 from selenium import webdriver
 from datetime import datetime
