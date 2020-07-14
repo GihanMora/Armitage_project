@@ -113,7 +113,7 @@ def extract_features_via_queue_chain():
                 my_col.update_one({'_id': each_entry},
                                   {'$set': {'feature_extraction_state': 'Completed'}})
                 print("Adding message to type prediction queue")
-                cl_client.send_message([str(each_entry)])
+                cl_client.send_message([str(each_entry)],time_to_live=-1)
                 my_col.update_one({'_id': each_entry},
                                   {'$set': {'classification_state': 'Incomplete'}})
 

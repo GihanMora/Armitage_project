@@ -10,7 +10,9 @@ import pyap
 from azure.storage.queue import QueueClient
 from bson import ObjectId
 
-sys.path.insert(0, 'F:/Armitage_project/crawl_n_depth/')
+from os.path import dirname as up
+three_up = up(up(up(__file__)))
+sys.path.insert(0, three_up)
 from Simplified_System.Database.db_connect import refer_collection
 
 
@@ -140,8 +142,8 @@ def get_browser():
     # options.add_argument("--incognito")
     browser = webdriver.Chrome(chrome_options=options,  # give the path to selenium executable
                                    # executable_path='F://Armitage_lead_generation_project//chromedriver.exe'
-                                   executable_path='F://Armitage_project//crawl_n_depth//utilities//chromedriver.exe',
-                                    service_args=["--verbose", "--log-path=D:\\qc1.log"]
+                               executable_path=three_up + '//utilities//chromedriver.exe',
+
                                    )
     return browser
 
@@ -386,68 +388,71 @@ def scrape_c_page(c_p_link):
 def get_cp_page_data(id_list):
     mycol = refer_collection()
     for entry_id in id_list:
-        time.sleep(20)
-        comp_data_entry = mycol.find({"_id": entry_id})
-        data = [i for i in comp_data_entry]
-        cont_page = get_contact_page(entry_id)
-        if(cont_page=='captcha' or cont_page=='error'):
-            print("Error occured! retry")
-        elif(len(cont_page)):
-            scraped_data_dict = scrape_c_page(cont_page[0])
-            if (scraped_data_dict == 'error'):
-                print("Error has occured..retry")
-            elif(len(scraped_data_dict.keys())):
-                updated_emails = list(set(scraped_data_dict['emails']+data[0]['emails']))
-                updated_addresses = list(set(scraped_data_dict['addresses']+data[0]['addresses']))
-                updated_sm = list(set(scraped_data_dict['social_media_links']+data[0]['social_media_links']))
-                updated_tp = list(set(scraped_data_dict['telephone_numbers']+data[0]['telephone_numbers']))
+        try:
+            time.sleep(20)
+            comp_data_entry = mycol.find({"_id": entry_id})
+            data = [i for i in comp_data_entry]
+            cont_page = get_contact_page(entry_id)
+            if(cont_page=='captcha' or cont_page=='error'):
+                print("Error occured! retry")
+            elif(len(cont_page)):
+                scraped_data_dict = scrape_c_page(cont_page[0])
+                if (scraped_data_dict == 'error'):
+                    print("Error has occured..retry")
+                elif(len(scraped_data_dict.keys())):
+                    updated_emails = list(set(scraped_data_dict['emails']+data[0]['emails']))
+                    updated_addresses = list(set(scraped_data_dict['addresses']+data[0]['addresses']))
+                    updated_sm = list(set(scraped_data_dict['social_media_links']+data[0]['social_media_links']))
+                    updated_tp = list(set(scraped_data_dict['telephone_numbers']+data[0]['telephone_numbers']))
 
-                updated_em_s = [[scraped_data_dict['emails'], cont_page[0]]] + data[0]['emails_with_sources']
-                updated_em_with_sources =[]
-                print(updated_em_s)
-                for u_e in updated_emails:
-                    for u_e_s in updated_em_s:
-                        if(u_e in u_e_s[0]):
-                            updated_em_with_sources.append([u_e,u_e_s[1]])
-                            break
+                    updated_em_s = [[scraped_data_dict['emails'], cont_page[0]]] + data[0]['emails_with_sources']
+                    updated_em_with_sources =[]
+                    print(updated_em_s)
+                    for u_e in updated_emails:
+                        for u_e_s in updated_em_s:
+                            if(u_e in u_e_s[0]):
+                                updated_em_with_sources.append([u_e,u_e_s[1]])
+                                break
 
-                updated_tp_s = [[scraped_data_dict['telephone_numbers'], cont_page[0]]] + data[0][
-                                'telephone_numbers_with_sources']
-                updated_tp_with_sources = []
-                print(updated_tp_s)
-                for u_t in updated_tp:
-                    for u_t_s in updated_tp_s:
-                        if(u_t in u_t_s[0]):
-                            updated_tp_with_sources.append([u_t,u_t_s[1]])
-                            break
+                    updated_tp_s = [[scraped_data_dict['telephone_numbers'], cont_page[0]]] + data[0][
+                                    'telephone_numbers_with_sources']
+                    updated_tp_with_sources = []
+                    print(updated_tp_s)
+                    for u_t in updated_tp:
+                        for u_t_s in updated_tp_s:
+                            if(u_t in u_t_s[0]):
+                                updated_tp_with_sources.append([u_t,u_t_s[1]])
+                                break
 
-                updated_ad_with_s = [[scraped_data_dict['addresses'], cont_page[0]]] + data[0]['website_addresses_with_sources']
-                updated_ad_with_sources = []
-                print(updated_ad_with_s)
-                for u_a in updated_addresses:
-                    for u_a_s in updated_ad_with_s:
-                        if(u_a in u_a_s[0]):
-                            updated_ad_with_sources.append([u_a,u_a_s[1]])
-                            break
+                    updated_ad_with_s = [[scraped_data_dict['addresses'], cont_page[0]]] + data[0]['website_addresses_with_sources']
+                    updated_ad_with_sources = []
+                    print(updated_ad_with_s)
+                    for u_a in updated_addresses:
+                        for u_a_s in updated_ad_with_s:
+                            if(u_a in u_a_s[0]):
+                                updated_ad_with_sources.append([u_a,u_a_s[1]])
+                                break
 
-                updated_sm_with_s = [[scraped_data_dict['social_media_links'], cont_page[0]]] + data[0]['social_media_links_with_sources']
-                updated_sm_with_sources = []
-                print(updated_sm_with_s)
-                for u_sm in updated_sm:
-                    for u_sm_s in updated_sm_with_s:
-                        if(u_sm in u_sm_s[0]):
-                            updated_sm_with_sources.append([u_sm,u_sm_s[1]])
-                            break
+                    updated_sm_with_s = [[scraped_data_dict['social_media_links'], cont_page[0]]] + data[0]['social_media_links_with_sources']
+                    updated_sm_with_sources = []
+                    print(updated_sm_with_s)
+                    for u_sm in updated_sm:
+                        for u_sm_s in updated_sm_with_s:
+                            if(u_sm in u_sm_s[0]):
+                                updated_sm_with_sources.append([u_sm,u_sm_s[1]])
+                                break
 
-                updated_data_dict = {'emails':updated_emails,'social_media_links':updated_sm,'addresses':updated_addresses,'telephone_numbers':updated_tp
-                                     ,'telephone_numbers_with_sources':updated_tp_with_sources,'emails_with_sources':updated_em_with_sources,
-                                     'website_addresses_with_sources':updated_ad_with_sources,'social_media_links_with_sources':updated_sm_with_sources}
-                mycol.update_one({'_id': entry_id},
-                                 {'$set': updated_data_dict})
-                print("Successfully extended the conatact page information", entry_id)
+                    updated_data_dict = {'emails':updated_emails,'social_media_links':updated_sm,'addresses':updated_addresses,'telephone_numbers':updated_tp
+                                         ,'telephone_numbers_with_sources':updated_tp_with_sources,'emails_with_sources':updated_em_with_sources,
+                                         'website_addresses_with_sources':updated_ad_with_sources,'social_media_links_with_sources':updated_sm_with_sources}
+                    mycol.update_one({'_id': entry_id},
+                                     {'$set': updated_data_dict})
+                    print("Successfully extended the conatact page information", entry_id)
 
-        else:
-             print("No contact page found!")
+            else:
+                 print("No contact page found!")
+        except Exception as e:
+            print("Error occured,try again",e)
 
 
 def get_cp_page_data_via_queue():
@@ -517,4 +522,4 @@ left_set = [item for item in all_ids_fixed if item not in edu_set]
 # print(ids_list.index(ObjectId('5eb697cac579ca076779cb0f')))
 # custom_ids = [ObjectId('5eb6378b772150870b5c8d27'),ObjectId('5eb65b645417d406270e7e63')]
 # print(no_add_list.index(ObjectId('5eb670c2382a70cea3c90149')))
-get_cp_page_data(edu_set[edu_set.index(ObjectId('5eb6bca1b68e7672cd0ef210'))+1:])
+# get_cp_page_data(edu_set[edu_set.index(ObjectId('5eb6bca1b68e7672cd0ef210'))+1:])

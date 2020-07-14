@@ -233,7 +233,7 @@ def simplified_export_via_queue():
             time.sleep(10)
             row = msg.content
             row = ast.literal_eval(row)
-            print(row[0])
+            # print(row[0])
             entry_id = ObjectId(row[0])
             comp_data_entry = mycol.find({"_id": entry_id})
             data = [i for i in comp_data_entry]

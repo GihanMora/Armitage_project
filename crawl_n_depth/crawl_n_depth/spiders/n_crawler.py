@@ -28,10 +28,13 @@ from scrapy.utils.log import configure_logging
 import sys
 
 from os.path import dirname as up
+
+
 three_up = up(up(up(__file__)))
 sys.path.insert(0, three_up)
 
 from Simplified_System.Database.db_connect import refer_collection
+from Simplified_System.website_contact_page_scrape.contact_page_scraper import get_cp_page_data
 
 
 def is_valid_tp(tp):
@@ -534,6 +537,8 @@ def run_sequential_crawlers_m_via_queue(depth_limit,crawl_limit):#method used to
                 deep_crawling_client.delete_message(msg)
                 mycol.update_one({'_id': entry_id},
                                  {'$set': {'deep_crawling_state': 'Completed'}})
+                if (len(paragraph_text) == 0):
+                    get_cp_page_data([entry_id])
         # print("reactor is stopping")
         # reactor.callFromThread(reactor.stop)
         # print(' reactor stops',threading.currentThread().ident)
@@ -595,8 +600,11 @@ def run_sequential_crawlers_m_via_queue_chain(depth_limit,crawl_limit):#method u
                 deep_crawling_client.delete_message(msg)
                 mycol.update_one({'_id': entry_id},
                                   {'$set': {'deep_crawling_state': 'Completed'}})
+
+                if(len(paragraph_text)==0):
+                    get_cp_page_data([entry_id])
                 print("Adding to feature extraction queue")
-                f_e_client.send_message([str(entry_id)])
+                f_e_client.send_message([str(entry_id)],time_to_live=-1)
                 mycol.update_one({'_id': entry_id},
                                   {'$set': {'feature_extraction_state': 'Incomplete'}})
         # print("reactor is stopping")
