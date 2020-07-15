@@ -165,53 +165,492 @@ def isvalid_hq(loc):
             is_valid = True
     return is_valid
 
-def export_profiles(id_list,query_id):
-    mycol = refer_collection()
-    csv_dump_col = refer_simplified_dump_col()
-    # store data in a csv file
-    dump_name = 'F:\Armitage_project\crawl_n_depth\Simplified_System\end_to_end\data_dump\\'+str(query_id)+'_company_dump.csv'
-    with open(dump_name, mode='w',encoding='utf8', newline='') as results_file:  # store search results in to a csv file
-        results_writer = csv.writer(results_file, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
 
-        attributes_a = ['_id','search_text','title', 'link','description','rich_description','comp_name','addresses', 'emails',
-                                 'social_media_links','telephone_numbers','kpe_results',
-                                 'dnb_cp_info','oc_cp_info','linkedin_cp_info','comp_type_pred','company_size_li',
-                                 'description_li','founded_li','headquarters_li','image_li','industry_li',
-                        'name_li','num_employees_li','specialties_li','type_li','website_li','business_number_oc',
-                        'company_number_oc','company_type_oc','incorporation_date_oc','jurisdiction_oc',
-                        'registered_address_adr_oc','registry_page_oc','status_oc',
-'agent_name','agent_address',
-                                 'dissolution_date_oc', 'annual_return_last_made_up_date_oc', 'directors_or_officers_oc',
-                                 'company_trade_name_dnb', 'company_address_dnb', 'company_summary_dnb',
-                                 'company_web_dnb', 'company_tp_dnb', 'company_type_dnb',
-                                 'company_related_industries_dnb', 'company_snapshot_dnb', 'company_revenue_dnb','company_contacts_dnb'
-                                 ]
-        results_writer.writerow(attributes_a)
-        for entry_id in id_list:
-            comp_data_entry = mycol.find({"_id": entry_id})
-            data = [i for i in comp_data_entry]
-            data_list = []
-            for each_a in attributes_a:
+def get_data_for_simplified_dump_based_on_source_order(entry_id):
+    data_list = []
+    mycol = refer_collection()
+    csv_dump_col = refer_simplified_dump_col_min()
+    attributes_a = ['_id', 'search_text', 'title', 'link', 'description', 'comp_name',
+                    'address', 'email', 'telephone_number', 'keywords', 'contact_person', 'type_or_sector',
+                    'founded_year',
+                    'revenue', 'funding', 'headquarters', 'No_of_employees','company_status']
+    comp_data_entry = mycol.find({"_id": entry_id})
+    data = [i for i in comp_data_entry]
+    attribute_keys = list(data[0].keys())
+    for each_a in attributes_a:
+        try:
+            if (each_a == 'address'):
+                # address_fix
                 try:
-                    if((each_a=='addresses') or (each_a=='emails') or (each_a=='social_media_links') or (each_a=='telephone_numbers')):
-                        data_list.append(data[0][each_a][:5])
-                    elif((each_a=='wordcloud_results_tri')):
-                        data_list.append(data[0][each_a][:10])
+                    g_add, w_ad, dnb_add, oc_add = '', '', '', ''
+                    if ('google_address' in attribute_keys):
+                        if (len(data[0]['google_address'])):
+                            g_add = data[0]['google_address']
+                    if (len(data[0]['addresses'])):
+                        for each in data[0]['addresses']:
+                            if (isvalid_hq(each)):
+                                w_ad = each
+                                break
+                    if ('company_address_dnb' in attribute_keys):
+                        if (len(data[0]['company_address_dnb'])):
+                            dnb_add = data[0]['company_address_dnb'][0]
+                    if ('registered_address_adr_oc' in attribute_keys):
+                        oc_add = data[0]['registered_address_adr_oc']
+                    aven_add = ''
+                    if ('address_aven' in attribute_keys):
+                        aven_add = data[0]['address_aven']
+
+                    if (len(w_ad) != 0):
+                        # print('w')
+                        data_list.append(w_ad)
+                    elif (isvalid_hq(g_add)):
+                        # print('g')
+                        data_list.append(g_add)  # from google
+                    elif (isvalid_hq(aven_add)):
+                        # print('d')
+                        data_list.append(aven_add)
+                    elif (isvalid_hq(dnb_add)):
+                        # print('d')
+                        data_list.append(dnb_add)
+                    elif (isvalid_hq(oc_add.lower())):
+                        # print('o')
+                        data_list.append(oc_add)
                     else:
-                        data_list.append(data[0][each_a])
-                except KeyError:
                         data_list.append('None')
 
-            results_writer.writerow(data_list)
-            dict_to_dump = {}
-            for i in range(len(attributes_a)):
-                dict_to_dump[attributes_a[i]]= data_list[i]
-            record_entry = csv_dump_col.insert_one(dict_to_dump)
-            print("simplified dump completed", record_entry.inserted_id)
-        results_file.close()
-    print("CSV export completed!")
-# export_profiles([ObjectId('5eb3fe2233b62d98401f8944')],ObjectId('5eb3fde433b62d98401f8943'))
+                    print("selected_address", data_list[-1])
+                    if (data_list[-1] != 'None'):
+                        a_conf = get_address_confidence(data_list[-1], entry_id)
+                        print('confidence of selected address', a_conf)
+                        if (a_conf != None):
+                            if (a_conf > 0):
+                                continue
+                            else:
+                                all_ads_with_conf = get_every_address_confidence(entry_id)
+                                print('confidence of all addresses', all_ads_with_conf)
+                                if (all_ads_with_conf != None):
+                                    highest_ads_with_conf = all_ads_with_conf[-1:]
+                                    print('highest', highest_ads_with_conf)
+                                    if (highest_ads_with_conf[0][2] > 0):
+                                        data_list[-1] = highest_ads_with_conf[0][0]
+                                        print('updated with highest confidence')
 
+                except KeyError:
+                    data_list.append('None')
+
+            if (each_a == 'email'):
+                # print("***********eml")
+                # email_fix
+                try:
+                    if ('Contact_Email_cb' in attribute_keys):
+                        data_list.append(data[0]['Contact_Email_cb'])
+                    elif (len(data[0]['emails'])):
+                        data_list.append(data[0]['emails'][0])  # from website
+                    else:
+                        data_list.append("None")
+                    # else:
+                    #     data_list.append("None")
+                except KeyError:
+                    data_list.append('None')
+
+            if (each_a == 'telephone_number'):
+                # print("***********tp")
+                # tp_fix
+                try:
+                    tp_cb_valid = False
+                    if ('Phone_Number_cb' in attribute_keys):
+                        # print('cb',data[0]['Phone_Number_cb'])
+                        if (is_valid_tp(data[0]['Phone_Number_cb'])):
+                            tp_cb_valid = True
+                    tp_google_valid = False
+                    if ('google_tp' in attribute_keys):
+                        # print('cb',data[0]['Phone_Number_cb'])
+                        if (is_valid_tp(data[0]['google_tp'])):
+                            tp_google_valid = True
+                    dnb_tp = []
+                    if ('company_tp_dnb' in attribute_keys):
+                        dnb_tp = data[0]['company_tp_dnb']  # from dnb
+
+                    w_tp = []
+                    if (len(data[0]['telephone_numbers'])):
+                        plus_t = []
+                        s_six = []
+                        other_t = []
+                        for each_t in data[0]['telephone_numbers']:
+                            if (each_t[:3] in ['+61', '+64']):
+                                if (is_valid_tp(each_t)):
+                                    plus_t.append(each_t)
+                            if (each_t[:2] in ['61', '64']):
+                                if (is_valid_tp(each_t)):
+                                    s_six.append(each_t)
+                            if ((each_t[0] in ['0']) or (each_t[:4] in ['1300', '1800', '0800'])):
+                                if (is_valid_tp(each_t)):
+                                    other_t.append(each_t)
+                        w_tp = plus_t + s_six + other_t
+
+                    if (len(w_tp)):
+                        data_list.append(w_tp[0])
+                    elif (tp_google_valid):
+                        data_list.append(data[0]['google_tp'])  # from google
+                    elif (tp_cb_valid):
+                        data_list.append(data[0]['Phone_Number_cb'])
+                    elif ('Tel:_aven' in attribute_keys):
+                        print(data[0]['Tel:_aven'])
+                        data_list.append(data[0]['Tel:_aven'])
+                    elif ('phone_li' in attribute_keys):
+                        print(data[0]['phone_li'].split("\n")[0])
+                        data_list.append(data[0]['phone_li'].split("\n")[0])
+                    elif (len(dnb_tp)):
+                        data_list.append(dnb_tp)  # from dnb
+                    else:
+                        data_list.append("None")
+                    data_list[-1] = restructure_tp(data_list[-1])
+
+                    print("selected_tp", data_list[-1])
+                    if (data_list[-1] != 'None'):
+                        a_conf = get_tp_confidence(data_list[-1], entry_id)
+                        print('confidence of selected tp', a_conf)
+                        if (a_conf != None):
+                            if (a_conf > 0):
+                                continue
+                            else:
+                                all_ads_with_conf = get_every_tp_confidence(entry_id)
+                                print('confidence of all tps', all_ads_with_conf)
+                                if (all_ads_with_conf != None):
+                                    highest_ads_with_conf = all_ads_with_conf[-1:]
+                                    print('highest', highest_ads_with_conf)
+                                    if (highest_ads_with_conf[0][2] > 0):
+                                        data_list[-1] = restructure_tp(highest_ads_with_conf[0][0])
+                                        print('updated with highest confidence')
+                    # else:
+                    #     data_list.append("None")
+                except KeyError:
+                    data_list.append('None')
+
+            if (each_a == 'keywords'):
+                # print("***********kw")
+                if (len(data[0]['textrank_results'])):
+                    data_list.append(data[0]['textrank_results'][:10])  # from website
+                else:
+                    data_list.append("None")
+
+            if (each_a == 'contact_person'):
+                # print("***********cp")
+                # contact_person_fix
+                # fix thissssssssssssssssssss********************************************************************************
+                try:
+                    wb_list = []
+                    if ('important_person_company' in attribute_keys):
+                        det_wb = data[0]['important_person_company']
+
+                        # print(det_wb)
+                        if (det_wb != 'No important persons found'):
+                            wb_list = [det_wb[0]['name'], det_wb[0]['job_title']]
+
+                    li_list = []
+                    if (len(data[0]['linkedin_cp_info'])):
+                        for each in data[0]['linkedin_cp_info']:
+                            data_li = (each[0].split('|')[0]).split('-')
+                            if (len(data_li) > 2):
+                                # print('li cp',[data_li[0],data_li[1].strip()+'_'+data_li[2].strip()])
+                                li_list.append(
+                                    [data_li[0], data_li[1].strip() + '_' + data_li[2].strip()])
+
+                    if (len(wb_list)):
+                        # print('web')
+                        data_list.append(wb_list)  # from google
+
+                    elif ('google_cp' in attribute_keys):
+                        # print('g')
+                        det_gcp = data[0]['google_cp']
+                        # print('gog',det_gcp)
+                        data_list.append(det_gcp)  # from google
+                    # crunchbase
+                    elif ('Founders_cb' in attribute_keys):
+                        # print('cb')
+                        det_cb = data[0]['Founders_cb']
+                        det_cb = [cb.strip() for cb in det_cb.split(',')][0]
+                        data_list.append([det_cb, 'founder(s)'])
+
+                    elif ('contacts_aven' in attribute_keys):
+                        # print('aven')
+                        det_aven = data[0]['contacts_aven'][0]
+                        data_list.append(det_aven)
+
+                    elif ('company_contacts_dnb' in attribute_keys):
+                        # print('dnb')
+                        # print('dnb',data[0]['dnb_cp_info'])
+                        # print('dnb',dnb_list[0])
+                        det_dnb = data[0]['company_contacts_dnb']
+                        data_list.append(det_dnb[0])  # from dnb
+
+                    elif ('directors_or_officers_oc' in attribute_keys):
+                        # print('oc')
+
+                        # print('oc',data[0]['oc_cp_info'])
+                        oc_cps = []
+                        # print(data[0]['directors_or_officers_oc'])
+                        for each_oc in [data[0]['directors_or_officers_oc']]:
+                            # print(each_oc)
+                            oc_det = each_oc.split(',')
+                            # print(oc_det)
+                            if (len(oc_det) > 1):
+                                oc_name = oc_det[0]
+                                # print(oc_name)
+                                if (len(oc_name) > 1):
+                                    oc_post = oc_det[1]
+                                    oc_cps.append([oc_name, oc_post])
+                            else:
+                                oc_cps.append([oc_det, 'agent_' + each_oc[1]])
+
+                        # print('oc',oc_cps[0])
+                        data_list.append(oc_cps[0])  # from oc
+                    elif ('CEO_g' in attribute_keys):
+                        # print('gc')
+                        # print('gogq',[data[0]['CEO_g'],'CEO'])
+                        data_list.append([data[0]['CEO_g'], 'CEO'])  # from google qa
+                    elif ('agent_name_oc' in attribute_keys):
+                        # print('oca')
+                        # print('oc_ag',[data[0]['agent_name_oc'],'agent'])
+                        data_list.append([data[0]['agent_name_oc'][0], 'agent'])  # from oc_agent
+                    elif (len(li_list)):
+
+                        data_list.append(li_list[0])  # from linkedin
+                        # print('li')
+                    else:
+                        # print('None')
+                        data_list.append("None")
+
+                    print("selected_contact_person", data_list[-1])
+                    print('data_list', data_list)
+                    if (data_list[-1] != 'None'):
+                        a_conf = get_cp_confidence(data_list[-1][0], entry_id)
+                        print('confidence of selected cp', a_conf)
+                        if (a_conf != None):
+                            if (a_conf > 0):
+                                continue
+                            else:
+                                all_ads_with_conf = get_every_cp_confidence(entry_id)
+                                print('confidence of all cps', all_ads_with_conf)
+                                if (all_ads_with_conf != None):
+                                    highest_ads_with_conf = all_ads_with_conf[-1:]
+                                    print('highest', highest_ads_with_conf)
+                                    if (highest_ads_with_conf[0][3] > 0):
+                                        data_list[-1] = [highest_ads_with_conf[0][0],
+                                                         highest_ads_with_conf[0][1]]
+                                        print('updated with highest confidence')
+
+                except KeyError:
+                    data_list.append('None')
+
+            if (each_a == 'type_or_sector'):
+                # sector_fix
+                # print("***********ty")
+                try:
+                    if ('Industries_cb' in attribute_keys):
+                        print('cb', data[0]['Industries_cb'].split(', ')[:2])
+                        data_list.append(data[0]['Industries_cb'].split(', ')[:2])
+                    elif ('Industry:_aven' in attribute_keys):
+                        print('aven', data[0]['Industry:_aven'])
+                        data_list.append([data[0]['Industry:_aven']])
+                    elif ('industry_li' in attribute_keys):
+                        print('li', data[0]['industry_li'])
+                        data_list.append([data[0]['industry_li']])  # from linkedin
+                    elif ('comp_type_pred' in attribute_keys):
+                        print('clas', data[0]['comp_type_pred'][0])
+                        data_list.append(
+                            [data[0]['comp_type_pred'][0][0] + ', ' + data[0]['comp_type_pred'][1][
+                                0]])  # from classification
+                    else:
+                        data_list.append("None")
+
+                except KeyError:
+                    data_list.append('None')
+
+            if (each_a == 'founded_year'):
+                # fy_fix
+                # print("***********fy")
+                try:
+                    if ('Founded_Date_cb' in attribute_keys):
+                        # print('cb',data[0]['Founded Date_cb'])
+                        data_list.append(data[0]['Founded_Date_cb'])  # from linkedin
+                    elif ('founded_li' in attribute_keys):
+                        # print('li',data[0]['founded_li'])
+                        data_list.append(data[0]['founded_li'])  # from linkedin
+                    elif ('incorporation_date_oc' in attribute_keys):
+                        # print('oc', data[0]['incorporation_date_oc'].split(' (')[0])
+                        data_list.append(data[0]['incorporation_date_oc'].split(' (')[0])  # from oc
+                    elif ('founded_year_g' in attribute_keys):
+                        # print('g', data[0]['founded_year_g'])
+                        data_list.append(data[0]['founded_year_g'])  # from google
+                    else:
+                        data_list.append("None")
+
+                    # if ('Industries_cb' in attribute_keys):
+                    #     print('cb',data[0]['Industries_cb'].split(', ')[:2])
+                    #     data_list.extend(data[0]['Industries_cb'].split(', ')[:2])
+                    # elif ('industry_li' in attribute_keys):
+                    #     print('li',data[0]['industry_li'])
+                    #     data_list.extend([data[0]['industry_li']])  # from linkedin
+                    # elif ('comp_type_pred' in attribute_keys):
+                    #     print('clas',data[0]['comp_type_pred'][0])
+                    #     data_list.extend([data[0]['comp_type_pred'][0][0]+', '+ data[0]['comp_type_pred'][1][0]])  # from classification
+                    # else:
+                    #     data_list.append("None")
+
+                except KeyError:
+                    data_list.append('None')
+
+            if (each_a == 'revenue'):
+                # rev_fix
+                # print("***********rv")
+                try:
+                    rev_d = []
+                    if ('company_revenue_dnb' in attribute_keys):
+                        if (len(data[0]['company_revenue_dnb'])):
+                            rev_d = data[0]['company_revenue_dnb']
+                    if ('Annual_Sales:_aven' in attribute_keys):
+                        # print('g')
+                        data_list.append(data[0]['Annual_Sales:_aven'])  # from google
+                    elif ('revenue_g' in attribute_keys):
+                        # print('g')
+                        data_list.append(data[0]['revenue_g'])  # from google
+                    elif (len(rev_d)):
+                        # print('d')
+                        a_rev = rev_d[0].split('|')[1]
+                        print(a_rev)
+                        data_list.append(a_rev)  # from dnb
+                    else:
+                        data_list.append("None")
+                    # if ('Contact Email_cb' in attribute_keys):
+                    #     data_list = data[0]['Contact Email_cb']
+                    # elif (len(data[0]['emails'])):
+                    #     data_list.append(data[0]['emails'][0])  # from website
+                    # else:
+                    #     data_list.append("None")
+                    # # else:
+                    # #     data_list.append("None")
+                except KeyError:
+                    data_list.append('None')
+
+            if (each_a == 'funding'):
+                # print("***********f")
+                if ('funding_g' in attribute_keys):
+                    data_list.append(data[0]['funding_g'])  # from google
+                else:
+                    data_list.append("None")
+
+            if (each_a == 'headquarters'):
+                # hq_fix
+                # print("***********hq")
+                try:
+                    hq_cb, hq_g, hq_li, j_oc = '', '', '', ''
+                    if ('comp_headquaters_cb' in attribute_keys):
+                        hq_cb = data[0]['comp_headquaters_cb']
+
+                    if ('headquarters_li' in attribute_keys):
+                        hq_li = data[0]['headquarters_li']
+
+                    if ('jurisdiction_oc' in attribute_keys):
+                        j_oc = data[0]['jurisdiction_oc']
+
+                    if ('headquarters_g' in attribute_keys):
+                        hq_g = data[0]['headquarters_g']
+
+                    if (isvalid_hq(hq_cb)):
+                        data_list.append(hq_cb)
+                    elif (isvalid_hq(hq_li)):
+                        data_list.append(hq_li)
+                    elif (isvalid_hq(hq_g)):
+                        data_list.append(hq_g)
+                    elif (isvalid_hq(j_oc)):
+                        data_list.append(j_oc)
+                    else:
+                        data_list.append("None")
+                    # else:
+                    #     data_list.append("None")
+
+                    if (data_list[-1] != 'None'):
+                        a_conf = get_hq_confidence(data_list[-1], entry_id)
+                        print('confidence of selected hq', a_conf)
+                        if (a_conf != None):
+                            if (a_conf > 0):
+                                continue
+                            else:
+                                all_ads_with_conf = get_every_hq_confidence(entry_id)
+                                print('confidence of all hqs', all_ads_with_conf)
+                                if (all_ads_with_conf != None):
+                                    highest_ads_with_conf = all_ads_with_conf[-1:]
+                                    print('highest', highest_ads_with_conf)
+                                    if (highest_ads_with_conf[0][2] > 0):
+                                        data_list[-1] = highest_ads_with_conf[0][0]
+                                        print('updated with highest confidence')
+                except KeyError:
+                    data_list.append('None')
+
+            if (each_a == 'No_of_employees'):
+                # fix_ne
+                # print("***********ne")
+                try:
+                    data_lil = None
+                    if ('company_size_li' in attribute_keys):
+                        if (data[0]['company_size_li'] != None):
+                            if (' employees' in data[0]['company_size_li']):
+                                data_lil = data[0]['company_size_li'].replace(' employees', '')
+                    if ('Number_of_Employees_cb' in attribute_keys):
+                        # print('cb')
+                        data_list.append(data[0]['Number_of_Employees_cb'])  # from company_size_li
+                    elif ('Employees_(All_Sites):_aven' in attribute_keys):
+                        data_list.append(data[0]['Employees_(All_Sites):_aven'])
+                    elif (data_lil != None):
+                        data_list.append(data_lil)  # from company_size_li
+
+                    elif ('num_employees_li' in attribute_keys):
+                        # print('li')
+                        data_list.append(
+                            str(data[0]['num_employees_li']).split("\n")[0])  # from linkedin
+                    elif ('no_of_employees_g' in attribute_keys):
+                        # print('g')
+                        data_list.append(data[0]['no_of_employees_g'])  # from googlecompany_size_li
+                    else:
+                        data_list.append("None")
+                    # else:
+                    #     data_list.append("None")
+                except KeyError:
+                    data_list.append('None')
+
+
+
+            if (each_a == 'company_status'):
+                # fix_cs
+
+                try:
+                    if ('IPO_Status_cb' in attribute_keys):
+                        # print('cb', data[0]['IPO_Status_cb'])
+                        data_list.append(data[0]['IPO_Status_cb'])
+                    elif ('Company_Type:_aven' in attribute_keys):
+                        # print('aven', data[0]['Company_Type:_aven'])
+                        data_list.append(data[0]['Company_Type:_aven'])
+                    elif ('company_type_dnb' in attribute_keys):
+                        # print('dnb', data[0]['company_type_dnb'][0].split(': ')[1])
+                        data_list.append(data[0]['company_type_dnb'][0].split(': ')[1])
+                    elif ('company_type_oc' in attribute_keys):
+                        # print('oc', data[0]['company_type_oc'])
+                        data_list.append(data[0]['company_type_oc'])
+                    else:
+                        data_list.append("None")
+                    # else:
+                    #     data_list.append("None")
+                except KeyError:
+                    data_list.append('None')
+
+        except KeyError:
+            data_list.append('None')
+        except Exception as e:
+            data_list.append('None')
+            print("Exception Occured during dumping ", e)
+
+    return data_list
 
 
 # clear_the_collection()
@@ -225,7 +664,8 @@ def simplified_export_via_queue():
 
     attributes_a = ['_id', 'search_text', 'title', 'link', 'description', 'comp_name',
                     'address', 'email','telephone_number', 'keywords','contact_person', 'type_or_sector', 'founded_year',
-                    'revenue','funding','headquarters','No_of_employees']
+                    'revenue','funding','headquarters','No_of_employees','company_status']
+
     # results_writer.writerow(attributes_a)
     while (True):
         rows = simplified_dump_client.receive_messages()
@@ -243,451 +683,9 @@ def simplified_export_via_queue():
                     data_list = []
                     data_list.extend([data[0]['_id'], data[0]['search_text'], data[0]['title'], data[0]['link'],
                                       data[0]['description'], data[0]['comp_name']])
-                    attribute_keys = list(data[0].keys())
+
                     # print(attribute_keys)
-                    for each_a in attributes_a:
-                        try:
-                            if (each_a == 'address'):
-                                # address_fix
-                                try:
-                                    g_add, w_ad, dnb_add, oc_add = '', '', '', ''
-                                    if ('google_address' in attribute_keys):
-                                        if (len(data[0]['google_address'])):
-                                            g_add = data[0]['google_address']
-                                    if (len(data[0]['addresses'])):
-                                        for each in data[0]['addresses']:
-                                            if (isvalid_hq(each)):
-                                                w_ad = each
-                                                break
-                                    if ('company_address_dnb' in attribute_keys):
-                                        if (len(data[0]['company_address_dnb'])):
-                                            dnb_add = data[0]['company_address_dnb'][0]
-                                    if ('registered_address_adr_oc' in attribute_keys):
-                                        oc_add = data[0]['registered_address_adr_oc']
-                                    aven_add = ''
-                                    if ('address_aven' in attribute_keys):
-                                        aven_add = data[0]['address_aven']
-
-                                    if (len(w_ad) != 0):
-                                        # print('w')
-                                        data_list.append(w_ad)
-                                    elif (isvalid_hq(g_add)):
-                                        # print('g')
-                                        data_list.append(g_add)  # from google
-                                    elif (isvalid_hq(aven_add)):
-                                        # print('d')
-                                        data_list.append(aven_add)
-                                    elif (isvalid_hq(dnb_add)):
-                                        # print('d')
-                                        data_list.append(dnb_add)
-                                    elif (isvalid_hq(oc_add.lower())):
-                                        # print('o')
-                                        data_list.append(oc_add)
-                                    else:
-                                        data_list.append('None')
-
-                                    print("selected_address", data_list[-1])
-                                    if (data_list[-1] != 'None'):
-                                        a_conf = get_address_confidence(data_list[-1], entry_id)
-                                        print('confidence of selected address', a_conf)
-                                        if (a_conf != None):
-                                            if (a_conf > 0):
-                                                continue
-                                            else:
-                                                all_ads_with_conf = get_every_address_confidence(entry_id)
-                                                print('confidence of all addresses', all_ads_with_conf)
-                                                if (all_ads_with_conf != None):
-                                                    highest_ads_with_conf = all_ads_with_conf[-1:]
-                                                    print('highest', highest_ads_with_conf)
-                                                    if (highest_ads_with_conf[0][2] > 0):
-                                                        data_list[-1] = highest_ads_with_conf[0][0]
-                                                        print('updated with highest confidence')
-
-                                except KeyError:
-                                    data_list.append('None')
-
-                            if (each_a == 'email'):
-                                # print("***********eml")
-                                # email_fix
-                                try:
-                                    if ('Contact_Email_cb' in attribute_keys):
-                                        data_list.append(data[0]['Contact_Email_cb'])
-                                    elif (len(data[0]['emails'])):
-                                        data_list.append(data[0]['emails'][0])  # from website
-                                    else:
-                                        data_list.append("None")
-                                    # else:
-                                    #     data_list.append("None")
-                                except KeyError:
-                                    data_list.append('None')
-
-                            if (each_a == 'telephone_number'):
-                                # print("***********tp")
-                                # tp_fix
-                                try:
-                                    tp_cb_valid = False
-                                    if ('Phone_Number_cb' in attribute_keys):
-                                        # print('cb',data[0]['Phone_Number_cb'])
-                                        if (is_valid_tp(data[0]['Phone_Number_cb'])):
-                                            tp_cb_valid = True
-                                    tp_google_valid = False
-                                    if ('google_tp' in attribute_keys):
-                                        # print('cb',data[0]['Phone_Number_cb'])
-                                        if (is_valid_tp(data[0]['google_tp'])):
-                                            tp_google_valid = True
-                                    dnb_tp = []
-                                    if ('company_tp_dnb' in attribute_keys):
-                                        dnb_tp = data[0]['company_tp_dnb']  # from dnb
-
-                                    w_tp = []
-                                    if (len(data[0]['telephone_numbers'])):
-                                        plus_t = []
-                                        s_six = []
-                                        other_t = []
-                                        for each_t in data[0]['telephone_numbers']:
-                                            if (each_t[:3] in ['+61', '+64']):
-                                                if (is_valid_tp(each_t)):
-                                                    plus_t.append(each_t)
-                                            if (each_t[:2] in ['61', '64']):
-                                                if (is_valid_tp(each_t)):
-                                                    s_six.append(each_t)
-                                            if ((each_t[0] in ['0']) or (each_t[:4] in ['1300', '1800', '0800'])):
-                                                if (is_valid_tp(each_t)):
-                                                    other_t.append(each_t)
-                                        w_tp = plus_t + s_six + other_t
-
-                                    if (len(w_tp)):
-                                        data_list.append(w_tp[0])
-                                    elif (tp_google_valid):
-                                        data_list.append(data[0]['google_tp'])  # from google
-                                    elif (tp_cb_valid):
-                                        data_list.append(data[0]['Phone_Number_cb'])
-                                    elif ('Tel:_aven' in attribute_keys):
-                                        print(data[0]['Tel:_aven'])
-                                        data_list.append(data[0]['Tel:_aven'])
-                                    elif ('phone_li' in attribute_keys):
-                                        print(data[0]['phone_li'].split("\n")[0])
-                                        data_list.append(data[0]['phone_li'].split("\n")[0])
-                                    elif (len(dnb_tp)):
-                                        data_list.append(dnb_tp)  # from dnb
-                                    else:
-                                        data_list.append("None")
-                                    data_list[-1] = restructure_tp(data_list[-1])
-
-                                    print("selected_tp", data_list[-1])
-                                    if (data_list[-1] != 'None'):
-                                        a_conf = get_tp_confidence(data_list[-1], entry_id)
-                                        print('confidence of selected tp', a_conf)
-                                        if (a_conf != None):
-                                            if (a_conf > 0):
-                                                continue
-                                            else:
-                                                all_ads_with_conf = get_every_tp_confidence(entry_id)
-                                                print('confidence of all tps', all_ads_with_conf)
-                                                if (all_ads_with_conf != None):
-                                                    highest_ads_with_conf = all_ads_with_conf[-1:]
-                                                    print('highest', highest_ads_with_conf)
-                                                    if (highest_ads_with_conf[0][2] > 0):
-                                                        data_list[-1] = restructure_tp(highest_ads_with_conf[0][0])
-                                                        print('updated with highest confidence')
-                                    # else:
-                                    #     data_list.append("None")
-                                except KeyError:
-                                    data_list.append('None')
-
-                            if (each_a == 'keywords'):
-                                # print("***********kw")
-                                if (len(data[0]['textrank_results'])):
-                                    data_list.append(data[0]['textrank_results'][:10])  # from website
-                                else:
-                                    data_list.append("None")
-
-                            if (each_a == 'contact_person'):
-                                # print("***********cp")
-                                # contact_person_fix
-                                # fix thissssssssssssssssssss********************************************************************************
-                                try:
-                                    wb_list = []
-                                    if ('important_person_company' in attribute_keys):
-                                        det_wb = data[0]['important_person_company']
-
-                                        # print(det_wb)
-                                        if (det_wb != 'No important persons found'):
-                                            wb_list = [det_wb[0]['name'], det_wb[0]['job_title']]
-
-                                    li_list = []
-                                    if (len(data[0]['linkedin_cp_info'])):
-                                        for each in data[0]['linkedin_cp_info']:
-                                            data_li = (each[0].split('|')[0]).split('-')
-                                            if (len(data_li) > 2):
-                                                # print('li cp',[data_li[0],data_li[1].strip()+'_'+data_li[2].strip()])
-                                                li_list.append(
-                                                    [data_li[0], data_li[1].strip() + '_' + data_li[2].strip()])
-
-                                    if (len(wb_list)):
-                                        # print('web')
-                                        data_list.append(wb_list)  # from google
-
-                                    elif ('google_cp' in attribute_keys):
-                                        # print('g')
-                                        det_gcp = data[0]['google_cp']
-                                        # print('gog',det_gcp)
-                                        data_list.append(det_gcp)  # from google
-                                    # crunchbase
-                                    elif ('Founders_cb' in attribute_keys):
-                                        # print('cb')
-                                        det_cb = data[0]['Founders_cb']
-                                        det_cb = [cb.strip() for cb in det_cb.split(',')][0]
-                                        data_list.append([det_cb, 'founder(s)'])
-
-                                    elif ('contacts_aven' in attribute_keys):
-                                        # print('aven')
-                                        det_aven = data[0]['contacts_aven'][0]
-                                        data_list.append(det_aven)
-
-                                    elif ('company_contacts_dnb' in attribute_keys):
-                                        # print('dnb')
-                                        # print('dnb',data[0]['dnb_cp_info'])
-                                        # print('dnb',dnb_list[0])
-                                        det_dnb = data[0]['company_contacts_dnb']
-                                        data_list.append(det_dnb[0])  # from dnb
-
-                                    elif ('directors_or_officers_oc' in attribute_keys):
-                                        # print('oc')
-
-                                        # print('oc',data[0]['oc_cp_info'])
-                                        oc_cps = []
-                                        # print(data[0]['directors_or_officers_oc'])
-                                        for each_oc in [data[0]['directors_or_officers_oc']]:
-                                            # print(each_oc)
-                                            oc_det = each_oc.split(',')
-                                            # print(oc_det)
-                                            if (len(oc_det) > 1):
-                                                oc_name = oc_det[0]
-                                                # print(oc_name)
-                                                if (len(oc_name) > 1):
-                                                    oc_post = oc_det[1]
-                                                    oc_cps.append([oc_name, oc_post])
-                                            else:
-                                                oc_cps.append([oc_det, 'agent_' + each_oc[1]])
-
-                                        # print('oc',oc_cps[0])
-                                        data_list.append(oc_cps[0])  # from oc
-                                    elif ('CEO_g' in attribute_keys):
-                                        # print('gc')
-                                        # print('gogq',[data[0]['CEO_g'],'CEO'])
-                                        data_list.append([data[0]['CEO_g'], 'CEO'])  # from google qa
-                                    elif ('agent_name_oc' in attribute_keys):
-                                        # print('oca')
-                                        # print('oc_ag',[data[0]['agent_name_oc'],'agent'])
-                                        data_list.append([data[0]['agent_name_oc'][0], 'agent'])  # from oc_agent
-                                    elif (len(li_list)):
-
-                                        data_list.append(li_list[0])  # from linkedin
-                                        # print('li')
-                                    else:
-                                        # print('None')
-                                        data_list.append("None")
-
-                                    print("selected_contact_person", data_list[-1])
-                                    print('data_list',data_list)
-                                    if (data_list[-1] != 'None'):
-                                        a_conf = get_cp_confidence(data_list[-1][0], entry_id)
-                                        print('confidence of selected cp', a_conf)
-                                        if (a_conf != None):
-                                            if (a_conf > 0):
-                                                continue
-                                            else:
-                                                all_ads_with_conf = get_every_cp_confidence(entry_id)
-                                                print('confidence of all cps', all_ads_with_conf)
-                                                if (all_ads_with_conf != None):
-                                                    highest_ads_with_conf = all_ads_with_conf[-1:]
-                                                    print('highest', highest_ads_with_conf)
-                                                    if (highest_ads_with_conf[0][3] > 0):
-                                                        data_list[-1] = [highest_ads_with_conf[0][0],
-                                                                         highest_ads_with_conf[0][1]]
-                                                        print('updated with highest confidence')
-
-                                except KeyError:
-                                    data_list.append('None')
-
-                            if (each_a == 'type_or_sector'):
-                                # sector_fix
-                                # print("***********ty")
-                                try:
-                                    if ('Industries_cb' in attribute_keys):
-                                        print('cb', data[0]['Industries_cb'].split(', ')[:2])
-                                        data_list.extend(data[0]['Industries_cb'].split(', ')[:2])
-                                    elif ('Industry:_aven' in attribute_keys):
-                                        print('aven', data[0]['Industry:_aven'])
-                                        data_list.extend([data[0]['Industry:_aven']])
-                                    elif ('industry_li' in attribute_keys):
-                                        print('li', data[0]['industry_li'])
-                                        data_list.extend([data[0]['industry_li']])  # from linkedin
-                                    elif ('comp_type_pred' in attribute_keys):
-                                        print('clas', data[0]['comp_type_pred'][0])
-                                        data_list.extend(
-                                            [data[0]['comp_type_pred'][0][0] + ', ' + data[0]['comp_type_pred'][1][
-                                                0]])  # from classification
-                                    else:
-                                        data_list.append("None")
-
-                                except KeyError:
-                                    data_list.append('None')
-
-                            if (each_a == 'founded_year'):
-                                # fy_fix
-                                # print("***********fy")
-                                try:
-                                    if ('Founded_Date_cb' in attribute_keys):
-                                        # print('cb',data[0]['Founded Date_cb'])
-                                        data_list.append(data[0]['Founded_Date_cb'])  # from linkedin
-                                    elif ('founded_li' in attribute_keys):
-                                        # print('li',data[0]['founded_li'])
-                                        data_list.append(data[0]['founded_li'])  # from linkedin
-                                    elif ('incorporation_date_oc' in attribute_keys):
-                                        # print('oc', data[0]['incorporation_date_oc'].split(' (')[0])
-                                        data_list.append(data[0]['incorporation_date_oc'].split(' (')[0])  # from oc
-                                    elif ('founded_year_g' in attribute_keys):
-                                        # print('g', data[0]['founded_year_g'])
-                                        data_list.append(data[0]['founded_year_g'])  # from google
-                                    else:
-                                        data_list.append("None")
-                                    # if ('Industries_cb' in attribute_keys):
-                                    #     print('cb',data[0]['Industries_cb'].split(', ')[:2])
-                                    #     data_list.extend(data[0]['Industries_cb'].split(', ')[:2])
-                                    # elif ('industry_li' in attribute_keys):
-                                    #     print('li',data[0]['industry_li'])
-                                    #     data_list.extend([data[0]['industry_li']])  # from linkedin
-                                    # elif ('comp_type_pred' in attribute_keys):
-                                    #     print('clas',data[0]['comp_type_pred'][0])
-                                    #     data_list.extend([data[0]['comp_type_pred'][0][0]+', '+ data[0]['comp_type_pred'][1][0]])  # from classification
-                                    # else:
-                                    #     data_list.append("None")
-
-                                except KeyError:
-                                    data_list.append('None')
-
-                            if (each_a == 'revenue'):
-                                # rev_fix
-                                # print("***********rv")
-                                try:
-                                    rev_d = []
-                                    if ('company_revenue_dnb' in attribute_keys):
-                                        if (len(data[0]['company_revenue_dnb'])):
-                                            rev_d = data[0]['company_revenue_dnb']
-                                    if ('Annual_Sales:_aven' in attribute_keys):
-                                        # print('g')
-                                        data_list.append(data[0]['Annual_Sales:_aven'])  # from google
-                                    elif ('revenue_g' in attribute_keys):
-                                        # print('g')
-                                        data_list.append(data[0]['revenue_g'])  # from google
-                                    elif (len(rev_d)):
-                                        # print('d')
-                                        a_rev = rev_d[0].split('|')[1]
-                                        print(a_rev)
-                                        data_list.append(a_rev)  # from dnb
-                                    else:
-                                        data_list.append("None")
-                                    # if ('Contact Email_cb' in attribute_keys):
-                                    #     data_list = data[0]['Contact Email_cb']
-                                    # elif (len(data[0]['emails'])):
-                                    #     data_list.append(data[0]['emails'][0])  # from website
-                                    # else:
-                                    #     data_list.append("None")
-                                    # # else:
-                                    # #     data_list.append("None")
-                                except KeyError:
-                                    data_list.append('None')
-
-                            if (each_a == 'funding'):
-                                # print("***********f")
-                                if ('funding_g' in attribute_keys):
-                                    data_list.append(data[0]['funding_g'])  # from google
-                                else:
-                                    data_list.append("None")
-
-                            if (each_a == 'headquarters'):
-                                # hq_fix
-                                # print("***********hq")
-                                try:
-                                    hq_cb, hq_g, hq_li, j_oc = '', '', '', ''
-                                    if ('comp_headquaters_cb' in attribute_keys):
-                                        hq_cb = data[0]['comp_headquaters_cb']
-
-                                    if ('headquarters_li' in attribute_keys):
-                                        hq_li = data[0]['headquarters_li']
-
-                                    if ('jurisdiction_oc' in attribute_keys):
-                                        j_oc = data[0]['jurisdiction_oc']
-
-                                    if ('headquarters_g' in attribute_keys):
-                                        hq_g = data[0]['headquarters_g']
-
-                                    if (isvalid_hq(hq_cb)):
-                                        data_list.append(hq_cb)
-                                    elif (isvalid_hq(hq_li)):
-                                        data_list.append(hq_li)
-                                    elif (isvalid_hq(hq_g)):
-                                        data_list.append(hq_g)
-                                    elif (isvalid_hq(j_oc)):
-                                        data_list.append(j_oc)
-                                    else:
-                                        data_list.append("None")
-                                    # else:
-                                    #     data_list.append("None")
-
-                                    if (data_list[-1] != 'None'):
-                                        a_conf = get_hq_confidence(data_list[-1], entry_id)
-                                        print('confidence of selected hq', a_conf)
-                                        if (a_conf != None):
-                                            if (a_conf > 0):
-                                                continue
-                                            else:
-                                                all_ads_with_conf = get_every_hq_confidence(entry_id)
-                                                print('confidence of all hqs', all_ads_with_conf)
-                                                if (all_ads_with_conf != None):
-                                                    highest_ads_with_conf = all_ads_with_conf[-1:]
-                                                    print('highest', highest_ads_with_conf)
-                                                    if (highest_ads_with_conf[0][2] > 0):
-                                                        data_list[-1] = highest_ads_with_conf[0][0]
-                                                        print('updated with highest confidence')
-                                except KeyError:
-                                    data_list.append('None')
-
-                            if (each_a == 'No_of_employees'):
-                                # fix_ne
-                                # print("***********ne")
-                                try:
-                                    data_lil = None
-                                    if ('company_size_li' in attribute_keys):
-                                        if (data[0]['company_size_li'] != None):
-                                            if (' employees' in data[0]['company_size_li']):
-                                                data_lil = data[0]['company_size_li'].replace(' employees', '')
-                                    if ('Number_of_Employees_cb' in attribute_keys):
-                                        # print('cb')
-                                        data_list.append(data[0]['Number_of_Employees_cb'])  # from company_size_li
-                                    elif ('Employees_(All_Sites):_aven' in attribute_keys):
-                                        data_list.append(data[0]['Employees_(All_Sites):_aven'])
-                                    elif (data_lil != None):
-                                        data_list.append(data_lil)  # from company_size_li
-
-                                    elif ('num_employees_li' in attribute_keys):
-                                        # print('li')
-                                        data_list.append(
-                                            str(data[0]['num_employees_li']).split("\n")[0])  # from linkedin
-                                    elif ('no_of_employees_g' in attribute_keys):
-                                        # print('g')
-                                        data_list.append(data[0]['no_of_employees_g'])  # from googlecompany_size_li
-                                    else:
-                                        data_list.append("None")
-                                    # else:
-                                    #     data_list.append("None")
-                                except KeyError:
-                                    data_list.append('None')
-
-                        except KeyError:
-                            data_list.append('None')
+                    data_list.extend(get_data_for_simplified_dump_based_on_source_order(entry_id))
 
                     dict_to_dump = {}
                     for i in range(len(attributes_a)):
@@ -706,11 +704,6 @@ def simplified_export_via_queue():
                     duration = ended - started
                     time_difference_in_minutes = duration / timedelta(minutes=1)
 
-                    # print('ended',[ended , type(ended)])
-                    # print('started', [started, type(started)])
-                    # duration = ended - started
-
-                    # dateTimeObj_e = datetime.now()
                     completion_data = {'completed_time_stamp': ended, 'elapsed_time': time_difference_in_minutes}
                     print(completion_data)
                     query_collection.update_one({'_id': query_id},
@@ -752,7 +745,7 @@ def simplified_export(id_list):
         results_writer = csv.writer(results_file, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
         attributes_a = ['_id', 'search_text', 'title', 'link', 'description', 'comp_name',
                         'address', 'email','telephone_number', 'keywords','contact_person', 'type_or_sector', 'founded_year',
-                        'revenue','funding','headquarters','No_of_employees']
+                        'revenue','funding','headquarters','No_of_employees','company_status']
         results_writer.writerow(attributes_a)
         for entry_id in id_list:
             comp_data_entry = mycol.find({"_id": entry_id})
@@ -762,444 +755,7 @@ def simplified_export(id_list):
             # print(data)
             data_list = []
             data_list.extend([data[0]['_id'],data[0]['search_text'],data[0]['title'],data[0]['link'],data[0]['description'],data[0]['comp_name']])
-            attribute_keys = list(data[0].keys())
-            # print(attribute_keys)
-            for each_a in attributes_a:
-                try:
-                    if(each_a == 'address'):
-                        #address_fix
-                        try:
-                            g_add, w_ad, dnb_add, oc_add = '', '', '', ''
-                            if ('google_address' in attribute_keys):
-                                if (len(data[0]['google_address'])):
-                                    g_add = data[0]['google_address']
-                            if (len(data[0]['addresses'])):
-                                for each in data[0]['addresses']:
-                                    if (isvalid_hq(each)):
-                                        w_ad = each
-                                        break
-                            if ('company_address_dnb' in attribute_keys):
-                                if (len(data[0]['company_address_dnb'])):
-                                    dnb_add = data[0]['company_address_dnb'][0]
-                            if ('registered_address_adr_oc' in attribute_keys):
-                                oc_add = data[0]['registered_address_adr_oc']
-                            aven_add=''
-                            if('address_aven' in attribute_keys):
-                                aven_add = data[0]['address_aven']
-
-
-                            if (len(w_ad) != 0):
-                                # print('w')
-                                data_list.append(w_ad)
-                            elif (isvalid_hq(g_add)):
-                                # print('g')
-                                data_list.append(g_add)  # from google
-                            elif (isvalid_hq(aven_add)):
-                                # print('d')
-                                data_list.append(aven_add)
-                            elif (isvalid_hq(dnb_add)):
-                                # print('d')
-                                data_list.append(dnb_add)
-                            elif (isvalid_hq(oc_add.lower())):
-                                # print('o')
-                                data_list.append(oc_add)
-                            else:
-                                data_list.append('None')
-
-                            print("selected_address", data_list[-1])
-                            if (data_list[-1] != 'None'):
-                                a_conf = get_address_confidence(data_list[-1], entry_id)
-                                print('confidence of selected address', a_conf)
-                                if (a_conf != None):
-                                    if (a_conf > 0):
-                                        continue
-                                    else:
-                                        all_ads_with_conf = get_every_address_confidence(entry_id)
-                                        print('confidence of all addresses', all_ads_with_conf)
-                                        if (all_ads_with_conf != None):
-                                            highest_ads_with_conf = all_ads_with_conf[-1:]
-                                            print('highest', highest_ads_with_conf)
-                                            if (highest_ads_with_conf[0][2] > 0):
-                                                data_list[-1] = highest_ads_with_conf[0][0]
-                                                print('updated with highest confidence')
-
-                        except KeyError:
-                            data_list.append('None')
-
-                    if (each_a == 'email'):
-                        # print("***********eml")
-                        #email_fix
-                        try:
-                            if ('Contact_Email_cb' in attribute_keys):
-                                data_list.append(data[0]['Contact_Email_cb'])
-                            elif (len(data[0]['emails'])):
-                                data_list.append(data[0]['emails'][0])  # from website
-                            else:
-                                data_list.append("None")
-                            # else:
-                            #     data_list.append("None")
-                        except KeyError:
-                            data_list.append('None')
-
-                    if (each_a == 'telephone_number'):
-                        # print("***********tp")
-                        #tp_fix
-                        try:
-                            tp_cb_valid = False
-                            if ('Phone_Number_cb' in attribute_keys):
-                                # print('cb',data[0]['Phone_Number_cb'])
-                                if (is_valid_tp(data[0]['Phone_Number_cb'])):
-                                    tp_cb_valid = True
-                            tp_google_valid = False
-                            if ('google_tp' in attribute_keys):
-                                # print('cb',data[0]['Phone_Number_cb'])
-                                if (is_valid_tp(data[0]['google_tp'])):
-                                    tp_google_valid = True
-                            dnb_tp = []
-                            if ('company_tp_dnb' in attribute_keys):
-                                dnb_tp = data[0]['company_tp_dnb']  # from dnb
-
-                            w_tp = []
-                            if (len(data[0]['telephone_numbers'])):
-                                plus_t = []
-                                s_six = []
-                                other_t = []
-                                for each_t in data[0]['telephone_numbers']:
-                                    if (each_t[:3] in ['+61', '+64']):
-                                        if (is_valid_tp(each_t)):
-                                            plus_t.append(each_t)
-                                    if (each_t[:2] in ['61', '64']):
-                                        if (is_valid_tp(each_t)):
-                                            s_six.append(each_t)
-                                    if ((each_t[0] in ['0']) or (each_t[:4] in ['1300', '1800', '0800'])):
-                                        if (is_valid_tp(each_t)):
-                                            other_t.append(each_t)
-                                w_tp = plus_t + s_six + other_t
-
-                            if (len(w_tp)):
-                                data_list.append(w_tp[0])
-                            elif (tp_google_valid):
-                                data_list.append(data[0]['google_tp'])  # from google
-                            elif (tp_cb_valid):
-                                data_list.append(data[0]['Phone_Number_cb'])
-                            elif ('Tel:_aven' in attribute_keys):
-                                print(data[0]['Tel:_aven'])
-                                data_list.append(data[0]['Tel:_aven'])
-                            elif ('phone_li' in attribute_keys):
-                                print(data[0]['phone_li'].split("\n")[0])
-                                data_list.append(data[0]['phone_li'].split("\n")[0])
-                            elif (len(dnb_tp)):
-                                data_list.append(dnb_tp)  # from dnb
-                            else:
-                                data_list.append("None")
-                            data_list[-1] = restructure_tp(data_list[-1])
-
-                            print("selected_tp", data_list[-1])
-                            if (data_list[-1] != 'None'):
-                                a_conf = get_tp_confidence(data_list[-1], entry_id)
-                                print('confidence of selected tp', a_conf)
-                                if (a_conf != None):
-                                    if (a_conf > 0):
-                                        continue
-                                    else:
-                                        all_ads_with_conf = get_every_tp_confidence(entry_id)
-                                        print('confidence of all tps', all_ads_with_conf)
-                                        if (all_ads_with_conf != None):
-                                            highest_ads_with_conf = all_ads_with_conf[-1:]
-                                            print('highest', highest_ads_with_conf)
-                                            if (highest_ads_with_conf[0][2] > 0):
-                                                data_list[-1] = restructure_tp(highest_ads_with_conf[0][0])
-                                                print('updated with highest confidence')
-
-                            # else:
-                            #     data_list.append("None")
-                        except KeyError:
-                            data_list.append('None')
-
-                    if (each_a == 'keywords'):
-                        # print("***********kw")
-                        if (len(data[0]['textrank_results'])):data_list.append(data[0]['textrank_results'][:10])  # from website
-                        else:data_list.append("None")
-
-                    if (each_a == 'contact_person'):
-                        # print("***********cp")
-                        #contact_person_fix
-                        #fix thissssssssssssssssssss********************************************************************************
-                        try:
-                            wb_list = []
-                            if ('important_person_company' in attribute_keys):
-                                det_wb = data[0]['important_person_company']
-
-                                # print(det_wb)
-                                if (det_wb != 'No important persons found'):
-                                    wb_list = [det_wb[0]['name'], det_wb[0]['job_title']]
-
-                            li_list = []
-                            if (len(data[0]['linkedin_cp_info'])):
-                                for each in data[0]['linkedin_cp_info']:
-                                    data_li = (each[0].split('|')[0]).split('-')
-                                    if (len(data_li) > 2):
-                                        # print('li cp',[data_li[0],data_li[1].strip()+'_'+data_li[2].strip()])
-                                        li_list.append([data_li[0], data_li[1].strip() + '_' + data_li[2].strip()])
-
-                            if (len(wb_list)):
-                                # print('g')
-                                data_list.append(wb_list)  # from google
-
-                            elif ('google_cp' in attribute_keys):
-                                # print('g')
-                                det_gcp = data[0]['google_cp']
-                                # print('gog',det_gcp)
-                                data_list.append(det_gcp)  # from google
-                            # crunchbase
-                            elif ('Founders_cb' in attribute_keys):
-                                det_cb = data[0]['Founders_cb']
-                                det_cb = [cb.strip() for cb in det_cb.split(',')][0]
-                                data_list.append([det_cb, 'founder(s)'])
-                            elif('contacts_aven' in attribute_keys):
-                                det_aven = data[0]['contacts_aven'][:1]
-                                data_list.append(det_aven)
-
-                            elif ('company_contacts_dnb' in attribute_keys):
-                                # print('dnb',data[0]['dnb_cp_info'])
-                                # print('dnb',dnb_list[0])
-                                det_dnb = data[0]['company_contacts_dnb']
-                                data_list.append(det_dnb[0])  # from dnb
-
-                            elif ('directors_or_officers_oc' in attribute_keys):
-                                # print('oc')
-
-                                # print('oc',data[0]['oc_cp_info'])
-                                oc_cps = []
-                                # print(data[0]['directors_or_officers_oc'])
-                                for each_oc in [data[0]['directors_or_officers_oc']]:
-                                    # print(each_oc)
-                                    oc_det = each_oc.split(',')
-                                    # print(oc_det)
-                                    if (len(oc_det) > 1):
-                                        oc_name = oc_det[0]
-                                        # print(oc_name)
-                                        if (len(oc_name) > 1):
-                                            oc_post = oc_det[1]
-                                            oc_cps.append([oc_name, oc_post])
-                                    else:
-                                        oc_cps.append([oc_det, 'agent_' + each_oc[1]])
-
-                                # print('oc',oc_cps[0])
-                                data_list.append(oc_cps[0])  # from oc
-                            elif ('CEO_g' in attribute_keys):
-                                # print('gc')
-                                # print('gogq',[data[0]['CEO_g'],'CEO'])
-                                data_list.append([data[0]['CEO_g'], 'CEO'])  # from google qa
-                            elif ('agent_name_oc' in attribute_keys):
-                                # print('oca')
-                                # print('oc_ag',[data[0]['agent_name_oc'],'agent'])
-                                data_list.append([data[0]['agent_name_oc'][0], 'agent'])  # from oc_agent
-                            elif (len(li_list)):
-
-                                data_list.append(li_list[0])  # from linkedin
-                                # print('*****')
-                            else:
-                                # print('None')
-                                data_list.append("None")
-
-                            print("selected_contact_person", data_list[-1])
-                            if (data_list[-1] != 'None'):
-                                a_conf = get_cp_confidence(data_list[-1][0], entry_id)
-                                print('confidence of selected cp', a_conf)
-                                if (a_conf != None):
-                                    if (a_conf > 0):
-                                        continue
-                                    else:
-                                        all_ads_with_conf = get_every_cp_confidence(entry_id)
-                                        print('confidence of all cps', all_ads_with_conf)
-                                        if (all_ads_with_conf != None):
-                                            highest_ads_with_conf = all_ads_with_conf[-1:]
-                                            print('highest', highest_ads_with_conf)
-                                            if (highest_ads_with_conf[0][3] > 0):
-                                                data_list[-1] = [highest_ads_with_conf[0][0],
-                                                                 highest_ads_with_conf[0][1]]
-                                                print('updated with highest confidence')
-
-                        except KeyError:
-                            data_list.append('None')
-
-                    if (each_a == 'type_or_sector'):
-                        #sector_fix
-                        # print("***********ty")
-                        try:
-                            if ('Industries_cb' in attribute_keys):
-                                print('cb', data[0]['Industries_cb'].split(', ')[:2])
-                                data_list.append(data[0]['Industries_cb'].split(', ')[:2])
-                            elif ('Industry:_aven' in attribute_keys):
-                                print('aven', data[0]['Industry:_aven'])
-                                data_list.append([data[0]['Industry:_aven']])
-                            elif ('industry_li' in attribute_keys):
-                                print('li', data[0]['industry_li'])
-                                data_list.append([data[0]['industry_li']])  # from linkedin
-                            elif ('comp_type_pred' in attribute_keys):
-                                print('clas', data[0]['comp_type_pred'][0])
-                                data_list.append([data[0]['comp_type_pred'][0][0] + ', ' + data[0]['comp_type_pred'][1][
-                                    0]])  # from classification
-                            else:
-                                data_list.append("None")
-
-                        except KeyError:
-                            data_list.append('None')
-
-                    if (each_a == 'founded_year'):
-                        #fy_fix
-                        # print("***********fy")
-                        try:
-                            if ('Founded_Date_cb' in attribute_keys):
-                                # print('cb',data[0]['Founded Date_cb'])
-                                data_list.append(data[0]['Founded_Date_cb'])  # from linkedin
-                            elif ('founded_li' in attribute_keys):
-                                # print('li',data[0]['founded_li'])
-                                data_list.append(data[0]['founded_li'])  # from linkedin
-                            elif ('incorporation_date_oc' in attribute_keys):
-                                # print('oc', data[0]['incorporation_date_oc'].split(' (')[0])
-                                data_list.append(data[0]['incorporation_date_oc'].split(' (')[0])  # from oc
-                            elif ('founded_year_g' in attribute_keys):
-                                # print('g', data[0]['founded_year_g'])
-                                data_list.append(data[0]['founded_year_g'])  # from google
-                            else:
-                                data_list.append("None")
-                            # if ('Industries_cb' in attribute_keys):
-                            #     print('cb',data[0]['Industries_cb'].split(', ')[:2])
-                            #     data_list.extend(data[0]['Industries_cb'].split(', ')[:2])
-                            # elif ('industry_li' in attribute_keys):
-                            #     print('li',data[0]['industry_li'])
-                            #     data_list.extend([data[0]['industry_li']])  # from linkedin
-                            # elif ('comp_type_pred' in attribute_keys):
-                            #     print('clas',data[0]['comp_type_pred'][0])
-                            #     data_list.extend([data[0]['comp_type_pred'][0][0]+', '+ data[0]['comp_type_pred'][1][0]])  # from classification
-                            # else:
-                            #     data_list.append("None")
-
-                        except KeyError:
-                            data_list.append('None')
-
-                    if (each_a == 'revenue'):
-                        #rev_fix
-                        # print("***********rv")
-                        try:
-                            rev_d = []
-                            if ('company_revenue_dnb' in attribute_keys):
-                                if (len(data[0]['company_revenue_dnb'])):
-                                    rev_d = data[0]['company_revenue_dnb']
-                            if ('Annual_Sales:_aven' in attribute_keys):
-                                # print('g')
-                                data_list.append(data[0]['Annual_Sales:_aven'])  # from google
-                            elif ('revenue_g' in attribute_keys):
-                                # print('g')
-                                data_list.append(data[0]['revenue_g'])  # from google
-                            elif (len(rev_d)):
-                                # print('d')
-                                a_rev = rev_d[0].split('|')[1]
-                                print(a_rev)
-                                data_list.append(a_rev)  # from dnb
-                            else:
-                                data_list.append("None")
-                            # if ('Contact Email_cb' in attribute_keys):
-                            #     data_list = data[0]['Contact Email_cb']
-                            # elif (len(data[0]['emails'])):
-                            #     data_list.append(data[0]['emails'][0])  # from website
-                            # else:
-                            #     data_list.append("None")
-                            # # else:
-                            # #     data_list.append("None")
-                        except KeyError:
-                            data_list.append('None')
-
-                    if (each_a == 'funding'):
-                        # print("***********f")
-                        if ('funding_g' in attribute_keys):data_list.append(data[0]['funding_g'])  # from google
-                        else:data_list.append("None")
-
-                    if (each_a == 'headquarters'):
-                        #hq_fix
-                        # print("***********hq")
-                        try:
-                            hq_cb, hq_g, hq_li, j_oc = '', '', '', ''
-                            if ('comp_headquaters_cb' in attribute_keys):
-                                hq_cb = data[0]['comp_headquaters_cb']
-
-                            if ('headquarters_li' in attribute_keys):
-                                hq_li = data[0]['headquarters_li']
-
-                            if ('jurisdiction_oc' in attribute_keys):
-                                j_oc = data[0]['jurisdiction_oc']
-
-                            if ('headquarters_g' in attribute_keys):
-                                hq_g = data[0]['headquarters_g']
-
-                            if (isvalid_hq(hq_cb)):
-                                data_list.append(hq_cb)
-                            elif (isvalid_hq(hq_li)):
-                                data_list.append(hq_li)
-                            elif (isvalid_hq(hq_g)):
-                                data_list.append(hq_g)
-                            elif (isvalid_hq(j_oc)):
-                                data_list.append(j_oc)
-                            else:
-                                data_list.append("None")
-                            # else:
-                            #     data_list.append("None")
-
-                            if (data_list[-1] != 'None'):
-                                a_conf = get_hq_confidence(data_list[-1], entry_id)
-                                print('confidence of selected hq', a_conf)
-                                if (a_conf != None):
-                                    if (a_conf > 0):
-                                        continue
-                                    else:
-                                        all_ads_with_conf = get_every_hq_confidence(entry_id)
-                                        print('confidence of all hqs', all_ads_with_conf)
-                                        if (all_ads_with_conf != None):
-                                            highest_ads_with_conf = all_ads_with_conf[-1:]
-                                            print('highest', highest_ads_with_conf)
-                                            if (highest_ads_with_conf[0][2] > 0):
-                                                data_list[-1] = highest_ads_with_conf[0][0]
-                                                print('updated with highest confidence')
-                        except KeyError:
-                            data_list.append('None')
-
-                    if (each_a == 'No_of_employees'):
-                        #fix_ne
-                        # print("***********ne")
-                        try:
-                            data_lil = None
-                            if ('company_size_li' in attribute_keys):
-                                if (data[0]['company_size_li'] != None):
-                                    if (' employees' in data[0]['company_size_li']):
-                                        data_lil = data[0]['company_size_li'].replace(' employees', '')
-                            if ('Number_of_Employees_cb' in attribute_keys):
-                                # print('cb')
-                                data_list.append(data[0]['Number_of_Employees_cb'])  # from company_size_li
-                            elif ('Employees_(All_Sites):_aven' in attribute_keys):
-                                data_list.append(data[0]['Employees_(All_Sites):_aven'])
-                            elif (data_lil != None):
-                                data_list.append(data_lil)  # from company_size_li
-
-                            elif ('num_employees_li' in attribute_keys):
-                                # print('li')
-                                data_list.append(str(data[0]['num_employees_li']).split("\n")[0])  # from linkedin
-                            elif ('no_of_employees_g' in attribute_keys):
-                                # print('g')
-                                data_list.append(data[0]['no_of_employees_g'])  # from googlecompany_size_li
-                            else:
-                                data_list.append("None")
-                            # else:
-                            #     data_list.append("None")
-                        except KeyError:
-                            data_list.append('None')
-
-                except KeyError:
-                    data_list.append('None')
-                except Exception as e:
-                    data_list.append('None')
-                    print("Exception Occured during dumping ", e)
+            data_list.extend(get_data_for_simplified_dump_based_on_source_order(entry_id))
 
             results_writer.writerow(data_list)
             dict_to_dump = {}
@@ -1224,460 +780,15 @@ def simplified_update(id_list):
         results_writer = csv.writer(results_file, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
         attributes_a = ['search_text', 'title', 'link', 'description', 'comp_name',
                         'address', 'email','telephone_number', 'keywords','contact_person', 'type_or_sector', 'founded_year',
-                        'revenue','funding','headquarters','No_of_employees']
+                        'revenue','funding','headquarters','No_of_employees','company_status']
         results_writer.writerow(attributes_a)
         for entry_id in id_list:
             comp_data_entry = mycol.find({"_id": entry_id})
             data = [i for i in comp_data_entry]
-            my_link = data[0]['link']
-            # for k in data[0].keys():
-            #     print(k)
-            # print(data)
+
             data_list = []
             data_list.extend([data[0]['search_text'],data[0]['title'],data[0]['link'],data[0]['description'],data[0]['comp_name']])
-            attribute_keys = list(data[0].keys())
-            # print(attribute_keys)
-            for each_a in attributes_a:
-                try:
-                    if(each_a == 'address'):
-                        #address_fix
-                        try:
-                            g_add, w_ad, dnb_add, oc_add = '', '', '', ''
-                            if ('google_address' in attribute_keys):
-                                if (len(data[0]['google_address'])):
-                                    g_add = data[0]['google_address']
-                            if (len(data[0]['addresses'])):
-                                for each in data[0]['addresses']:
-                                    if (isvalid_hq(each)):
-                                        w_ad = each
-                                        break
-                            if ('company_address_dnb' in attribute_keys):
-                                if (len(data[0]['company_address_dnb'])):
-                                    dnb_add = data[0]['company_address_dnb'][0]
-                            if ('registered_address_adr_oc' in attribute_keys):
-                                oc_add = data[0]['registered_address_adr_oc']
-
-                            aven_add = ''
-                            if ('address_aven' in attribute_keys):
-                                aven_add = data[0]['address_aven']
-
-
-                            if (len(w_ad) != 0):
-                                # print('w')
-                                data_list.append(w_ad)
-                            elif (isvalid_hq(g_add)):
-                                # print('g')
-                                data_list.append(g_add)  # from google
-                            elif (isvalid_hq(aven_add)):
-                                # print('d')
-                                data_list.append(aven_add)
-                            elif (isvalid_hq(dnb_add)):
-                                # print('d')
-                                data_list.append(dnb_add)
-                            elif (isvalid_hq(oc_add.lower())):
-                                # print('o')
-                                data_list.append(oc_add)
-                            else:
-                                data_list.append('None')
-
-
-                            print("selected_address",data_list[-1])
-                            if(data_list[-1]!='None'):
-                                a_conf = get_address_confidence(data_list[-1],entry_id)
-                                print('confidence of selected address',a_conf)
-                                if(a_conf != None):
-                                    if(a_conf>0):
-                                        continue
-                                    else:
-                                        all_ads_with_conf = get_every_address_confidence(entry_id)
-                                        print('confidence of all addresses', all_ads_with_conf)
-                                        if(all_ads_with_conf!=None):
-                                            highest_ads_with_conf = all_ads_with_conf[-1:]
-                                            print('highest',highest_ads_with_conf)
-                                            if(highest_ads_with_conf[0][2]>0):
-                                                data_list[-1] = highest_ads_with_conf[0][0]
-                                                print('updated with highest confidence')
-
-
-                        except KeyError:
-                            data_list.append('None')
-
-                    if (each_a == 'email'):
-                        # print("***********eml")
-                        #email_fix
-                        try:
-                            if ('Contact_Email_cb' in attribute_keys):
-                                data_list.append(data[0]['Contact_Email_cb'])
-                            elif (len(data[0]['emails'])):
-                                data_list.append(data[0]['emails'][0])  # from website
-                            else:
-                                data_list.append("None")
-                            # else:
-                            #     data_list.append("None")
-
-
-                        except KeyError:
-                            data_list.append('None')
-
-                    if (each_a == 'telephone_number'):
-                        # print("***********tp")
-                        #tp_fix
-                        try:
-                            tp_cb_valid = False
-                            if ('Phone_Number_cb' in attribute_keys):
-                                # print('cb',data[0]['Phone_Number_cb'])
-                                if (is_valid_tp(data[0]['Phone_Number_cb'])):
-                                    tp_cb_valid = True
-                            tp_google_valid = False
-                            if ('google_tp' in attribute_keys):
-                                # print('cb',data[0]['Phone_Number_cb'])
-                                if (is_valid_tp(data[0]['google_tp'])):
-                                    tp_google_valid = True
-                            dnb_tp = []
-                            if ('company_tp_dnb' in attribute_keys):
-                                dnb_tp = data[0]['company_tp_dnb']  # from dnb
-                                # print(data_list,type(data_list))
-                            w_tp = []
-                            if (len(data[0]['telephone_numbers'])):
-                                plus_t = []
-                                s_six = []
-                                other_t = []
-                                for each_t in data[0]['telephone_numbers']:
-                                    if (each_t[:3] in ['+61', '+64']):
-                                        if (is_valid_tp(each_t)):
-                                            plus_t.append(each_t)
-                                    if (each_t[:2] in ['61', '64']):
-                                        if (is_valid_tp(each_t)):
-                                            s_six.append(each_t)
-                                    if ((each_t[0] in ['0']) or (each_t[:4] in ['1300', '1800', '0800'])):
-                                        if (is_valid_tp(each_t)):
-                                            other_t.append(each_t)
-                                w_tp = plus_t + s_six + other_t
-
-                            if (len(w_tp)):
-                                data_list.append(w_tp[0])
-                            elif (tp_google_valid):
-                                data_list.append(data[0]['google_tp'])  # from google
-                            elif (tp_cb_valid):
-                                data_list.append(data[0]['Phone_Number_cb'])
-                            elif ('Tel:_aven' in attribute_keys):
-                                print(data[0]['Tel:_aven'])
-                                data_list.append(data[0]['Tel:_aven'])
-                            elif ('phone_li' in attribute_keys):
-                                print(data[0]['phone_li'].split("\n")[0])
-                                data_list.append(data[0]['phone_li'].split("\n")[0])
-                            elif (len(dnb_tp)):
-                                data_list.append(dnb_tp)  # from dnb
-                            else:
-                                data_list.append("None")
-
-                            # else:
-                            #     data_list.append("None")
-                            data_list[-1] = restructure_tp(data_list[-1])
-
-                            print("selected_tp", data_list[-1])
-                            if (data_list[-1] != 'None'):
-                                a_conf = get_tp_confidence(data_list[-1], entry_id)
-                                print('confidence of selected tp', a_conf)
-                                if (a_conf != None):
-                                    if (a_conf > 0):
-                                        continue
-                                    else:
-                                        all_ads_with_conf = get_every_tp_confidence(entry_id)
-                                        print('confidence of all tps', all_ads_with_conf)
-                                        if (all_ads_with_conf != None):
-                                            highest_ads_with_conf = all_ads_with_conf[-1:]
-                                            print('highest', highest_ads_with_conf)
-                                            if (highest_ads_with_conf[0][2] > 0):
-                                                data_list[-1] = restructure_tp(highest_ads_with_conf[0][0])
-                                                print('updated with highest confidence')
-
-                        except KeyError:
-                            data_list.append('None')
-
-                    if (each_a == 'keywords'):
-                        # print("***********kw")
-                        if (len(data[0]['textrank_results'])):data_list.append(data[0]['textrank_results'][:10])  # from website
-                        else:data_list.append("None")
-
-                    if (each_a == 'contact_person'):
-                        # print("***********cp")
-                        #contact_person_fix
-                        #fix thissssssssssssssssssss********************************************************************************
-                        try:
-                            wb_list = []
-                            if ('important_person_company' in attribute_keys):
-                                det_wb = data[0]['important_person_company']
-
-                                # print(det_wb)
-                                if (det_wb != 'No important persons found'):
-                                    wb_list = [det_wb[0]['name'], det_wb[0]['job_title']]
-
-                            li_list = []
-                            if (len(data[0]['linkedin_cp_info'])):
-                                for each in data[0]['linkedin_cp_info']:
-                                    data_li = (each[0].split('|')[0]).split('-')
-                                    if (len(data_li) > 2):
-                                        # print('li cp',[data_li[0],data_li[1].strip()+'_'+data_li[2].strip()])
-                                        li_list.append([data_li[0], data_li[1].strip() + '_' + data_li[2].strip()])
-
-                            if (len(wb_list)):
-                                # print('g')
-                                data_list.append(wb_list)  # from google
-
-                            elif ('google_cp' in attribute_keys):
-                                # print('g')
-                                det_gcp = data[0]['google_cp']
-                                # print('gog',det_gcp)
-                                data_list.append(det_gcp)  # from google
-                            # crunchbase
-                            elif ('Founders_cb' in attribute_keys):
-                                det_cb = data[0]['Founders_cb']
-                                det_cb = [cb.strip() for cb in det_cb.split(',')][0]
-                                data_list.append([det_cb, 'founder(s)'])
-                            elif ('contacts_aven' in attribute_keys):
-                                det_aven = data[0]['contacts_aven'][0]
-                                data_list.append(det_aven)
-                            elif ('company_contacts_dnb' in attribute_keys):
-                                # print('dnb',data[0]['dnb_cp_info'])
-                                # print('dnb',dnb_list[0])
-                                det_dnb = data[0]['company_contacts_dnb']
-                                data_list.append(det_dnb[0])  # from dnb
-
-                            elif ('directors_or_officers_oc' in attribute_keys):
-                                # print('oc')
-
-                                # print('oc',data[0]['oc_cp_info'])
-                                oc_cps = []
-                                # print(data[0]['directors_or_officers_oc'])
-                                for each_oc in [data[0]['directors_or_officers_oc']]:
-                                    # print(each_oc)
-                                    oc_det = each_oc.split(',')
-                                    # print(oc_det)
-                                    if (len(oc_det) > 1):
-                                        oc_name = oc_det[0]
-                                        # print(oc_name)
-                                        if (len(oc_name) > 1):
-                                            oc_post = oc_det[1]
-                                            oc_cps.append([oc_name, oc_post])
-                                    else:
-                                        oc_cps.append([oc_det, 'agent_' + each_oc[1]])
-
-                                # print('oc',oc_cps[0])
-                                data_list.append(oc_cps[0])  # from oc
-                            elif ('CEO_g' in attribute_keys):
-                                # print('gc')
-                                # print('gogq',[data[0]['CEO_g'],'CEO'])
-                                data_list.append([data[0]['CEO_g'], 'CEO'])  # from google qa
-                            elif ('agent_name_oc' in attribute_keys):
-                                # print('oca')
-                                # print('oc_ag',[data[0]['agent_name_oc'],'agent'])
-                                data_list.append([data[0]['agent_name_oc'][0], 'agent'])  # from oc_agent
-                            elif (len(li_list)):
-
-                                data_list.append(li_list[0])  # from linkedin
-                                # print('*****')
-                            else:
-                                # print('None')
-                                data_list.append("None")
-
-                            print("selected_contact_person", data_list[-1])
-                            if (data_list[-1] != 'None'):
-                                a_conf = get_cp_confidence(data_list[-1][0], entry_id)
-                                print('confidence of selected cp', a_conf)
-                                if (a_conf != None):
-                                    if (a_conf > 0):
-                                        continue
-                                    else:
-                                        all_ads_with_conf = get_every_cp_confidence(entry_id)
-                                        print('confidence of all cps', all_ads_with_conf)
-                                        if (all_ads_with_conf != None):
-                                            highest_ads_with_conf = all_ads_with_conf[-1:]
-                                            print('highest', highest_ads_with_conf)
-                                            if (highest_ads_with_conf[0][3] > 0):
-                                                data_list[-1] = [highest_ads_with_conf[0][0],highest_ads_with_conf[0][1]]
-                                                print('updated with highest confidence')
-
-                        except KeyError:
-                            data_list.append('None')
-
-                    if (each_a == 'type_or_sector'):
-                        #sector_fix
-                        # print("***********ty")
-                        try:
-                            if ('Industries_cb' in attribute_keys):
-                                print('cb', data[0]['Industries_cb'].split(', ')[:2])
-                                data_list.append(data[0]['Industries_cb'].split(', ')[:2])
-                            elif ('Industry:_aven' in attribute_keys):
-                                print('aven', data[0]['Industry:_aven'])
-                                data_list.append([data[0]['Industry:_aven']])
-                            elif ('industry_li' in attribute_keys):
-                                print('li', data[0]['industry_li'])
-                                data_list.append([data[0]['industry_li']])  # from linkedin
-                            elif ('comp_type_pred' in attribute_keys):
-                                print('clas', data[0]['comp_type_pred'][0])
-                                data_list.append([data[0]['comp_type_pred'][0][0] + ', ' + data[0]['comp_type_pred'][1][
-                                    0]])  # from classification
-                            else:
-                                data_list.append("None")
-
-                        except KeyError:
-                            data_list.append('None')
-
-                    if (each_a == 'founded_year'):
-                        #fy_fix
-                        # print("***********fy")
-                        try:
-                            if ('Founded_Date_cb' in attribute_keys):
-                                # print('cb',data[0]['Founded Date_cb'])
-                                data_list.append(data[0]['Founded_Date_cb'])  # from linkedin
-                            elif ('founded_li' in attribute_keys):
-                                # print('li',data[0]['founded_li'])
-                                data_list.append(data[0]['founded_li'])  # from linkedin
-                            elif ('incorporation_date_oc' in attribute_keys):
-                                # print('oc', data[0]['incorporation_date_oc'].split(' (')[0])
-                                data_list.append(data[0]['incorporation_date_oc'].split(' (')[0])  # from oc
-                            elif ('founded_year_g' in attribute_keys):
-                                # print('g', data[0]['founded_year_g'])
-                                data_list.append(data[0]['founded_year_g'])  # from google
-                            else:
-                                data_list.append("None")
-                            # if ('Industries_cb' in attribute_keys):
-                            #     print('cb',data[0]['Industries_cb'].split(', ')[:2])
-                            #     data_list.extend(data[0]['Industries_cb'].split(', ')[:2])
-                            # elif ('industry_li' in attribute_keys):
-                            #     print('li',data[0]['industry_li'])
-                            #     data_list.extend([data[0]['industry_li']])  # from linkedin
-                            # elif ('comp_type_pred' in attribute_keys):
-                            #     print('clas',data[0]['comp_type_pred'][0])
-                            #     data_list.extend([data[0]['comp_type_pred'][0][0]+', '+ data[0]['comp_type_pred'][1][0]])  # from classification
-                            # else:
-                            #     data_list.append("None")
-
-                        except KeyError:
-                            data_list.append('None')
-
-                    if (each_a == 'revenue'):
-                        #rev_fix
-                        # print("***********rv")
-                        try:
-                            rev_d = []
-                            if ('company_revenue_dnb' in attribute_keys):
-                                if (len(data[0]['company_revenue_dnb'])):
-                                    rev_d = data[0]['company_revenue_dnb']
-                            if ('Annual_Sales:_aven' in attribute_keys):
-                                # print('g')
-                                data_list.append(data[0]['Annual_Sales:_aven'])  # from google
-                            elif ('revenue_g' in attribute_keys):
-                                # print('g')
-                                data_list.append(data[0]['revenue_g'])  # from google
-                            elif (len(rev_d)):
-                                # print('d')
-                                a_rev = rev_d[0].split('|')[1]
-                                print(a_rev)
-                                data_list.append(a_rev)  # from dnb
-                            else:
-                                data_list.append("None")
-                            # if ('Contact Email_cb' in attribute_keys):
-                            #     data_list = data[0]['Contact Email_cb']
-                            # elif (len(data[0]['emails'])):
-                            #     data_list.append(data[0]['emails'][0])  # from website
-                            # else:
-                            #     data_list.append("None")
-                            # # else:
-                            # #     data_list.append("None")
-                        except KeyError:
-                            data_list.append('None')
-
-                    if (each_a == 'funding'):
-                        # print("***********f")
-                        if ('funding_g' in attribute_keys):data_list.append(data[0]['funding_g'])  # from google
-                        else:data_list.append("None")
-
-                    if (each_a == 'headquarters'):
-                        #hq_fix
-                        # print("***********hq")
-                        try:
-                            hq_cb, hq_g, hq_li, j_oc = '', '', '', ''
-                            if ('comp_headquaters_cb' in attribute_keys):
-                                hq_cb = data[0]['comp_headquaters_cb']
-
-                            if ('headquarters_li' in attribute_keys):
-                                hq_li = data[0]['headquarters_li']
-
-                            if ('jurisdiction_oc' in attribute_keys):
-                                j_oc = data[0]['jurisdiction_oc']
-
-                            if ('headquarters_g' in attribute_keys):
-                                hq_g = data[0]['headquarters_g']
-
-                            if (isvalid_hq(hq_cb)):
-                                data_list.append(hq_cb)
-                            elif (isvalid_hq(hq_li)):
-                                data_list.append(hq_li)
-                            elif (isvalid_hq(hq_g)):
-                                data_list.append(hq_g)
-                            elif (isvalid_hq(j_oc)):
-                                data_list.append(j_oc)
-                            else:
-                                data_list.append("None")
-                            # else:
-                            #     data_list.append("None")
-                            print("selected_hq", data_list[-1])
-
-                            if (data_list[-1] != 'None'):
-                                a_conf = get_hq_confidence(data_list[-1], entry_id)
-                                print('confidence of selected hq', a_conf)
-                                if (a_conf != None):
-                                    if (a_conf > 0):
-                                        continue
-                                    else:
-                                        all_ads_with_conf = get_every_hq_confidence(entry_id)
-                                        print('confidence of all hqs', all_ads_with_conf)
-                                        if (all_ads_with_conf != None):
-                                            highest_ads_with_conf = all_ads_with_conf[-1:]
-                                            print('highest', highest_ads_with_conf)
-                                            if (highest_ads_with_conf[0][2] > 0):
-                                                data_list[-1] = highest_ads_with_conf[0][0]
-                                                print('updated with highest confidence')
-                        except KeyError:
-                            data_list.append('None')
-
-                    if (each_a == 'No_of_employees'):
-                        #fix_ne
-                        # print("***********ne")
-                        try:
-                            data_lil = None
-                            if ('company_size_li' in attribute_keys):
-                                if (data[0]['company_size_li'] != None):
-                                    if (' employees' in data[0]['company_size_li']):
-                                        data_lil = data[0]['company_size_li'].replace(' employees', '')
-                            if ('Number_of_Employees_cb' in attribute_keys):
-                                # print('cb')
-                                data_list.append(data[0]['Number_of_Employees_cb'])  # from company_size_li
-                            elif ('Employees_(All_Sites):_aven' in attribute_keys):
-                                data_list.append(data[0]['Employees_(All_Sites):_aven'])
-                            elif (data_lil != None):
-                                data_list.append(data_lil)  # from company_size_li
-
-                            elif ('num_employees_li' in attribute_keys):
-                                # print('li')
-                                data_list.append(str(data[0]['num_employees_li']).split("\n")[0])  # from linkedin
-                            elif ('no_of_employees_g' in attribute_keys):
-                                # print('g')
-                                data_list.append(data[0]['no_of_employees_g'])  # from googlecompany_size_li
-                            else:
-                                data_list.append("None")
-                            # else:
-                            #     data_list.append("None")
-                        except KeyError:
-                            data_list.append('None')
-
-                except KeyError:
-                    data_list.append('None')
-                except Exception as e:
-                    data_list.append('None')
-                    print("Exception Occured during dumping ", e)
+            data_list.extend(get_data_for_simplified_dump_based_on_source_order(entry_id))
 
             results_writer.writerow(data_list)
             dict_to_dump = {}
@@ -1702,7 +813,7 @@ def simplified_export_with_sources(id_list):
         results_writer = csv.writer(results_file, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
         attributes_a = ['search_text', 'title', 'link', 'description', 'comp_name',
                         'address', 'email','telephone_number', 'keywords','contact_person', 'type_or_sector', 'founded_year',
-                        'revenue','funding','headquarters','No_of_employees']
+                        'revenue','funding','headquarters','No_of_employees','company_status']
         results_writer.writerow(attributes_a)
         for entry_id in id_list:
             comp_data_entry = mycol.find({"_id": entry_id})
@@ -2242,6 +1353,28 @@ def simplified_export_with_sources(id_list):
                         except KeyError:
                             data_list.append('None')
 
+                    if (each_a == 'company_status'):
+                        # fix_cs
+
+                        try:
+                            if ('IPO_Status_cb' in attribute_keys):
+                                # print('cb', data[0]['IPO_Status_cb'])
+                                data_list.append([data[0]['IPO_Status_cb'],link_cb])
+                            elif ('Company_Type:_aven' in attribute_keys):
+                                # print('aven', data[0]['Company_Type:_aven'])
+                                data_list.append([data[0]['Company_Type:_aven'],link_aven])
+                            elif ('company_type_dnb' in attribute_keys):
+                                # print('dnb', data[0]['company_type_dnb'][0].split(': ')[1])
+                                data_list.append([data[0]['company_type_dnb'][0].split(': ')[1],link_dnb])
+                            elif ('company_type_oc' in attribute_keys):
+                                # print('oc', data[0]['company_type_oc'])
+                                data_list.append([data[0]['company_type_oc'],site_url_oc])
+                            else:
+                                data_list.append("None")
+                            # else:
+                            #     data_list.append("None")
+                        except KeyError:
+                            data_list.append('None')
                 except KeyError:
                     data_list.append('None')
                 except Exception as e:
@@ -4201,7 +3334,7 @@ left_set = [item for item in all_ids_fixed if item not in edu_set]
 # rev_fix(edu_set)
 # email_fix(list_aus)
 # tp_fix(edu_set)
-# simplified_update(edu_set)
+simplified_update(edu_set)
 # simplified_export_with_sources(edu_set)
 # dump_tp_fix(edu_set)
 # address_fix(edu_set)
