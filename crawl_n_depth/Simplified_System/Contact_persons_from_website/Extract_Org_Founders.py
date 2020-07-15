@@ -35,11 +35,13 @@ from stanfordnlp.server import CoreNLPClient # version 0.2.0
 #nltk.download('words')
 #nlp.add_pipe(nlp.create_pipe('sentencizer'))
 
+from os.path import dirname as up
+three_up = up(up(up(__file__)))
+sys.path.insert(0, three_up)
 
-sys.path.insert(0, 'C:/Users/user/Desktop/LaTrobe/Projects/Proj_Armitage/Armitage_project-master/crawl_n_depth//')
-from scrape_linkedin import ProfileScraper, HEADLESS_OPTIONS
-from Simplified_System.Database.db_connect import refer_cleaned_collection
-from Simplified_System.linkedin_data_crawler.linkedin_crawling import scrape_person
+# from scrape_linkedin import ProfileScraper, HEADLESS_OPTIONS
+from Simplified_System.Database.db_connect import refer_collection
+# from Simplified_System.linkedin_data_crawler.linkedin_crawling import scrape_person
 from Simplified_System.Initial_Crawling.get_n_search_results import getGoogleLinksForSearchText
 
 
@@ -49,7 +51,7 @@ def read_Glove_file():
     # Dictionary to hold the word mappings
     embeddings_dict = {}
     # Read the text file containing the GLOVE embeddings from Stanford
-    with open(r'C:/Users/user/Desktop/LaTrobe/Projects/Proj_Armitage/Armitage_project-pre_version/crawl_n_depth/glove.6B/glove.6B.50d.txt', 'r', encoding="utf-8") as f:
+    with open( three_up+'//Simplified_System//Contact_persons_from_website//glove.6B.50d.txt', 'r', encoding="utf-8") as f:
         for line in f:
             values = line.split()
             word = values[0]
@@ -65,7 +67,7 @@ def find_closest_embeddings(embedding, embeddings_dict):
 # Function to extract the description, header and paragraph text from the crawled data for a given record_id to an extended list
 def extract_data(def_entry_id):
 
-    mycol = refer_cleaned_collection()
+    mycol = refer_collection()
     comp_data_entry = mycol.find({'_id': ObjectId(def_entry_id)})
     data = [i for i in comp_data_entry]
     print('data:', data)
@@ -83,7 +85,7 @@ def get_company(def_entry_id, key):
     type = None
     flag = False
     check_link_list = ['www.', '.com', 'https', 'http']
-    mycol = refer_cleaned_collection()
+    mycol = refer_collection()
     comp_data_entry = mycol.find({'_id': ObjectId(def_entry_id)})
     data = [i for i in comp_data_entry]
     comp_name = data[0][key]
@@ -121,7 +123,7 @@ def get_org(company, type):
 # Function to get the person names from dnb key value pair of the stored json
 def get_persons_dnb(def_entry_id):
 
-    mycol = refer_cleaned_collection()
+    mycol = refer_collection()
     comp_data_entry = mycol.find({'_id': ObjectId(def_entry_id)})
     data = [i for i in comp_data_entry]
     try:
@@ -182,7 +184,8 @@ def cross_check_person_linkedin(def_names, comp_name, status):
     # Scraping the linkedin profiles
     for i in range(len(profile_urls)):
         try:
-            profile_dict = scrape_person(profile_urls[i])
+            # profile_dict = scrape_person(profile_urls[i])
+            profile_dict = {}
         except Exception:
             print('Exception Occurred')
             continue
@@ -239,7 +242,7 @@ def check_person_association_comp(scraped_linkedin_list, org, profile_urls):
 # Function to get email address of persons cross-checked with linkedIn using RocketReach
 def get_email_address(names):
 
-    rr = rocketreach.Gateway(rocketreach.GatewayConfig('insert rocketreach API'))
+    rr = rocketreach.Gateway(rocketreach.GatewayConfig('756a0k4ed02a10eb8954855c811c8c5e82fe6a'))
     print(names)
     for i in range(len(names)):
         print(names[i])
@@ -271,12 +274,12 @@ def get_email_address(names):
 def write_to_mongodb(names, entry_id):
 
     if names != []:
-        mycol = refer_cleaned_collection()
+        mycol = refer_collection()
         mycol.update_one({'_id': ObjectId(entry_id)},
                          {'$set': {'important_person_company':names}})
 
     elif names == []:
-        mycol = refer_cleaned_collection()
+        mycol = refer_collection()
         mycol.update_one({'_id': ObjectId(entry_id)},
                          {'$set': {'important_person_company': 'No important persons found'}})
 
@@ -324,7 +327,7 @@ def generate_validate_email(name, domain):
                 print(combinations_main[k] + domain_main[i])
 
     # Verify the combinations using NeverBounce API
-    api_key = 'insert neverbounce API'
+    api_key = 'private_37bacd9d4f2ab6c8224cf5cecf825bb0'
     client = neverbounce_sdk.client(api_key=api_key, timeout=30)
     email_list = []
 
@@ -359,7 +362,7 @@ def generate_validate_email(name, domain):
 def predict_emails(entry_id):
 
     # Get the data for important_person_company for the given entry id
-    mycol = refer_cleaned_collection()
+    mycol = refer_collection()
     comp_data_entry = mycol.find({"_id": ObjectId(entry_id)})
     data = [i for i in comp_data_entry]
     important_person_company = data[0]['important_person_company']
@@ -468,7 +471,8 @@ def split_to_sentences(join_sentences):
 # Function to extract names of different tags using AllenNLp
 def extract_names_allenNLP(join_sentences):
 
-    predictor = Predictor.from_path("https://storage.googleapis.com/allennlp-public-models/ner-model-2020.02.10.tar.gz")
+    # predictor = Predictor.from_path("https://storage.googleapis.com/allennlp-public-models/ner-model-2020.02.10.tar.gz")
+    predictor = Predictor.from_path(three_up+"\\Simplified_System\\Contact_persons_from_website\\ner-model-2020.02.10.tar.gz")
     pre = predictor.predict(sentence=join_sentences)
 
     _persons_ = ['']*len(pre['tags'])
@@ -498,8 +502,9 @@ def extract_names_allenNLP(join_sentences):
 
 # Function to extract organization names using AllenNLP
 def extract_org_allenNLP(join_sentences, def_tag):
+    predictor = Predictor.from_path(
+        three_up+"\\Simplified_System\\Contact_persons_from_website\\ner-model-2020.02.10.tar.gz")
 
-    predictor = Predictor.from_path("https://storage.googleapis.com/allennlp-public-models/ner-model-2020.02.10.tar.gz")
     pre = predictor.predict(sentence=join_sentences)
 
     _persons_ = [''] * len(pre['tags'])
@@ -779,54 +784,55 @@ def main_founder_search_v2(id_list):
     # Read the text file containing the GLOVE embeddings from Stanford and enrich the vocabulary with similar meaning to founder
     embeddings_dict = read_Glove_file()
     enrich_vocab_list = enrich_vocab(embeddings_dict)
-
+    print("Extracting contacts from website")
     for entry_id in id_list:
+        try:
+            # Get the company name
+            comp_name, type = get_company(entry_id, 'comp_name')
+            print('Entry Id:', entry_id)
+            print('Stored company name:', comp_name)
 
-        # Get the company name
-        comp_name, type = get_company(entry_id, 'comp_name')
-        print('Entry Id:', entry_id)
-        print('Stored company name:', comp_name)
+            # Get organization name
+            org = get_org(comp_name, type)
+            print('Organization: ' + str(org))
 
-        # Get organization name
-        org = get_org(comp_name, type)
-        print('Organization: ' + str(org))
+            # Extract the data related to the description, header and paragraph text in form of an extended list and joining the extracted data
+            extracted_data = extract_data(entry_id)
+            if extracted_data == None:
+                write_to_mongodb([], entry_id)
+                print('*** No extracted data ***')
 
-        # Extract the data related to the description, header and paragraph text in form of an extended list and joining the extracted data
-        extracted_data = extract_data(entry_id)
-        if extracted_data == None:
-            write_to_mongodb([], entry_id)
-            print('*** No extracted data ***')
+            if extracted_data != None:
+                join_sentences = ' '.join(extracted_data)
+                chairperson_flag = True
 
-        if extracted_data != None:
-            join_sentences = ' '.join(extracted_data)
-            chairperson_flag = True
+                # Check for chairman or chairpersons of a company exist in crawled text
+                chairperson, _list_ = extract_founders_allennlp(join_sentences, ['chairman', 'chairperson'], org)
+                chairperson = extract_person_postion(_list_, ['chairman', 'chairperson'], chairperson)
+                print('Chairman or Chairperson:', chairperson)
 
-            # Check for chairman or chairpersons of a company exist in crawled text
-            chairperson, _list_ = extract_founders_allennlp(join_sentences, ['chairman', 'chairperson'], org)
-            chairperson = extract_person_postion(_list_, ['chairman', 'chairperson'], chairperson)
-            print('Chairman or Chairperson:', chairperson)
+                if chairperson != []:
+                    write_to_mongodb(chairperson, entry_id)
+                    print('Updated MongoDB')
 
-            if chairperson != []:
-                write_to_mongodb(chairperson, entry_id)
-                print('Updated MongoDB')
+                if chairperson == []:
+                    chairperson_flag = False
 
-            if chairperson == []:
-                chairperson_flag = False
+                # If there exist no chairman or chairpersons
+                if chairperson_flag == False:
+                    print('No mentioning of Chairman or Chairpersons in the website')
 
-            # If there exist no chairman or chairpersons
-            if chairperson_flag == False:
-                print('No mentioning of Chairman or Chairpersons in the website')
+                    # Extract founders/co-founders/directors/managing director/CEO from the crawled text AllenNLP
+                    founders, _list_ = extract_founders_allennlp(join_sentences,enrich_vocab_list + ['co founder','co-founder','co-founded','co founders','co-founders','co founded','co found','co-found','managing director','director',' ceo ','coo ','founder', 'found','founding','executive director','chief executive officer','chief executive','chief operating officer',' owner '], org)
+                    founders = extract_person_postion(_list_, ['co founder','co-founder','co found','co-found','managing director','director',' ceo ','coo ','founder','founders', 'executive director','chief executive officer','chief executive','chief operating officer',' owner '], founders)
+                    print('Founders or Important Persons of the organization in the website:', str(founders))
 
-                # Extract founders/co-founders/directors/managing director/CEO from the crawled text AllenNLP
-                founders, _list_ = extract_founders_allennlp(join_sentences,enrich_vocab_list + ['co founder','co-founder','co-founded','co founders','co-founders','co founded','co found','co-found','managing director','director',' ceo ','coo ','founder', 'found','founding','executive director','chief executive officer','chief executive','chief operating officer',' owner '], org)
-                founders = extract_person_postion(_list_, ['co founder','co-founder','co found','co-found','managing director','director',' ceo ','coo ','founder','founders', 'executive director','chief executive officer','chief executive','chief operating officer',' owner '], founders)
-                print('Founders or Important Persons of the organization in the website:', str(founders))
+                    write_to_mongodb(founders, entry_id)
+                    print('Updated MongoDB')
 
-                write_to_mongodb(founders, entry_id)
-                print('Updated MongoDB')
-
-            print('*** DONE ***')
-            print()
+                print('*** DONE ***')
+        except Exception as e:
+            print("Exception Occured while extracting contacts from website",e)
 
 
 
@@ -851,5 +857,7 @@ def main():
 
 
 
-if __name__ == "__main__":
-    main()
+# if __name__ == "__main__":
+#     main()
+
+main_founder_search_v2(['5eb63aff81de1c4846fd91ab'])

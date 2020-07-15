@@ -3334,7 +3334,7 @@ left_set = [item for item in all_ids_fixed if item not in edu_set]
 # rev_fix(edu_set)
 # email_fix(list_aus)
 # tp_fix(edu_set)
-simplified_update(edu_set[:5])
+# simplified_update(edu_set[:5])
 # simplified_export_with_sources(edu_set)
 # dump_tp_fix(edu_set)
 # address_fix(edu_set)
