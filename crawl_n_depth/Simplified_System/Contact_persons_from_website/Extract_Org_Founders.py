@@ -471,8 +471,8 @@ def split_to_sentences(join_sentences):
 # Function to extract names of different tags using AllenNLp
 def extract_names_allenNLP(join_sentences):
 
-    # predictor = Predictor.from_path("https://storage.googleapis.com/allennlp-public-models/ner-model-2020.02.10.tar.gz")
-    predictor = Predictor.from_path(three_up+"\\Simplified_System\\Contact_persons_from_website\\ner-model-2020.02.10.tar.gz")
+    predictor = Predictor.from_path("https://storage.googleapis.com/allennlp-public-models/ner-model-2020.02.10.tar.gz")
+    # predictor = Predictor.from_path(three_up+"\\Simplified_System\\Contact_persons_from_website\\ner-model-2020.02.10.tar.gz")
     pre = predictor.predict(sentence=join_sentences)
 
     _persons_ = ['']*len(pre['tags'])
@@ -502,8 +502,9 @@ def extract_names_allenNLP(join_sentences):
 
 # Function to extract organization names using AllenNLP
 def extract_org_allenNLP(join_sentences, def_tag):
-    predictor = Predictor.from_path(
-        three_up+"\\Simplified_System\\Contact_persons_from_website\\ner-model-2020.02.10.tar.gz")
+    # predictor = Predictor.from_path(
+    #     three_up+"\\Simplified_System\\Contact_persons_from_website\\ner-model-2020.02.10.tar.gz")
+    predictor = Predictor.from_path("https://storage.googleapis.com/allennlp-public-models/ner-model-2020.02.10.tar.gz")
 
     pre = predictor.predict(sentence=join_sentences)
 
