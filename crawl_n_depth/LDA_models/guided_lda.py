@@ -2,15 +2,23 @@
 # https://github.com/dex314/GuidedLDA_WorkAround/blob/master/READ_ME_GUIDEDLDA.txt
 import json
 # Gensim
+import sys
+
 import gensim
 import gensim.corpora as corpora
 import pymongo
+from bson import ObjectId
 from gensim.utils import simple_preprocess
 # spacy for lemmatization
 import spacy
-from lda import guidedlda
+# from lda import guidedlda
+import guidedlda
+# from crawl_n_depth.utilities.guided_LDA.guidedlda import *
 # Enable logging for gensim
 import logging
+from os.path import dirname as up
+two_up = up(up(__file__))
+sys.path.insert(0, two_up)
 
 from Simplified_System.Database.db_connect import refer_collection
 
@@ -104,3 +112,5 @@ def run_guided_lda_model(entry_id,number_of_topics):#this will extract paragraph
 #To run this scrpit individually use following line and run the script
 # topics = run_lda_model(id to data entry,number_of_topics)
 # print(topics)
+
+
