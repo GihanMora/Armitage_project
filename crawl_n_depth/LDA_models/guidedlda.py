@@ -10,7 +10,7 @@ import numpy as np
 import lda._lda
 # import lda.utils
 ## edit 1.9.2020
-import lda.guidedutils
+import guidedutils
 import random
 
 logger = logging.getLogger('lda')

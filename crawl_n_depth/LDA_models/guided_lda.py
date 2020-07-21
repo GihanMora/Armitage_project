@@ -113,4 +113,6 @@ def run_guided_lda_model(entry_id,number_of_topics):#this will extract paragraph
 # topics = run_lda_model(id to data entry,number_of_topics)
 # print(topics)
 
+# run_guided_lda_model(ObjectId('5eb62e2a134cc6fb9536e93d'),10)
+
 
