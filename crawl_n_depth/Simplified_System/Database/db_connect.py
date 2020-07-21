@@ -3020,13 +3020,15 @@ def check_aven(id_list):
         comp_data_entry = mycol.find({"_id": entry_id})
         data = [i for i in comp_data_entry]
         attris = list(data[0].keys())
-        # if('phone_li' in attris):
-        #     print(data[0]['phone_li'].split("\n")[0])
-        for each_a in attris:
-            if('_aven' in each_a):
-                ids_list.append(ObjectId(entry_id))
-                print(each_a,data[0][each_a])
-                break
+        print('****')
+        if('important_person_company' in attris):
+            print(data[0]['important_person_company'])
+            # mycol.update_one({'_id': entry_id}, {'$set': {'important_person_company': 'No important persons found'}})
+        # for each_a in attris:
+        #     if('_aven' in each_a):
+        #         ids_list.append(ObjectId(entry_id))
+        #         print(each_a,data[0][each_a])
+        #         break
         # else:print('None',entry_id)
     print(ids_list)
 def check_link(id_list):
@@ -3312,7 +3314,7 @@ edu_set = [ObjectId('5eb62e2a134cc6fb9536e93d'), ObjectId('5eb630147afe26eca4ba7
 left_set = [item for item in all_ids_fixed if item not in edu_set]
 
 
-
+# check_aven(edu_set)
 # address_conf(edu_set[0:1])
 # check_aven(left_set)
 # simplified_export_with_sources(edu_set)
@@ -3334,7 +3336,7 @@ left_set = [item for item in all_ids_fixed if item not in edu_set]
 # rev_fix(edu_set)
 # email_fix(list_aus)
 # tp_fix(edu_set)
-# simplified_update(edu_set[:5])
+# simplified_update(edu_set)
 # simplified_export_with_sources(edu_set)
 # dump_tp_fix(edu_set)
 # address_fix(edu_set)
