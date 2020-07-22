@@ -12,7 +12,7 @@ from gensim.utils import simple_preprocess
 # spacy for lemmatization
 import spacy
 # from lda import guidedlda
-import guidedlda
+
 # from crawl_n_depth.utilities.guided_LDA.guidedlda import *
 # Enable logging for gensim
 import logging
@@ -20,6 +20,7 @@ from os.path import dirname as up
 two_up = up(up(__file__))
 sys.path.insert(0, two_up)
 
+import LDA_models.guidedlda
 from Simplified_System.Database.db_connect import refer_collection
 
 logging.basicConfig(format='%(asctime)s : %(levelname)s : %(message)s', level=logging.ERROR)

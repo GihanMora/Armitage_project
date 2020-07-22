@@ -49,7 +49,8 @@ def get_contacts_with_sources(entry_id):
 
             # print(det_wb)
             if (det_wb != 'No important persons found'):
-                wb_list = [det_wb[0]['name'], det_wb[0]['job_title']]
+                # wb_list = [det_wb[0]['name'], det_wb[0]['job_title']]
+                wb_list = det_wb[0]
 
         li_list = []
         if (len(data[0]['linkedin_cp_info'])):

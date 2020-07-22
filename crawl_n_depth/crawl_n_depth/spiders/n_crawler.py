@@ -29,7 +29,7 @@ import sys
 
 from os.path import dirname as up
 
-
+# from crawl_n_depth.Simplified_System.Contact_persons_from_website.Extract_Org_Founders import main_founder_search_v2
 
 three_up = up(up(up(__file__)))
 sys.path.insert(0, three_up)
@@ -602,11 +602,13 @@ def run_sequential_crawlers_m_via_queue_chain(depth_limit,crawl_limit):#method u
                 deep_crawling_client.delete_message(msg)
                 mycol.update_one({'_id': entry_id},
                                   {'$set': {'deep_crawling_state': 'Completed'}})
-
-                if(len(paragraph_text)==0):
-                    get_cp_page_data([entry_id])
-                # print("Getting website contacts")
+                try:
+                    if(len(paragraph_text)==0):
+                        get_cp_page_data([entry_id])
+                except Exception as e:
+                    print("Exception Occured while extracting website contact page", e)
                 # try:
+                #     print("Getting website contacts")
                 #     main_founder_search_v2(entry_id)
                 # except Exception as e:
                 #     print("Exception Occured while getting contacts from website",e)

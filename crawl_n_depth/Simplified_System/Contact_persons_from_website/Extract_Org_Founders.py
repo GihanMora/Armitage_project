@@ -869,10 +869,10 @@ edu_set = [ObjectId('5eb62e2a134cc6fb9536e93d'), ObjectId('5eb630147afe26eca4ba7
 left_set = [item for item in all_ids_fixed if item not in edu_set]
 
 
-from multiprocessing import Process
-if __name__ ==   '__main__':
-#     for i,k in enumerate(edu_set):
-    #         print("iteration",i,k)
-    p = Process(target=main_founder_search_v2, args=(edu_set, ))
-    p.start()
+# from multiprocessing import Process
+# if __name__ ==   '__main__':
+# #     for i,k in enumerate(edu_set):
+#     #         print("iteration",i,k)
+#     p = Process(target=main_founder_search_v2, args=(edu_set[:2], ))
+#     p.start()
 # main_founder_search_v2(edu_set)

@@ -46,7 +46,9 @@ def moderate_confidence(attribute,selected_value,entry_id,confidence):
 
 
     print('selected value with source',selected_value_with_source)
-    if(selected_value_with_source[1]=='website'):
+    if(attribute == 'cp'):selected_source = selected_value_with_source[2]
+    else:selected_source = selected_value_with_source[1]
+    if(selected_source=='website'):
         if(confidence==None):
             moderated_confidence = 0.25
             print('current confidence None, updated one as source is website',moderated_confidence)
@@ -56,7 +58,7 @@ def moderate_confidence(attribute,selected_value,entry_id,confidence):
             print('updated one as source is website', moderated_confidence)
     else:
         if (confidence == None):
-            moderated_confidence = 0.00
+            moderated_confidence = 0.0
             print('current confidence None, remains 0 as source is not website', moderated_confidence)
         else:
             print('source is not website current confidence',confidence)
@@ -89,8 +91,7 @@ def simplified_dump_with_confidence(id_list):
     mycol = refer_collection()
     csv_dump_col = refer_simplified_dump_col_min()
     # store data in a csv file
-    dump_name = three_up+'\Simplified_System\dumps\\' + str(
-        id_list[0]) + '_company_dump_simplified_with_confidence.csv'
+    dump_name = three_up+'\Simplified_System\dumps\\' + str(id_list[0]) + '_company_dump_simplified_with_confidence.csv'
     with open(dump_name, mode='w', encoding='utf8',
               newline='') as results_file:  # store search results in to a csv file
         results_writer = csv.writer(results_file, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
@@ -165,4 +166,4 @@ edu_set = [ObjectId('5eb62e2a134cc6fb9536e93d'), ObjectId('5eb630147afe26eca4ba7
 left_set = [item for item in all_ids_fixed if item not in edu_set]
 
 # print(edu_set.index(ObjectId('5eb6925a31a5f94e1207b916')))
-simplified_dump_with_confidence(edu_set)
+# simplified_dump_with_confidence(edu_set)

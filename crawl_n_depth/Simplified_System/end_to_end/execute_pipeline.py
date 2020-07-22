@@ -208,7 +208,7 @@ def add_to_initial_crawling_queue(name_list):
         ic_client.send_message([str(name)])
 
 # add_to_initial_crawling_queue(['Educational Systems australia --query'])
-add_to_initial_crawling_queue(['Macquarie --comp'])
+# add_to_initial_crawling_queue(['Wesfarmers --comp'])
 
 def execute_for_a_company(comp_name):
     mycol = refer_collection()

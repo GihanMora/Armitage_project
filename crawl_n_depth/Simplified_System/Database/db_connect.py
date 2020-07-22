@@ -345,7 +345,8 @@ def get_data_for_simplified_dump_based_on_source_order(entry_id):
 
                         # print(det_wb)
                         if (det_wb != 'No important persons found'):
-                            wb_list = [det_wb[0]['name'], det_wb[0]['job_title']]
+                            # wb_list = [det_wb[0]['name'], det_wb[0]['job_title']]
+                            wb_list = det_wb[0]
 
                     li_list = []
                     if (len(data[0]['linkedin_cp_info'])):
@@ -1061,7 +1062,8 @@ def simplified_export_with_sources(id_list):
 
                                 # print(det_wb)
                                 if (det_wb != 'No important persons found'):
-                                    wb_list = [det_wb[0]['name'], det_wb[0]['job_title']]
+                                    # wb_list = [det_wb[0]['name'], det_wb[0]['job_title']]
+                                    wb_list = det_wb[0]
 
                             li_list = []
                             if (len(data[0]['linkedin_cp_info'])):
@@ -1616,7 +1618,8 @@ def flat_csv(id_list):
 
                                 # print(det_wb)
                                 if (det_wb != 'No important persons found'):
-                                    wb_list = [det_wb[0]['name'], det_wb[0]['job_title']]
+                                    # wb_list = [det_wb[0]['name'], det_wb[0]['job_title']]
+                                    wb_list = det_wb[0]
 
                             li_list = []
                             if (len(data[0]['linkedin_cp_info'])):
@@ -2698,7 +2701,8 @@ def  contact_person_fix(id_list):
                 # print(det_wb)
                 if(det_wb!='No important persons found'):
 
-                    wb_list = [det_wb[0]['name'], det_wb[0]['job_title']]
+                    # wb_list = [det_wb[0]['name'], det_wb[0]['job_title']]
+                    wb_list = det_wb[0]
 
             li_list = []
             if (len(data[0]['linkedin_cp_info'])):
@@ -2834,7 +2838,8 @@ def  dump_contact_person_fix(id_list):
 
                     # print(det_wb)
                     if (det_wb != 'No important persons found'):
-                        wb_list = [det_wb[0]['name'], det_wb[0]['job_title']]
+                        # wb_list = [det_wb[0]['name'], det_wb[0]['job_title']]
+                        wb_list = det_wb[0]
 
                 li_list = []
                 if (len(data[0]['linkedin_cp_info'])):
