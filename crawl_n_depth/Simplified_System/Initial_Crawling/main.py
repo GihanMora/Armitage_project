@@ -14,7 +14,7 @@ import json
 import os
 import time
 import pymongo
-from Simplified_System.Database.db_connect import refer_collection,is_profile_exist
+from Simplified_System.Database.db_connect import refer_collection,is_profile_exist,refer_query_col
 # from ..Database.db_connect import refer_collection
 
 def search_a_company_alpha(comp_name, db_collection, query_entry,c_name):
@@ -103,6 +103,9 @@ def search_a_company(comp_name, db_collection, query_entry):
 
             if(len(res_data)):
                 print("Profile "+filtered_sr[0]['link']+" already existing at "+str(res_data[0]['_id']))
+                query_collection = refer_query_col()
+                query_collection.update_one({'_id': query_entry},
+                                            {'$set': {'associated_entries': [res_data[0]['_id']]}})
                 return 'exist'
             #should fix comp name
             # print('fixing comp name')
@@ -149,13 +152,13 @@ def search_a_company(comp_name, db_collection, query_entry):
 
 def update_a_company(comp_name, db_collection, entry_id):
     print(entry_id)
-    sr = getGoogleLinksForSearchText(comp_name, 50, 'normal')
+    sr = getGoogleLinksForSearchText(comp_name, 5, 'normal')
     count = 0
     while (sr == 'captcha'):
         count = count + 1
         print('captch detected and sleeping for n times n:', count)
         time.sleep(1200 * count)
-        sr = getGoogleLinksForSearchText(comp_name, 50, 'normal')
+        sr = getGoogleLinksForSearchText(comp_name, 5, 'normal')
 
     b_list_file = open(three_up+'//Simplified_System//Initial_Crawling//black_list.txt','r')
     black_list = b_list_file.read().splitlines()
@@ -267,6 +270,20 @@ def search_a_query(search_query,number_of_results,db_collection,query_entry):
                     res_data = is_profile_exist(sr[0]['link'])
                     if (len(res_data)):
                         print("Profile " + sr[0]['link'] + " already existing at " + str(res_data[0]['_id']))
+                        #updating associates
+                        query_collection = refer_query_col()
+                        qq_data_entry = query_collection.find({"_id": query_entry})
+                        qq_data = [i for i in qq_data_entry]
+                        qq_attribute_keys = list(qq_data[0].keys())
+                        if ('associated_entries' in qq_attribute_keys):
+                            print('in main',)
+                            query_collection.update_one({'_id': query_entry},
+                                                        {'$set': {
+                                                            'associated_entries': qq_data[0]['associated_entries'] +
+                                                                [res_data[0]['_id']]}})
+                        else:
+                            query_collection.update_one({'_id': query_entry},
+                                                        {'$set': {'associated_entries': [res_data[0]['_id']]}})
                         continue
                     sr[0]['search_text'] = search_query
                     try:

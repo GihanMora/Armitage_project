@@ -293,9 +293,9 @@ def get_aven_data_via_queue():
             entry_id = ObjectId(row[0])
             comp_data_entry = mycol.find({"_id": entry_id})
             data = [i for i in comp_data_entry]
-            comp_name = data[0]['comp_name']
-            try:
 
+            try:
+                comp_name = data[0]['comp_name']
                 data_dict_aven = scrape_avention(comp_name)
                 if (data_dict_aven == 'error'):
                     print("Error has occured..retry")

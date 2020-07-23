@@ -90,11 +90,11 @@ if __name__ == '__main__':
                     print("Started on", dateTimeObj)
                     started = time.time()
                     print("***Initial Crawling Phrase***")
-                    entry_id_list = search_a_query(query, 10, mycol, record_entry.inserted_id)
+                    entry_id_list = search_a_query(query, 15, mycol, record_entry.inserted_id)
                     if (entry_id_list == None):
                         for i in range(3):
                             print("Initial crawling incomplete..retrying", i)
-                            entry_id_list = search_a_query(query, 10, mycol, record_entry.inserted_id)
+                            entry_id_list = search_a_query(query, 15, mycol, record_entry.inserted_id)
                             time.sleep(5)
                             if (entry_id_list != None): break
                     if (entry_id_list == None):
@@ -103,6 +103,17 @@ if __name__ == '__main__':
                         print("Error occured while executing..")
                     else:
                         entry_id_list = [ObjectId(k) for k in entry_id_list]
+
+                        qq_data_entry = query_collection.find({"_id": record_entry.inserted_id})
+                        qq_data = [i for i in qq_data_entry]
+                        qq_attribute_keys = list(qq_data[0].keys())
+                        if ('associated_entries' in qq_attribute_keys):
+                            query_collection.update_one({'_id': record_entry.inserted_id},
+                                                        {'$set': {'associated_entries': qq_data[0]['associated_entries']+entry_id_list}})
+                        else:
+                            query_collection.update_one({'_id': record_entry.inserted_id},
+                                                        {'$set': {'associated_entries': entry_id_list}})
+
                         print("Initial crawling successful")
                         print("Dequeue message from initial crawling queue")
                         ic_client.delete_message(msg)
@@ -158,6 +169,9 @@ if __name__ == '__main__':
                         print("Dequeue message from initial crawling queue")
                         ic_client.delete_message(msg)
                     else:
+
+                        query_collection.update_one({'_id': record_entry.inserted_id},
+                                                    {'$set': {'associated_entries': [entry_id]}})
                         print("Initial crawling successful")
                         print("Dequeue message from initial crawling queue")
                         ic_client.delete_message(msg)

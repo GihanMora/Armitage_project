@@ -680,6 +680,11 @@ def simplified_export_via_queue():
             data = [i for i in comp_data_entry]
             #check_for_the_completion_of_components
             try:
+                # if (data[0]['deep_crawling_state'] == data[0]['feature_extraction_state'] == data[0][
+                #     'classification_state'] == data[0]['owler_qa_state'] == data[0]['li_cp_state'] == data[0][
+                #     'google_cp_state'] == data[0]['oc_extraction_state'] == data[0]['google_address_state'] == data[0][
+                #     'dnb_extraction_state'] == data[0]['google_tp_state'] ==  data[0]['crunchbase_extraction_state'] == 'Completed'):
+
                 if(data[0]['deep_crawling_state']==data[0]['feature_extraction_state']==data[0]['classification_state']==data[0]['owler_qa_state']==data[0]['li_cp_state']==data[0]['google_cp_state']==data[0]['oc_extraction_state']==data[0]['google_address_state']==data[0]['dnb_extraction_state']==data[0]['google_tp_state']==data[0]['avention_extraction_state']==data[0]['crunchbase_extraction_state']=='Completed'):
                     data_list = []
                     data_list.extend([data[0]['_id'], data[0]['search_text'], data[0]['title'], data[0]['link'],
