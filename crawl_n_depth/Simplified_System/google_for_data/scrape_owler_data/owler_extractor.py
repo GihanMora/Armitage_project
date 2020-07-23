@@ -88,9 +88,35 @@ def scrape_qa_from_google(company_name):
         browser.quit()
         soup = BeautifulSoup(pageSource, 'html.parser')  # bs4 TxZVoe
         is_captcha_on_page = soup.find("div", id="recaptcha") is not None
-        if (is_captcha_on_page):  # a captcha triggered
-            print("Captcha Detected")
-            return 'captcha'
+
+
+        # if (is_captcha_on_page):  # a captcha triggered
+        #     print("Captcha Detected")
+        #     return 'captcha'
+
+        count = 0
+        while (is_captcha_on_page):
+            count = count + 1
+            print("captcha is detected " + str(count) + " times")
+            print("waiting more time", count * 120)
+            time.sleep(count * 120)
+
+            browser = get_browser()
+            searchText = 'How many employees does ' + company_name + ' australia have? owler.com'
+            searchGoogle = URL = f"https://google.com/search?q={searchText}" + "&num=" + str(10)
+            browser.get(searchGoogle)
+            time.sleep(5)
+            pageSource = browser.page_source
+            time.sleep(5)
+            browser.close()
+            browser.quit()
+            soup = BeautifulSoup(pageSource, 'html.parser')  # bs4 TxZVoe
+            is_captcha_on_page = soup.find("div", id="recaptcha") is not None
+
+
+
+
+
         search_divs = soup.find_all('g-expandable-container')
 
         text_results = []

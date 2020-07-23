@@ -84,21 +84,23 @@ def getGoogleLinksForSearchText(searchText,number_of_results,mode):#given a sear
         soup = BeautifulSoup(pageSource, 'html.parser')#bs4
         is_captcha_on_page = soup.find("div", id="recaptcha") is not None
 
-        if(is_captcha_on_page):#a captcha triggered
-            return 'captcha'
-        # while (is_captcha_on_page):
-        #     count = count + 1
-        #     print("captch is detected " + str(count) + " times")
-        #     print("waiting more time", count * 1000)
-        #     time.sleep(count * 1000)
-        #     browser = use_chrome()
-        #
-        #     browser.get(searchGoogle)
-        #     pageSource = browser.page_source
-        #     soup = BeautifulSoup(pageSource, 'html.parser')  #
-        #     # r = requests.get(searchGoogle, headers=headers)
-        #     # soup = BeautifulSoup(r.text, 'html.parser')
-        #     is_captcha_on_page = soup.find("div", id="recaptcha") is not None
+        # if(is_captcha_on_page):#a captcha triggered
+        #     return 'captcha'
+        count = 0
+        while (is_captcha_on_page):
+            count = count + 1
+            print("captch is detected " + str(count) + " times")
+            print("waiting more time", count * 120)
+            time.sleep(count * 120)
+            browser = use_chrome()#get a chrome instance
+            browser.get(searchGoogle)
+            time.sleep(5)
+            pageSource = browser.page_source
+            browser.quit()
+            soup = BeautifulSoup(pageSource, 'html.parser')#bs4
+            is_captcha_on_page = soup.find("div", id="recaptcha") is not None
+
+
         results = []
         result_div = soup.find_all('div', attrs={'class': 'g'})
 

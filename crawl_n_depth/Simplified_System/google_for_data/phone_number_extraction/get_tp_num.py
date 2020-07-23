@@ -65,9 +65,33 @@ def scrape_tp_from_google(company_name):
         browser.quit()
         soup = BeautifulSoup(pageSource, 'html.parser')  # bs4 TxZVoe
         is_captcha_on_page = soup.find("div", id="recaptcha") is not None
-        if (is_captcha_on_page):  # a captcha triggered
-            print("Captcha Detected")
-            return 'captcha'
+
+        # if (is_captcha_on_page):  # a captcha triggered
+        #     print("Captcha Detected")
+        #     return 'captcha'
+        count = 0
+        while (is_captcha_on_page):
+            count = count + 1
+            print("captcha is detected " + str(count) + " times")
+            print("waiting more time", count * 120)
+            time.sleep(count * 120)
+
+            browser = get_browser()
+            searchText = company_name + ' australia phone number'
+            searchGoogle = URL = f"https://google.com/search?q={searchText}" + "&num=" + str(10)
+            browser.get(searchGoogle)
+            time.sleep(5)
+            pageSource = browser.page_source
+            browser.quit()
+            soup = BeautifulSoup(pageSource, 'html.parser')  # bs4 TxZVoe
+            is_captcha_on_page = soup.find("div", id="recaptcha") is not None
+
+
+
+
+
+
+
         result_div = soup.find('div', attrs={'class': 'bBmoPd'})
         result_des = soup.find('div', attrs={'class': 'r0oySb'})
         # print(result_div,result_des)
