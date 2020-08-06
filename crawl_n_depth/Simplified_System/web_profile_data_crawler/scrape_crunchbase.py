@@ -347,4 +347,4 @@ edu_set = [ObjectId('5eb62e2a134cc6fb9536e93d'), ObjectId('5eb630147afe26eca4ba7
 left_set = [item for item in all_ids_fixed if item not in edu_set]
 
 # add_to_cb_queue(left_set)
-# get_cb_data_via_queue()
+get_cb_data_via_queue()
