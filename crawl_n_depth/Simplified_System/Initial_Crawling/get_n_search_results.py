@@ -32,6 +32,7 @@ def use_chrome():
     options = webdriver.ChromeOptions()  # use headless version of chrome to avoid getting blocked
     options.add_argument('headless')
     options.add_argument(f'user-agent={userAgent}')
+    options.add_argument('--no-sandbox')
     # options.add_argument("start-maximized")# // open Browser in maximized mode
     # options.add_argument("disable-infobars")# // disabling infobars
     # options.add_argument("--disable-extensions")# // disabling extensions
@@ -146,7 +147,7 @@ def getGoogleLinksForSearchText(searchText,number_of_results,mode):#given a sear
 
                         rich_description = '_'.join(rich_description)
                         rich_description = rich_description.replace(',',' ')
-                        print(rich_description)
+                        print('***',rich_description)
 
                     item = {
                         "search_text":searchText,
@@ -178,6 +179,7 @@ def getGoogleLinksForSearchText(searchText,number_of_results,mode):#given a sear
         #     results_file.close()
         print("got "+str(len(results))+" results")
         return results
+
     except WebDriverException:
         print("Browser Issue Occured!")
         return 'error'

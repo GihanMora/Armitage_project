@@ -3330,7 +3330,7 @@ to_fix_all = [ObjectId('5f183d9b464603f10dce0d9e'), ObjectId('5f183dde464603f10d
 # check_aven(edu_set)
 # address_conf(edu_set[0:1])
 # check_aven(left_set)
-simplified_export_with_sources(to_fix_all)
+# simplified_export_with_sources(to_fix_all)
 # check_tp(edu_set)
 # check_tp(edu_set)
 # clear_dnb(left_set)
