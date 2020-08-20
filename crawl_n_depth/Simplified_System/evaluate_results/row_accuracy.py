@@ -91,7 +91,7 @@ def simplified_dump_with_confidence(id_list):
     mycol = refer_collection()
     csv_dump_col = refer_simplified_dump_col_min()
     # store data in a csv file
-    dump_name = three_up+'\Simplified_System\dumps\\' + str(id_list[0]) + '_company_dump_simplified_with_confidence.csv'
+    dump_name = three_up+'\Simplified_System\dumps\\' + str(id_list[0]) + '_with_conf_20.csv'
     with open(dump_name, mode='w', encoding='utf8',
               newline='') as results_file:  # store search results in to a csv file
         results_writer = csv.writer(results_file, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
@@ -107,53 +107,62 @@ def simplified_dump_with_confidence(id_list):
             data = [i for i in comp_data_entry]
             comp_data_entry_min = csv_dump_col.find({"_id": entry_id})
             data_min = [i for i in comp_data_entry_min]
-            print(entry_id)
-            data_to_write.extend([data_min[0]['_id'], data_min[0]['search_text'], data_min[0]['link'],
-                                  data_min[0]['comp_name'],data_min[0]['address'],data_min[0]['email'],str(data_min[0]['telephone_number']),
-                                  data_min[0]['keywords'], data_min[0]['contact_person'], data_min[0]['type_or_sector'],
-                                  data_min[0]['founded_year'],data_min[0]['revenue'], data_min[0]['funding'], data_min[0]['headquarters'],
-                                  data_min[0]['No_of_employees'],data_min[0]['company_status']])
-            a_conf = tp_conf = cp_conf = hq_conf = None
-            if (data_min[0]['address'] != 'None'):
-                a_conf = get_address_confidence(data_min[0]['address'], entry_id)
-                a_conf = moderate_confidence('address',data_min[0]['address'] , entry_id, a_conf)
-                print('address_conf',a_conf)
+            print(data_min)
+
+            try:
+                print(entry_id)
+                print(data_min)
+                data_to_write.extend([data_min[0]['_id'], data_min[0]['search_text'], data_min[0]['link'],
+                                      data_min[0]['comp_name'],data_min[0]['address'],data_min[0]['email'],str(data_min[0]['telephone_number']),
+                                      data_min[0]['keywords'], data_min[0]['contact_person'], data_min[0]['type_or_sector'],
+                                      data_min[0]['founded_year'],data_min[0]['revenue'], data_min[0]['funding'], data_min[0]['headquarters'],
+                                      data_min[0]['No_of_employees'],data_min[0]['company_status']])
+                a_conf = tp_conf = cp_conf = hq_conf = None
+                if (data_min[0]['address'] != 'None'):
+                    a_conf = get_address_confidence(data_min[0]['address'], entry_id)
+                    a_conf = moderate_confidence('address',data_min[0]['address'] , entry_id, a_conf)
+                    print('address_conf',a_conf)
 
 
-            if (data_min[0]['telephone_number'] != 'None'):
-                tp_conf = get_tp_confidence(data_min[0]['telephone_number'], entry_id)
-                tp_conf = moderate_confidence('tp', data_min[0]['telephone_number'], entry_id, tp_conf)
-                print('tp_conf',tp_conf)
+                if (data_min[0]['telephone_number'] != 'None'):
+                    tp_conf = get_tp_confidence(data_min[0]['telephone_number'], entry_id)
+                    tp_conf = moderate_confidence('tp', data_min[0]['telephone_number'], entry_id, tp_conf)
+                    print('tp_conf',tp_conf)
 
 
-            if (data_min[0]['contact_person'] != 'None'):
-                print('id',entry_id)
-                print('collected cp',data_min[0]['contact_person'][0])
-                cp_conf = get_cp_confidence(data_min[0]['contact_person'][0], entry_id)
-                cp_conf = moderate_confidence('cp', data_min[0]['contact_person'], entry_id, cp_conf)
-                print('cp_conf',cp_conf)
+                if (data_min[0]['contact_person'] != 'None'):
+                    print('id',entry_id)
+                    print('collected cp',data_min[0]['contact_person'][0])
+                    cp_conf = get_cp_confidence(data_min[0]['contact_person'][0], entry_id)
+                    cp_conf = moderate_confidence('cp', data_min[0]['contact_person'], entry_id, cp_conf)
+                    print('cp_conf',cp_conf)
 
 
-            if (data_min[0]['headquarters'] != 'None'):
-                hq_conf = get_hq_confidence(data_min[0]['headquarters'], entry_id)
-                hq_conf = moderate_confidence('hq', data_min[0]['headquarters'], entry_id, hq_conf)
-                print('hq_conf',hq_conf)
+                if (data_min[0]['headquarters'] != 'None'):
+                    hq_conf = get_hq_confidence(data_min[0]['headquarters'], entry_id)
+                    hq_conf = moderate_confidence('hq', data_min[0]['headquarters'], entry_id, hq_conf)
+                    print('hq_conf',hq_conf)
 
-            if(a_conf==None):a_conf=0.0
-            if (tp_conf == None): tp_conf = 0.0
-            if (cp_conf == None): cp_conf = 0.0
-            if (hq_conf == None): hq_conf = 0.0
+                if(a_conf==None):a_conf=0.0
+                if (tp_conf == None): tp_conf = 0.0
+                if (cp_conf == None): cp_conf = 0.0
+                if (hq_conf == None): hq_conf = 0.0
 
-            total_conf = (a_conf+tp_conf+cp_conf+hq_conf)/4
+                total_conf = (a_conf+tp_conf+cp_conf+hq_conf)/4
 
-            data_to_write.extend([a_conf])
-            data_to_write.extend([tp_conf])
-            data_to_write.extend([cp_conf])
-            data_to_write.extend([hq_conf])
-            data_to_write.extend([total_conf])
+                data_to_write.extend([a_conf])
+                data_to_write.extend([tp_conf])
+                data_to_write.extend([cp_conf])
+                data_to_write.extend([hq_conf])
+                data_to_write.extend([total_conf])
 
-            results_writer.writerow(data_to_write)
-            print('***')
+                results_writer.writerow(data_to_write)
+                print('***')
+            except SyntaxError:
+                print('syt')
+            # except Exception as e:
+            #     print(e)
+            #     print('error in',entry_id)
         results_file.close()
 
 
@@ -165,5 +174,7 @@ left_set = [item for item in all_ids_fixed if item not in edu_set]
 res = [ObjectId('5f183d9b464603f10dce0d9e'), ObjectId('5f183dde464603f10dce0da2'), ObjectId('5f183dfe464603f10dce0da4'), ObjectId('5f183e14464603f10dce0da6'), ObjectId('5f183e53464603f10dce0dab'), ObjectId('5f183e89464603f10dce0dae'), ObjectId('5f183e9d464603f10dce0db0'), ObjectId('5f183ec8464603f10dce0db4'), ObjectId('5f183f13464603f10dce0dba'), ObjectId('5f183eb3464603f10dce0db2'), ObjectId('5f183f28464603f10dce0dbc'), ObjectId('5f183efd464603f10dce0db8'), ObjectId('5f183ee7464603f10dce0db6'), ObjectId('5f183e29464603f10dce0da8'), ObjectId('5f186b7cb448d46665f7ff02'), ObjectId('5f18750a182dbb7a59a62642'), ObjectId('5f187522182dbb7a59a62644'), ObjectId('5f18756b182dbb7a59a62649'), ObjectId('5f187595182dbb7a59a6264d'), ObjectId('5f1875c9182dbb7a59a62650'), ObjectId('5f187556182dbb7a59a62647'), ObjectId('5f187580182dbb7a59a6264b'), ObjectId('5f18840a35a2278f64f9e5f2'), ObjectId('5f18841f35a2278f64f9e5f4'), ObjectId('5f18843e35a2278f64f9e5f6'), ObjectId('5f18962935a2278f64f9e647'), ObjectId('5f189e1d35a2278f64f9e676'), ObjectId('5f18ed6535a2278f64f9e6bf'), ObjectId('5f18ec3135a2278f64f9e6a7'), ObjectId('5f18ec4635a2278f64f9e6a9'), ObjectId('5f18ec7035a2278f64f9e6ac'), ObjectId('5f18ec8435a2278f64f9e6ae'), ObjectId('5f18eca435a2278f64f9e6b0'), ObjectId('5f18ecbb35a2278f64f9e6b2'), ObjectId('5f18ecd035a2278f64f9e6b4'), ObjectId('5f18ece535a2278f64f9e6b6'), ObjectId('5f18ecfa35a2278f64f9e6b8'), ObjectId('5f18ed0f35a2278f64f9e6ba'), ObjectId('5f18ed5035a2278f64f9e6bd'), ObjectId('5f18ed8f35a2278f64f9e6ce'), ObjectId('5f19077f5fe76f8f85f401fa'), ObjectId('5f19c87c09e1c3c703025666'), ObjectId('5f19c8a709e1c3c70302566a'), ObjectId('5f19c95d09e1c3c70302567a'), ObjectId('5f19c9a609e1c3c703025680'), ObjectId('5f19ca3509e1c3c70302568c'), ObjectId('5f19ca4a09e1c3c70302568e'), ObjectId('5f19ca9409e1c3c703025694'), ObjectId('5f19c8f009e1c3c703025670'), ObjectId('5f19cabe09e1c3c703025698'), ObjectId('5f19c8bc09e1c3c70302566c'), ObjectId('5f19c98709e1c3c70302567e'), ObjectId('5f19ca5e09e1c3c703025690'), ObjectId('5f19d55909e1c3c7030256ab'), ObjectId('5f19d58409e1c3c7030256af'), ObjectId('5f19d59a09e1c3c7030256b1'), ObjectId('5f19d5af09e1c3c7030256b3'), ObjectId('5f19d61009e1c3c7030256bb'), ObjectId('5f19d68709e1c3c7030256c5'), ObjectId('5f19d6b209e1c3c7030256c9'), ObjectId('5f19d6df09e1c3c7030256cd'), ObjectId('5f19d72109e1c3c7030256d3'), ObjectId('5f19d56f09e1c3c7030256ad'), ObjectId('5f19d78d09e1c3c7030256dd'), ObjectId('5f19d54209e1c3c7030256a9'), ObjectId('5f19d65209e1c3c7030256c1'), ObjectId('5f19d70b09e1c3c7030256d1')]
 to_fix_all = [ObjectId('5f183d9b464603f10dce0d9e'), ObjectId('5f183dde464603f10dce0da2'), ObjectId('5f183dfe464603f10dce0da4'), ObjectId('5f183e14464603f10dce0da6'), ObjectId('5f183e53464603f10dce0dab'), ObjectId('5f183e89464603f10dce0dae'), ObjectId('5f183e9d464603f10dce0db0'), ObjectId('5f183ec8464603f10dce0db4'), ObjectId('5f183f13464603f10dce0dba'), ObjectId('5f183eb3464603f10dce0db2'), ObjectId('5f183f28464603f10dce0dbc'), ObjectId('5f183efd464603f10dce0db8'), ObjectId('5f183ee7464603f10dce0db6'), ObjectId('5f183e29464603f10dce0da8'), ObjectId('5f186b7cb448d46665f7ff02'), ObjectId('5f18750a182dbb7a59a62642'), ObjectId('5f187522182dbb7a59a62644'), ObjectId('5f18756b182dbb7a59a62649'), ObjectId('5f187595182dbb7a59a6264d'), ObjectId('5f1875c9182dbb7a59a62650'), ObjectId('5f187556182dbb7a59a62647'), ObjectId('5f187580182dbb7a59a6264b'), ObjectId('5f18840a35a2278f64f9e5f2'), ObjectId('5f18841f35a2278f64f9e5f4'), ObjectId('5f18843e35a2278f64f9e5f6'), ObjectId('5f18962935a2278f64f9e647'), ObjectId('5f189e1d35a2278f64f9e676'), ObjectId('5f18ed6535a2278f64f9e6bf'), ObjectId('5f18ec3135a2278f64f9e6a7'), ObjectId('5f18ec4635a2278f64f9e6a9'), ObjectId('5f18ec7035a2278f64f9e6ac'), ObjectId('5f18ec8435a2278f64f9e6ae'), ObjectId('5f18eca435a2278f64f9e6b0'), ObjectId('5f18ecbb35a2278f64f9e6b2'), ObjectId('5f18ecd035a2278f64f9e6b4'), ObjectId('5f18ece535a2278f64f9e6b6'), ObjectId('5f18ecfa35a2278f64f9e6b8'), ObjectId('5f18ed0f35a2278f64f9e6ba'), ObjectId('5f18ed5035a2278f64f9e6bd'), ObjectId('5f18ed8f35a2278f64f9e6ce'), ObjectId('5f19077f5fe76f8f85f401fa'), ObjectId('5f197a573efb8669e251a4f6'), ObjectId('5f197b283efb8669e251a500'), ObjectId('5f19c87c09e1c3c703025666'), ObjectId('5f19c8a709e1c3c70302566a'), ObjectId('5f19c95d09e1c3c70302567a'), ObjectId('5f19c9a609e1c3c703025680'), ObjectId('5f19ca3509e1c3c70302568c'), ObjectId('5f19ca4a09e1c3c70302568e'), ObjectId('5f19ca9409e1c3c703025694'), ObjectId('5f19c8f009e1c3c703025670'), ObjectId('5f19cabe09e1c3c703025698'), ObjectId('5f19c8bc09e1c3c70302566c'), ObjectId('5f19c98709e1c3c70302567e'), ObjectId('5f19ca5e09e1c3c703025690'), ObjectId('5f19d55909e1c3c7030256ab'), ObjectId('5f19d58409e1c3c7030256af'), ObjectId('5f19d59a09e1c3c7030256b1'), ObjectId('5f19d5af09e1c3c7030256b3'), ObjectId('5f19d61009e1c3c7030256bb'), ObjectId('5f19d68709e1c3c7030256c5'), ObjectId('5f19d6b209e1c3c7030256c9'), ObjectId('5f19d6df09e1c3c7030256cd'), ObjectId('5f19d72109e1c3c7030256d3'), ObjectId('5f19d56f09e1c3c7030256ad'), ObjectId('5f19d78d09e1c3c7030256dd'), ObjectId('5f19d54209e1c3c7030256a9'), ObjectId('5f19d65209e1c3c7030256c1'), ObjectId('5f19d70b09e1c3c7030256d1'), ObjectId('5f1e94db027fb1582fb3874a'), ObjectId('5f1e9574027fb1582fb38758'), ObjectId('5f1e997862de5888b3f12e3e'), ObjectId('5f1e99ee62de5888b3f12e46'), ObjectId('5f1e9be462de5888b3f12e5b'), ObjectId('5f1e9c3b62de5888b3f12e63'), ObjectId('5f1e9cb062de5888b3f12e6d'), ObjectId('5f1eac7f62de5888b3f12ea3'), ObjectId('5f1eacf362de5888b3f12ea7'), ObjectId('5f1ead1d62de5888b3f12eab'), ObjectId('5f1ead5462de5888b3f12eaf'), ObjectId('5f1eadd362de5888b3f12eb3'), ObjectId('5f1eae8662de5888b3f12ec8'), ObjectId('5f1eaef362de5888b3f12ed2'), ObjectId('5f1ecdec62de5888b3f12ee7'), ObjectId('5f1ece0162de5888b3f12ee9'), ObjectId('5f1ece2062de5888b3f12eeb'), ObjectId('5f1ece9262de5888b3f12ef1'), ObjectId('5f1ecf5362de5888b3f12f04'), ObjectId('5f1ecf8662de5888b3f12f06'), ObjectId('5f1ece6962de5888b3f12eef'), ObjectId('5f1ed77162de5888b3f12f17'), ObjectId('5f1ed7a562de5888b3f12f1b'), ObjectId('5f1ed7c362de5888b3f12f1d'), ObjectId('5f1ed7ee62de5888b3f12f21'), ObjectId('5f1ed83762de5888b3f12f25'), ObjectId('5f1ed8eb62de5888b3f12f3a'), ObjectId('5f1ed90062de5888b3f12f3c'), ObjectId('5f1ed9a162de5888b3f12f4a'), ObjectId('5f1ed9fe62de5888b3f12f5b'), ObjectId('5f1eda3262de5888b3f12f5f'), ObjectId('5f1eda4862de5888b3f12f61'), ObjectId('5f1ed92a62de5888b3f12f40'), ObjectId('5f1ed94062de5888b3f12f42'), ObjectId('5f1ed98b62de5888b3f12f48')]
 
+to_get = [ObjectId('5f3d2d589e81673edaf9faf9'),ObjectId('5f3d2ec09e81673edaf9fb0c'),ObjectId('5ebc56ea2e7d8c6aeebb9565'),ObjectId('5f3d21329e81673edaf9fae6'),ObjectId('5ebe0cd9a0d22e0d5723510e'),ObjectId('5ebe0a0d110384add423510e'),ObjectId('5f3cfbf0c71b48600826b3ec'),ObjectId('5ebe17207e47e5354a23510e'),ObjectId('5f1881c535a2278f64f9e5d8'),ObjectId('5ebe0bb08df9dfa24723510e'),ObjectId('5f3cfc2fc71b48600826b407'),ObjectId('5ebe1c36bc048b033d23510e'),ObjectId('5f3cfc5dc71b48600826b41a'),ObjectId('5f3cfc79c71b48600826b429'),ObjectId('5f3cfc8fc71b48600826b438'),ObjectId('5ec27727fd3d080103d08ffd'),ObjectId('5ec277d5ca4f08b78dd08ffd'),ObjectId('5f3cfcc1c71b48600826b44f'),ObjectId('5ec27a0560b88319b4d08ffd'),ObjectId('5ebc53a9503b1f44d4bb9565'),ObjectId('5eb957e0b1f04156bd21f86d'),ObjectId('5ebc54e10c8dd65b2ebb9565'),ObjectId('5ebc55d8b8becb694ebb9565')]
 # print(edu_set.index(ObjectId('5eb6925a31a5f94e1207b916')))
-# simplified_dump_with_confidence(to_fix_all)
+later = [ObjectId('5f3d2ec09e81673edaf9fb0c'),ObjectId('5ebc56ea2e7d8c6aeebb9565')]
+simplified_dump_with_confidence(later[1:])

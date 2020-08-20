@@ -17,7 +17,7 @@ from Simplified_System.Database.db_connect import refer_collection,is_profile_ex
 def search_a_query(search_query,number_of_results,db_collection,query_entry):
 
     try:
-        with open('check_relevence_risk_rich_1.csv', mode='w', encoding='utf8',
+        with open('check_relevence_risk_rich_ocu.csv', mode='w', encoding='utf8',
                   newline='') as results_file:  # store search results in to a csv file
             results_writer = csv.writer(results_file, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
             attributes_a = ['search_text', 'title', 'link', 'description','rich_description', 'comp_name', 'match_count']
@@ -137,7 +137,7 @@ def calculate_score(search_text,description):
         # print(each_search_token,description_tokens.count(each_search_token))
     return match_count
 started = datetime.now()
-search_a_query('hazard management software australia',100,'sss','sss')
+search_a_query('occupational safety and health software australia OR new zealand',100,'sss','sss')
 ended = datetime.now()
 duration = ended-started
 print(duration)

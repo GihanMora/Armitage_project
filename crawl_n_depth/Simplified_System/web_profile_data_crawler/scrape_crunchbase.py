@@ -128,13 +128,15 @@ def scrape_cb(url):
                 descrip = each_h.find("span", attrs={'class': 'component--field-formatter field-type-text_long ng-star-inserted'}).get_text()
             if(each_h.find("span", attrs={'class': 'component--field-formatter field-type-identifier-multi'})):
                 head_q = each_h.find("span", attrs={'class': 'component--field-formatter field-type-identifier-multi'}).get_text()
-
+        # print([c_name,descrip,head_q])
         tags = []
         details = []
         fields_cards = soup.findAll("fields-card", attrs={'class':'ng-star-inserted'})
         for each_f_c in fields_cards:
             ele_lists = each_f_c.findAll("li", attrs={'class':'ng-star-inserted'})
+
             for each_e_l in ele_lists:
+                print(each_e_l)
                 tag_e = each_e_l.find("span", attrs={'class':"wrappable-label-with-info ng-star-inserted"}).get_text()
                 det_e = each_e_l.find("field-formatter", attrs={'class':"ng-star-inserted"}).get_text()
                 tags.append(tag_e)
@@ -215,11 +217,13 @@ def scrape_cb(url):
         # print('ss')
         print(data_dict)
         return data_dict
-    except Exception as e:
-        print("Exception Occured!", e)
-        return 'error'
+    except SyntaxError as e:
+        print('synt')
+    # except Exception as e:
+    #     print("Exception Occured!", e)
+    #     return 'error'
 
-
+scrape_cb('https://www.crunchbase.com/organization/scrim-safety-first')
 def get_cb_data(id_list):
     mycol = refer_collection()
     for entry_id in id_list:
@@ -347,4 +351,4 @@ edu_set = [ObjectId('5eb62e2a134cc6fb9536e93d'), ObjectId('5eb630147afe26eca4ba7
 left_set = [item for item in all_ids_fixed if item not in edu_set]
 
 # add_to_cb_queue(left_set)
-get_cb_data_via_queue()
+# get_cb_data_via_queue()
