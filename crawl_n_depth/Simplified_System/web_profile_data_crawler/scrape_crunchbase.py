@@ -217,11 +217,11 @@ def scrape_cb(url):
         # print('ss')
         print(data_dict)
         return data_dict
-    except SyntaxError as e:
-        print('synt')
-    # except Exception as e:
-    #     print("Exception Occured!", e)
-    #     return 'error'
+    # except SyntaxError as e:
+    #     print('synt')
+    except Exception as e:
+        print("Exception Occured!", e)
+        return 'error'
 
 scrape_cb('https://www.crunchbase.com/organization/scrim-safety-first')
 def get_cb_data(id_list):
