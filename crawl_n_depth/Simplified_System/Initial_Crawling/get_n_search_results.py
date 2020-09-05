@@ -180,8 +180,9 @@ def getGoogleLinksForSearchText(searchText,number_of_results,mode):#given a sear
         print("got "+str(len(results))+" results")
         return results
 
-    except WebDriverException:
-        print("Browser Issue Occured!")
+
+    except WebDriverException as e:
+        print("Browser Issue Occured!",e)
         return 'error'
     except Exception as e:
         print("Exception Occured!", e)

@@ -45,9 +45,9 @@ def restructure_tp(old_tp):
         tp_num = 'None'
     return tp_num
 def refer_collection():
-  # myclient = pymongo.MongoClient("mongodb://localhost:27017/")
-  myclient = pymongo.MongoClient(
-      "mongodb+srv://gatekeeper:oMBipAi6zLkme3e9@armitage-i0o8u.mongodb.net/test?retryWrites=true&w=majority")
+  myclient = pymongo.MongoClient("mongodb://localhost:27017/")
+  # myclient = pymongo.MongoClient(
+  #     "mongodb+srv://gatekeeper:oMBipAi6zLkme3e9@armitage-i0o8u.mongodb.net/test?retryWrites=true&w=majority")
   # mydb = myclient["CompanyDatabase"]  # creates a database
   mydb = myclient["miner"]  # creates a database
 
@@ -89,27 +89,36 @@ def is_valid_tp(tp):
 # data = [i for i in comp_data_entry]
 # print(data)
 def refer_simplified_dump_col():
-    # myclient = pymongo.MongoClient("mongodb://localhost:27017/")
-    myclient = pymongo.MongoClient(
-        "mongodb+srv://gatekeeper:oMBipAi6zLkme3e9@armitage-i0o8u.mongodb.net/test?retryWrites=true&w=majority")
+    myclient = pymongo.MongoClient("mongodb://localhost:27017/")
+    # myclient = pymongo.MongoClient(
+    #     "mongodb+srv://gatekeeper:oMBipAi6zLkme3e9@armitage-i0o8u.mongodb.net/test?retryWrites=true&w=majority")
     # mydb = myclient["CompanyDatabase"]  # creates a database
     mydb = myclient["miner"]  # creates a database
     mycol = mydb["simplified_dump"]  # creates a collection
     return mycol
 
+def refer_projects_col():
+    myclient = pymongo.MongoClient("mongodb://localhost:27017/")
+    # myclient = pymongo.MongoClient(
+    #     "mongodb+srv://gatekeeper:oMBipAi6zLkme3e9@armitage-i0o8u.mongodb.net/test?retryWrites=true&w=majority")
+    # mydb = myclient["CompanyDatabase"]  # creates a database
+    mydb = myclient["miner"]  # creates a database
+    mycol = mydb["projects"]  # creates a collection
+    return mycol
+
 def refer_simplified_dump_col_min():
-    # myclient = pymongo.MongoClient("mongodb://localhost:27017/")
-    myclient = pymongo.MongoClient(
-        "mongodb+srv://gatekeeper:oMBipAi6zLkme3e9@armitage-i0o8u.mongodb.net/test?retryWrites=true&w=majority")
+    myclient = pymongo.MongoClient("mongodb://localhost:27017/")
+    # myclient = pymongo.MongoClient(
+    #     "mongodb+srv://gatekeeper:oMBipAi6zLkme3e9@armitage-i0o8u.mongodb.net/test?retryWrites=true&w=majority")
     # mydb = myclient["CompanyDatabase"]  # creates a database
     mydb = myclient["miner"]  # creates a database
     mycol = mydb["simplified_dump_min"]  # creates a collection
     return mycol
 
 def refer_query_col():
-    # myclient = pymongo.MongoClient("mongodb://localhost:27017/")
-    myclient = pymongo.MongoClient(
-        "mongodb+srv://gatekeeper:oMBipAi6zLkme3e9@armitage-i0o8u.mongodb.net/test?retryWrites=true&w=majority")
+    myclient = pymongo.MongoClient("mongodb://localhost:27017/")
+    # myclient = pymongo.MongoClient(
+    #     "mongodb+srv://gatekeeper:oMBipAi6zLkme3e9@armitage-i0o8u.mongodb.net/test?retryWrites=true&w=majority")
     # mydb = myclient["CompanyDatabase"]  # creates a database
     mydb = myclient["miner"]  # creates a database
     mycol = mydb["search_queries"]  # creates a collection
@@ -685,7 +694,7 @@ def simplified_export_via_queue():
                 #     'google_cp_state'] == data[0]['oc_extraction_state'] == data[0]['google_address_state'] == data[0][
                 #     'dnb_extraction_state'] == data[0]['google_tp_state'] ==  data[0]['crunchbase_extraction_state'] == 'Completed'):
 
-                if(data[0]['deep_crawling_state']==data[0]['feature_extraction_state']==data[0]['classification_state']==data[0]['owler_qa_state']==data[0]['li_cp_state']==data[0]['google_cp_state']==data[0]['oc_extraction_state']==data[0]['google_address_state']==data[0]['dnb_extraction_state']==data[0]['google_tp_state']==data[0]['avention_extraction_state']==data[0]['crunchbase_extraction_state']=='Completed'):
+                if(data[0]['deep_crawling_state']==data[0]['feature_extraction_state']==data[0]['classification_state']==data[0]['owler_qa_state']==data[0]['li_cp_state']==data[0]['google_cp_state']==data[0]['oc_extraction_state']==data[0]['google_address_state']==data[0]['dnb_extraction_state']==data[0]['google_tp_state']=='Completed'):
                     data_list = []
                     data_list.extend([data[0]['_id'], data[0]['search_text'], data[0]['title'], data[0]['link'],
                                       data[0]['description'], data[0]['comp_name']])
@@ -700,6 +709,8 @@ def simplified_export_via_queue():
                     record_entry = csv_dump_col.insert_one(dict_to_dump)
                     print("simplified dump completed", record_entry.inserted_id)
                     simplified_dump_client.delete_message(msg)
+                    mycol.update_one({'_id': entry_id},
+                                     {'$set': {'simplified_dump_state': 'Completed'}})
 
                     query_id = data[0]['query_id']
                     q_data_entry = query_collection.find({"_id": query_id})
@@ -735,6 +746,8 @@ def add_to_simplified_export_queue(id_list):
     simplified_dump_client = QueueClient.from_connection_string(connect_str, "simplified-dump-queue")
     for each_id in id_list:
         print(each_id)
+        mycol.update_one({'_id': each_id},
+                         {'$set': {'simplified_dump_state': 'Incomplete'}})
         simplified_dump_client.send_message([str(each_id)], time_to_live=-1)
 
 
@@ -813,7 +826,7 @@ def simplified_export_with_sources(id_list):
     mycol = refer_collection()
     csv_dump_col = refer_simplified_dump_col_min()
     # store data in a csv file
-    dump_name = 'F:\Armitage_project\crawl_n_depth\Simplified_System\end_to_end\data_dump\\' + 'company_dump_simplified_with_sources.csv'
+    dump_name = 'F:\\from git\\Armitage_project\\crawl_n_depth\\Simplified_System\\dumps\\' + 'new_companies_with_sources.csv'
     with open(dump_name, mode='w', encoding='utf8',
               newline='') as results_file:  # store search results in to a csv file
         results_writer = csv.writer(results_file, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
@@ -3364,6 +3377,8 @@ to_fix_all = [ObjectId('5f183d9b464603f10dce0d9e'), ObjectId('5f183dde464603f10d
 
 # [ObjectId('5eb7c0a011ad0e77a8454c2c'), ObjectId('5eb81dd8312f24e51eaa1667'), ObjectId('5eb81e2a312f24e51eaa166a'), ObjectId('5eb94caf01a53921bf21f86d'), ObjectId('5ebc44847ce40c9ba7bb9565'), ObjectId('5ebc452ac7057c1a4cbb9565'), ObjectId('5ebcc58db3643873f0bb9565')]
 to_get = [ObjectId('5f3d21329e81673edaf9fae6'),ObjectId('5ebe0cd9a0d22e0d5723510e'),ObjectId('5ebe0a0d110384add423510e'),ObjectId('5f3cfbf0c71b48600826b3ec'),ObjectId('5ebe17207e47e5354a23510e'),ObjectId('5f1881c535a2278f64f9e5d8'),ObjectId('5ebe0bb08df9dfa24723510e'),ObjectId('5f3cfc2fc71b48600826b407'),ObjectId('5ebe1c36bc048b033d23510e'),ObjectId('5f3cfc5dc71b48600826b41a'),ObjectId('5f3cfc79c71b48600826b429'),ObjectId('5f3cfc8fc71b48600826b438'),ObjectId('5ec27727fd3d080103d08ffd'),ObjectId('5ec277d5ca4f08b78dd08ffd'),ObjectId('5f3cfcc1c71b48600826b44f'),ObjectId('5ec27a0560b88319b4d08ffd'),ObjectId('5ebc53a9503b1f44d4bb9565'),ObjectId('5eb957e0b1f04156bd21f86d'),ObjectId('5ebc54e10c8dd65b2ebb9565'),ObjectId('5ebc55d8b8becb694ebb9565')]
+later = [ObjectId('5f4f18e1b40ca91fa5181641'),ObjectId('5f4f19b0b40ca91fa518165f'),ObjectId('5f4f19efb40ca91fa518166e'),ObjectId('5f4f3fabb40ca91fa5181690'),ObjectId('5f4f4035b40ca91fa51816ae'),ObjectId('5f4f3fe9b40ca91fa518169f'),ObjectId('5f4f1953b40ca91fa5181650'),ObjectId('5f4f406bb40ca91fa51816bd'),ObjectId('5f4f3f69b40ca91fa5181681')]
 
+# simplified_export_with_sources(later)
 # simplified_export([ObjectId('5ebc56ea2e7d8c6aeebb9565')])
 # dnb, crunchbase, owler, oc, linkedin, avention

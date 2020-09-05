@@ -223,7 +223,7 @@ def scrape_cb(url):
         print("Exception Occured!", e)
         return 'error'
 
-scrape_cb('https://www.crunchbase.com/organization/scrim-safety-first')
+# scrape_cb('https://www.crunchbase.com/organization/scrim-safety-first')
 def get_cb_data(id_list):
     mycol = refer_collection()
     for entry_id in id_list:

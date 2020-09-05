@@ -120,8 +120,8 @@ def execute_pipeline_via_queue():
                             add_to_tp_queue(entry_id_list)
                             print("Adding to Avention extraction queue")
                             add_to_avention_queue(entry_id_list)
-                            print("Adding to Crunchbase extraction queue")
-                            add_to_cb_queue(entry_id_list)
+                            # print("Adding to Crunchbase extraction queue")
+                            # add_to_cb_queue(entry_id_list)
                             print("Adding to linkedin cp extraction queue")
                             add_to_li_cp_queue(entry_id_list)
                             print("Adding to simplified dump queue")
@@ -173,8 +173,8 @@ def execute_pipeline_via_queue():
                             add_to_tp_queue([ObjectId(entry_id)])
                             print("Adding to Avention extraction queue")
                             add_to_avention_queue([ObjectId(entry_id)])
-                            print("Adding to Crunchbase extraction queue")
-                            add_to_cb_queue([ObjectId(entry_id)])
+                            # print("Adding to Crunchbase extraction queue")
+                            # add_to_cb_queue([ObjectId(entry_id)])
                             print("Adding to linkedin cp extraction queue")
                             add_to_li_cp_queue([ObjectId(entry_id)])
                             print("Adding to simplified dump queue")
@@ -207,8 +207,8 @@ def add_to_initial_crawling_queue(name_list):
         print(name)
         ic_client.send_message([str(name)])
 
-add_to_initial_crawling_queue(['Educational Systems australia --query'])
-# add_to_initial_crawling_queue(['Wesfarmers --comp'])
+# add_to_initial_crawling_queue(['Educational Systems australia --query'])
+add_to_initial_crawling_queue(['www.avinet.com.au --comp'])
 
 def execute_for_a_company(comp_name):
     mycol = refer_collection()

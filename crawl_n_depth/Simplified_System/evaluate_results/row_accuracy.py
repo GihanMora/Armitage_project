@@ -91,7 +91,7 @@ def simplified_dump_with_confidence(id_list):
     mycol = refer_collection()
     csv_dump_col = refer_simplified_dump_col_min()
     # store data in a csv file
-    dump_name = three_up+'\Simplified_System\dumps\\' + str(id_list[0]) + '_with_conf_20.csv'
+    dump_name = three_up+'\Simplified_System\dumps\\' + str(id_list[0]) + '_new_companies.csv'
     with open(dump_name, mode='w', encoding='utf8',
               newline='') as results_file:  # store search results in to a csv file
         results_writer = csv.writer(results_file, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
@@ -176,5 +176,5 @@ to_fix_all = [ObjectId('5f183d9b464603f10dce0d9e'), ObjectId('5f183dde464603f10d
 
 to_get = [ObjectId('5f3d2d589e81673edaf9faf9'),ObjectId('5f3d2ec09e81673edaf9fb0c'),ObjectId('5ebc56ea2e7d8c6aeebb9565'),ObjectId('5f3d21329e81673edaf9fae6'),ObjectId('5ebe0cd9a0d22e0d5723510e'),ObjectId('5ebe0a0d110384add423510e'),ObjectId('5f3cfbf0c71b48600826b3ec'),ObjectId('5ebe17207e47e5354a23510e'),ObjectId('5f1881c535a2278f64f9e5d8'),ObjectId('5ebe0bb08df9dfa24723510e'),ObjectId('5f3cfc2fc71b48600826b407'),ObjectId('5ebe1c36bc048b033d23510e'),ObjectId('5f3cfc5dc71b48600826b41a'),ObjectId('5f3cfc79c71b48600826b429'),ObjectId('5f3cfc8fc71b48600826b438'),ObjectId('5ec27727fd3d080103d08ffd'),ObjectId('5ec277d5ca4f08b78dd08ffd'),ObjectId('5f3cfcc1c71b48600826b44f'),ObjectId('5ec27a0560b88319b4d08ffd'),ObjectId('5ebc53a9503b1f44d4bb9565'),ObjectId('5eb957e0b1f04156bd21f86d'),ObjectId('5ebc54e10c8dd65b2ebb9565'),ObjectId('5ebc55d8b8becb694ebb9565')]
 # print(edu_set.index(ObjectId('5eb6925a31a5f94e1207b916')))
-later = [ObjectId('5f3d2ec09e81673edaf9fb0c'),ObjectId('5ebc56ea2e7d8c6aeebb9565')]
-simplified_dump_with_confidence(later[1:])
+later = [ObjectId('5f4f18e1b40ca91fa5181641'),ObjectId('5f4f19b0b40ca91fa518165f'),ObjectId('5f4f19efb40ca91fa518166e'),ObjectId('5f4f3fabb40ca91fa5181690'),ObjectId('5f4f4035b40ca91fa51816ae'),ObjectId('5f4f3fe9b40ca91fa518169f'),ObjectId('5f4f1953b40ca91fa5181650'),ObjectId('5f4f406bb40ca91fa51816bd'),ObjectId('5f4f3f69b40ca91fa5181681')]
+# simplified_dump_with_confidence(later)

@@ -135,6 +135,7 @@ def search_a_company(comp_name, db_collection, query_entry):
         else:
             print("No results found!")
             return None
+
     except Exception as e:
         print("Error occured! try again",e)
         return 'error'
