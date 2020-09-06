@@ -229,7 +229,9 @@ def get_data_for_simplified_dump_based_on_source_order(entry_id):
 
                     print("selected_address", data_list[-1])
                     if (data_list[-1] != 'None'):
+
                         a_conf = get_address_confidence(data_list[-1], entry_id)
+                        # print('ok')
                         print('confidence of selected address', a_conf)
                         if (a_conf != None):
                             if (a_conf > 0):
@@ -753,12 +755,13 @@ def add_to_simplified_export_queue(id_list):
 
 
 
-def simplified_export(id_list):
+def simplified_export(id_list,output_path):
     mycol = refer_collection()
     csv_dump_col = refer_simplified_dump_col_min()
     # store data in a csv file
-    dump_name = 'F:\Armitage_project\crawl_n_depth\Simplified_System\end_to_end\data_dump\\' + str(
-        id_list[0]) + '_company_dump_simplified.csv'
+    # dump_name = 'F:\Armitage_project\crawl_n_depth\Simplified_System\end_to_end\data_dump\\' + str(
+    #     id_list[0]) + '_company_dump_simplified.csv'
+    dump_name = output_path
     with open(dump_name, mode='w', encoding='utf8',
               newline='') as results_file:  # store search results in to a csv file
         results_writer = csv.writer(results_file, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
@@ -777,14 +780,15 @@ def simplified_export(id_list):
             data_list.extend(get_data_for_simplified_dump_based_on_source_order(entry_id))
 
             results_writer.writerow(data_list)
-            dict_to_dump = {}
-            for i in range(len(attributes_a)):
-                dict_to_dump[attributes_a[i]] = data_list[i]
-            print(dict_to_dump)
-            record_entry = csv_dump_col.insert_one(dict_to_dump)
-            print("simplified dump completed", record_entry.inserted_id)
+            # dict_to_dump = {}
+            # for i in range(len(attributes_a)):
+            #     dict_to_dump[attributes_a[i]] = data_list[i]
+            # print(dict_to_dump)
+            # record_entry = csv_dump_col.insert_one(dict_to_dump)
+            print("simplified dump completed")
         results_file.close()
     print("CSV export completed!")
+    # return  results_file
 
 
 
@@ -821,12 +825,13 @@ def simplified_update(id_list):
         results_file.close()
     print("CSV export completed!")
 
-def simplified_export_with_sources(id_list):
+def simplified_export_with_sources(id_list,output_path):
     print('simplified export with sources')
     mycol = refer_collection()
     csv_dump_col = refer_simplified_dump_col_min()
     # store data in a csv file
-    dump_name = 'F:\\from git\\Armitage_project\\crawl_n_depth\\Simplified_System\\dumps\\' + 'new_companies_with_sources.csv'
+    # dump_name = 'F:\\from git\\Armitage_project\\crawl_n_depth\\Simplified_System\\dumps\\' + 'new_companies_with_sources.csv'
+    dump_name = output_path
     with open(dump_name, mode='w', encoding='utf8',
               newline='') as results_file:  # store search results in to a csv file
         results_writer = csv.writer(results_file, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
