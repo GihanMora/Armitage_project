@@ -15,7 +15,10 @@ from os.path import dirname as up
 
 
 three_up = up(up(up(__file__)))
-sys.path.insert(0, three_up)
+# sys.path.insert(0, three_up)
+sys.path.insert(0,'F:/from git/Armitage_project/crawl_n_depth')
+# print(three_up)
+# print(sys.path)
 from fake_useragent import UserAgent
 from selenium import webdriver
 from datetime import datetime

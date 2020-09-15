@@ -53,33 +53,50 @@ def get_browser():
                                    )
     return browser
 
+def get_results_pt(query):
+    browser = None
+    try:
+
+        browser = get_browser()
+        browser.maximize_window()
+
+        # browser.get('chrome://settings/clearBrowserData')
+        # browser.find_element_by_xpath('//settings-ui').send_keys(Keys.ENTER)
+
+        time.sleep(5)
+        browser.get('https://www.powerthesaurus.org/')
+        browser.find_element_by_name('q').send_keys(query)
+        time.sleep(3)
+        browser.find_element_by_name('q').send_keys(Keys.RETURN)
+        time.sleep(5)
+
+        pageSource = browser.page_source
+        soup = BeautifulSoup(pageSource, 'html.parser')#bs4
+
+        syn_results = soup.findAll("a",attrs={'class': 'b4_cm b4_b5 ts_cm'})
+        # print(syn_results)
+        similar_queries = []
+        for each_res in syn_results:
+            similar_queries.append(each_res.get_text())
+
+        return similar_queries
+        browser.close()
+        browser.quit()
+    except WebDriverException:
+        print("Browser Issue Occured!")
+        if(browser!=None):
+            browser.close()
+            browser.quit()
+        return []
+    except Exception as e:
+        print("Exception Occured!",e)
+        if (browser != None):
+            browser.close()
+            browser.quit()
+        return []
 
 
-browser = get_browser()
-
-# browser.get('chrome://settings/clearBrowserData')
-# browser.find_element_by_xpath('//settings-ui').send_keys(Keys.ENTER)
-
-time.sleep(5)
-browser.get('https://www.powerthesaurus.org/')
-browser.find_element_by_name('q').send_keys('educational systems')
-time.sleep(3)
-browser.find_element_by_name('q').send_keys(Keys.RETURN)
-time.sleep(5)
-
-pageSource = browser.page_source
-soup = BeautifulSoup(pageSource, 'html.parser')#bs4
-
-syn_results = soup.findAll("a",attrs={'class': 'b4_co b4_b5 tp_co'})
-
-similar_queries = []
-for each_res in syn_results:
-    similar_queries.append(each_res.get_text())
-
-print(similar_queries)
-browser.close()
-browser.quit()
-
+# get_results_pt("content management")
 
 
 

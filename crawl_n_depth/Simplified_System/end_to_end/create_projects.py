@@ -6,10 +6,15 @@ import sys
 from azure.storage.queue import QueueClient
 from bson import ObjectId
 from os.path import dirname as up
+
+
+
 three_up = up(up(up(__file__)))
 sys.path.insert(0, three_up)
 
 from Simplified_System.Database.db_connect import refer_projects_col,refer_collection
+from Simplified_System.query_expansion.power_thesaurus import get_results_pt
+
 
 def add_to_projects_queue(id_list):
 
@@ -38,8 +43,13 @@ def add_to_initial_crawling_queue(name_list):
 def process_queries(key_phrases):
     queries = []
     for each_phrase in key_phrases:
-        query = each_phrase+" in australia or newzealand"
-        queries.append(query)
+        # query = each_phrase+" in australia or newzealand"
+        # queries.append(query)
+        queries_from_pt = get_results_pt(each_phrase)
+        for each_q in [each_phrase]+queries_from_pt[:5]:
+            query = each_q+" in australia or newzealand"
+            queries.append(query)
+
     return queries
 
 def get_projects_via_queue():
@@ -101,3 +111,5 @@ def create_and_queue_project(project_name,key_phrases):
 
 # create_and_queue_project('Educational softwares project',['Hazard management'])
 # get_projects_via_queue()
+
+# print(process_queries(['medical management system']))
