@@ -58,4 +58,4 @@ def project_simplified_dump_with_sources(project_id):
     simplified_export_with_sources(entry_ids,'F:/from git/Armitage_project/crawl_n_depth/Simplified_System/end_to_end/with_sources.csv')
 # project_simplified_dump(ObjectId('5f52316619a6398cb19d564e'))
 
-project_simplified_dump_with_sources(ObjectId('5f52316619a6398cb19d564e'))
+# project_simplified_dump_with_sources(ObjectId('5f52316619a6398cb19d564e'))

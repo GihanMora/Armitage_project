@@ -246,12 +246,13 @@ def search_a_query(search_query,number_of_results,db_collection,query_entry):
                     # print(each)
                     filtered_received_links.append(each_l)
 
-
+            query_collection = refer_query_col()
             received_domains = [i.split("/")[2] for i in filtered_received_links]
             print("received_domains",received_domains)
             received_domains = list(set(received_domains))
             print("received_domains", received_domains)
             ids_list=[]
+            already_existing_count = 0
             for k in range(len(received_domains)):
                 time.sleep(10)
                 print(received_links[k],received_domains[k])
@@ -271,8 +272,9 @@ def search_a_query(search_query,number_of_results,db_collection,query_entry):
                     res_data = is_profile_exist(sr[0]['link'])
                     if (len(res_data)):
                         print("Profile " + sr[0]['link'] + " already existing at " + str(res_data[0]['_id']))
+                        already_existing_count+=1
                         #updating associates
-                        query_collection = refer_query_col()
+
                         qq_data_entry = query_collection.find({"_id": query_entry})
                         qq_data = [i for i in qq_data_entry]
                         qq_attribute_keys = list(qq_data[0].keys())
@@ -308,7 +310,13 @@ def search_a_query(search_query,number_of_results,db_collection,query_entry):
                     ids_list.append(record_entry.inserted_id)
                 else:
                     print("Cannot find results, skipping company")
-            print(ids_list)
+            print('from initial crawling',ids_list)
+
+            entry_count = already_existing_count+len(ids_list)
+            print("Total entry count",entry_count)
+            query_collection.update_one({'_id': query_entry},
+                                        {'$set': {
+                                            'entry_count': entry_count}})
             return ids_list
             # print("search records stored in db: ", record_entry.inserted_ids)
         else:

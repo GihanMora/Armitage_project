@@ -207,8 +207,8 @@ def add_to_initial_crawling_queue(name_list):
         print(name)
         ic_client.send_message([str(name)])
 
-# add_to_initial_crawling_queue(['Educational Systems australia --query'])
-add_to_initial_crawling_queue(['www.avinet.com.au --comp'])
+add_to_initial_crawling_queue(['Educational Systems australia --query'])
+# add_to_initial_crawling_queue(['www.avinet.com.au --comp'])
 
 def execute_for_a_company(comp_name):
     mycol = refer_collection()

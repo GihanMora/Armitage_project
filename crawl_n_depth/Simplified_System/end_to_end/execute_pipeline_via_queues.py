@@ -40,6 +40,11 @@ from Simplified_System.google_for_data.get_li_employees.scrape_linkedin_employee
 from Simplified_System.google_for_data.phone_number_extraction.get_tp_num import get_tp_from_google,add_to_tp_queue,get_tp_from_google_via_queue
 from Simplified_System.end_to_end.create_projects import get_projects_via_queue
 
+
+
+
+
+
 def add_to_query_queue(id_list):
 
     connect_str = os.getenv('AZURE_STORAGE_CONNECTION_STRING')
@@ -57,18 +62,22 @@ def query_state_update_via_queue():
     query_client = QueueClient.from_connection_string(connect_str, "query-queue")
 
     while (True):
+        # print('q')
         rows = query_client.receive_messages()
         for msg in rows:
             time.sleep(10)
+
             row = msg.content
+            print(row)
             row = ast.literal_eval(row)
-            # print(row[0])
+            print('getting_id',row[0])
             entry_id = ObjectId(row[0])
             query_data_entry = query_collection.find({"_id": entry_id})
             data = [i for i in query_data_entry]
             #check_for_the_completion_of_components
             try:
                 associated_entries = data[0]['associated_entries']
+                print('getting associated entries',associated_entries)
                 completed_count = 0
                 for each_entry_res in associated_entries:
                     res_entry = mycol.find({"_id": each_entry_res})
@@ -76,8 +85,11 @@ def query_state_update_via_queue():
                     if(data_res[0]['simplified_dump_state']=='Completed'):
                         completed_count+=1
 
-                if(completed_count==len(associated_entries)):
-                    print("All the entries are completed for the query")
+                print('completed_count',completed_count)
+                print('entry_count',data[0]['entry_count'])
+
+                if(completed_count==data[0]['entry_count']):
+                    print("All the entries are completed for the query",completed_count)
                     query_collection.update_one({'_id': entry_id},
                                                {'$set': {'state':'Completed'}})
                     query_client.delete_message(msg)
@@ -103,6 +115,7 @@ def project_state_update_via_queue():
     project_comp_client = QueueClient.from_connection_string(connect_str, "project-completion-queue")
 
     while (True):
+        # print('*')
         rows = project_comp_client.receive_messages()
         for msg in rows:
             time.sleep(10)
@@ -122,8 +135,8 @@ def project_state_update_via_queue():
                     if(data_res[0]['state']=='Completed'):
                         completed_count+=1
 
-                if(completed_count==len(associated_queries)):
-                    print("All the queries are completed for the project")
+                if(completed_count==data[0]['query_count']):
+                    print("All the queries are completed for the project",completed_count)
                     proj_collection.update_one({'_id': entry_id},
                                                {'$set': {'state':'Completed'}})
                     project_comp_client.delete_message(msg)
@@ -188,7 +201,7 @@ if __name__ == '__main__':
                 s_text = input_d[0]
                 if mode == 'query':
                     query = s_text.strip()
-                    print("Searching a query assoicated to a project")
+                    print("Searching a query")
                     dateTimeObj = datetime.now()
                     query_collection = refer_query_col()
                     data_q = {'started_time_stamp': dateTimeObj, 'search_query': query, 'state':'incomplete'}
@@ -214,9 +227,12 @@ if __name__ == '__main__':
                         qq_data_entry = query_collection.find({"_id": record_entry.inserted_id})
                         qq_data = [i for i in qq_data_entry]
                         qq_attribute_keys = list(qq_data[0].keys())
+
                         if ('associated_entries' in qq_attribute_keys):
                             query_collection.update_one({'_id': record_entry.inserted_id},
-                                                        {'$set': {'associated_entries': qq_data[0]['associated_entries']+entry_id_list}})
+                                                        {'$set': {'associated_entries': qq_data[0]['associated_entries']+entry_id_list}
+
+                                                         })
                         else:
                             query_collection.update_one({'_id': record_entry.inserted_id},
                                                         {'$set': {'associated_entries': entry_id_list}})
@@ -224,7 +240,7 @@ if __name__ == '__main__':
                         print("Initial crawling successful")
                         print("Dequeue message from initial crawling queue")
                         ic_client.delete_message(msg)
-                        print("Adding to query queue")
+                        # print("Adding to query queue")
 
                         print("Adding to deep_crawling_chain(deep_crawling,feature_extraction,classification_model)")
                         add_to_deep_crawling_queue(entry_id_list)
@@ -240,8 +256,8 @@ if __name__ == '__main__':
                         add_to_dnb_queue(entry_id_list)
                         print("Adding to google tp extraction queue")
                         add_to_tp_queue(entry_id_list)
-                        print("Adding to Avention extraction queue")
-                        add_to_avention_queue(entry_id_list)
+                        # print("Adding to Avention extraction queue")
+                        # add_to_avention_queue(entry_id_list)
                         # print("Adding to Crunchbase extraction queue")
                         # add_to_cb_queue(entry_id_list)
                         print("Adding to linkedin cp extraction queue")

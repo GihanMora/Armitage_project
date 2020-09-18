@@ -78,10 +78,10 @@ def get_results_pt(query):
         similar_queries = []
         for each_res in syn_results:
             similar_queries.append(each_res.get_text())
-
-        return similar_queries
         browser.close()
         browser.quit()
+        return similar_queries
+
     except WebDriverException:
         print("Browser Issue Occured!")
         if(browser!=None):

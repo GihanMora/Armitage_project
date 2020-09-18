@@ -43,12 +43,12 @@ def add_to_initial_crawling_queue(name_list):
 def process_queries(key_phrases):
     queries = []
     for each_phrase in key_phrases:
-        # query = each_phrase+" in australia or newzealand"
-        # queries.append(query)
-        queries_from_pt = get_results_pt(each_phrase)
-        for each_q in [each_phrase]+queries_from_pt[:5]:
-            query = each_q+" in australia or newzealand"
-            queries.append(query)
+        query = each_phrase+" in australia or newzealand"
+        queries.append(query)
+        # # queries_from_pt = get_results_pt(each_phrase)
+        # for each_q in [each_phrase]+queries_from_pt[:2]:
+        #     query = each_q+" in australia or newzealand"
+        #     queries.append(query)
 
     return queries
 
@@ -57,19 +57,27 @@ def get_projects_via_queue():
     mycol = refer_projects_col()
     connect_str = os.getenv('AZURE_STORAGE_CONNECTION_STRING')
     projects_client = QueueClient.from_connection_string(connect_str, "projects-queue")
+
     while (True):
+
         rows = projects_client.receive_messages()
+        # print(rows)
         for msg in rows:
+
             # time.sleep(60)
             row = msg.content
             row = ast.literal_eval(row)
+
             print(row[0],' processing queries from the key phrases')
             entry_id = ObjectId(row[0])
             proj_data_entry = mycol.find({"_id": entry_id})
             data = [i for i in proj_data_entry]
-            print(data[0])
+            # print(data[0])
             key_phrases = data[0]['key_phrases']
             queries = process_queries(key_phrases)
+            query_count = len(queries)
+            mycol.update_one({'_id': entry_id },
+                                        {'$set': {'query_count': query_count}})
             for each_query in queries:
                 print(each_query," adding to pipeline execution")
                 add_to_initial_crawling_queue([each_query+' ++'+str(entry_id)+' --project'])
@@ -109,7 +117,7 @@ def create_and_queue_project(project_name,key_phrases):
     print("Adding to projects queue")
     add_to_projects_queue([record_entry.inserted_id])
 
-# create_and_queue_project('Educational softwares project',['Hazard management'])
+# create_and_queue_project('Risk Management project',['Hazard management companies'])
 # get_projects_via_queue()
 
 # print(process_queries(['medical management system']))
