@@ -104,7 +104,7 @@ def getGoogleLinksForSearchText(searchText,number_of_results,mode):#given a sear
 
         results = []
         result_div = soup.find_all('div', attrs={'class': 'g'})
-
+        print('res',len(result_div))
         for r in result_div:
             # Checks if each element is present, else, raise exception
             try:
@@ -116,11 +116,11 @@ def getGoogleLinksForSearchText(searchText,number_of_results,mode):#given a sear
                     title = title.get_text()
 
                 description = None
-                description = r.find('span', attrs={'class': 'st'})#extracting the description
+                description = r.find('span', attrs={'class': 'aCOpRe'})#extracting the description
 
                 if isinstance(description, Tag):
                     description = description.get_text()
-
+                print([link,title,description])
                 # Check to make sure everything is present before appending
                 if (link not in ['',None]) and (title not in ['',None]) and (description not in ['',None]):#remove links if information is not available
                     rich_description = []
@@ -194,7 +194,7 @@ def getGoogleLinksForSearchText(searchText,number_of_results,mode):#given a sear
 #     print(searchResult)
 
 #example
-# searchResults = getGoogleLinksForSearchText("caltext australia",3)
+# searchResults = getGoogleLinksForSearchText("caltext australia",3,'normal')
 # for searchResult in searchResults:
 #     print(searchResult)
 

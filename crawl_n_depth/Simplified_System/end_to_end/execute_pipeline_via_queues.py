@@ -148,6 +148,8 @@ def project_state_update_via_queue():
             except Exception as e:
                 print("Exception Occured during dumping ",e)
 if __name__ == '__main__':
+    f = open("test_out.txt", 'w')
+    sys.stdout = f
     print("Pipeline execution started via queues")
     p1 = Process(target=run_crawlers_via_queue_chain)
     p1.start()
@@ -183,11 +185,13 @@ if __name__ == '__main__':
     p16.start()
 
 
+
     connect_str = os.getenv('AZURE_STORAGE_CONNECTION_STRING')
     ic_client = QueueClient.from_connection_string(connect_str, "initial-crawling-queue")
     mycol = refer_collection()
     projects_col = refer_projects_col()
     while (True):
+        # print("reading messages")
         rows = ic_client.receive_messages()
         for msg in rows:
             # time.sleep(120)
@@ -401,3 +405,6 @@ if __name__ == '__main__':
                     print("Mode did not recognized!")
             except IndexError:
                 print("Query is not in required format")
+
+        sys.stdout.flush()
+    f.close()

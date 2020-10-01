@@ -100,7 +100,7 @@ def scrape_cb(url):
         headers = {"User-Agent":"Mozilla/5.0 (Macintosh; Intel Mac OS X 10.14; rv:66.0) Gecko/20100101 Firefox/66.0" , "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8", "Accept-Language": "en-US,en;q=0.5", "Accept-Encoding": "gzip, deflate", "DNT": "1", "Connection": "close", "Upgrade-Insecure-Requests": "1"}
 
         response = requests.get(url, headers=headers)
-        # print(response.text)
+        # print('resp',response.text)
         soup = BeautifulSoup(response.text, 'html.parser')#bs4
         if('captcha' in response.text):
 
@@ -119,15 +119,22 @@ def scrape_cb(url):
         #     print("captcha detected!")
         #     return data_dict
         # print(soup)
-        header_ele = soup.findAll("div",attrs={'class': 'flex layout-column layout-align-center-center layout-align-gt-sm-center-start text-content'})
         c_name,descrip,head_q = '','',''
-        for each_h in header_ele:
-            if(each_h.find("blob-formatter",attrs={'class' :'ng-star-inserted'})):
-                c_name = each_h.find("blob-formatter",attrs={'class' :'ng-star-inserted'}).get_text()
-            if(each_h.find("span", attrs={'class': 'component--field-formatter field-type-text_long ng-star-inserted'})):
-                descrip = each_h.find("span", attrs={'class': 'component--field-formatter field-type-text_long ng-star-inserted'}).get_text()
-            if(each_h.find("span", attrs={'class': 'component--field-formatter field-type-identifier-multi'})):
-                head_q = each_h.find("span", attrs={'class': 'component--field-formatter field-type-identifier-multi'}).get_text()
+        c_name = soup.find("span",attrs={'class' :'profile-name'})
+        descrip = soup.find("description-card",attrs={'class' :'ng-star-inserted'})
+
+        # fields = soup.find("fields-card",attrs={'class' :'ng-star-inserted'})
+        # for each_ele in fields.soup.findAll("li",attrs={'class' :'ng-star-inserted'}):
+        #     print('ele',each_ele.get_text())
+        # header_ele = soup.findAll("div",attrs={'class': 'flex layout-column layout-align-center-center layout-align-gt-sm-center-start text-content'})
+
+        # for each_h in header_ele:
+        #     if(each_h.find("blob-formatter",attrs={'class' :'ng-star-inserted'})):
+        #         c_name = each_h.find("blob-formatter",attrs={'class' :'ng-star-inserted'}).get_text()
+        #     if(each_h.find("span", attrs={'class': 'component--field-formatter field-type-text_long ng-star-inserted'})):
+        #         descrip = each_h.find("span", attrs={'class': 'component--field-formatter field-type-text_long ng-star-inserted'}).get_text()
+        #     if(each_h.find("span", attrs={'class': 'component--field-formatter field-type-identifier-multi'})):
+        #         head_q = each_h.find("span", attrs={'class': 'component--field-formatter field-type-identifier-multi'}).get_text()
         # print([c_name,descrip,head_q])
         tags = []
         details = []
@@ -136,34 +143,53 @@ def scrape_cb(url):
             ele_lists = each_f_c.findAll("li", attrs={'class':'ng-star-inserted'})
 
             for each_e_l in ele_lists:
-                print(each_e_l)
-                tag_e = each_e_l.find("span", attrs={'class':"wrappable-label-with-info ng-star-inserted"}).get_text()
-                det_e = each_e_l.find("field-formatter", attrs={'class':"ng-star-inserted"}).get_text()
-                tags.append(tag_e)
+                # print(each_e_l)
+                if('label-with-icon' in str(each_e_l)):
+                    icon_path = each_e_l.find("path").attrs['d']
+                    if(icon_path=='M16.36,10.91a3.28,3.28,0,1,0-3.27-3.27A3.26,3.26,0,0,0,16.36,10.91Zm-8.72,0A3.28,3.28,0,1,0,4.36,7.64,3.26,3.26,0,0,0,7.64,10.91Zm0,2.18C5.09,13.09,0,14.37,0,16.91v2.73H15.27V16.91C15.27,14.37,10.18,13.09,7.64,13.09Zm8.72,0a10.24,10.24,0,0,0-1,.06,4.59,4.59,0,0,1,2.14,3.76v2.73H24V16.91C24,14.37,18.91,13.09,16.36,13.09Z'):
+                        det_e = each_e_l.find("field-formatter", attrs={'class': "ng-star-inserted"}).get_text()
+                        # print('ne',det_e)
+                        data_dict['Number of Employees_cb'] = det_e
+                    if (icon_path == 'M14.4,6L14,4H5v17h2v-7h5.6l0.4,2h7V6H14.4z'):
+                        det_e = each_e_l.find("field-formatter", attrs={'class': "ng-star-inserted"}).get_text()
+                        data_dict['IPO_Status_cb'] = det_e
+                        # print('state',det_e)
+                    #
+                    # det_e = each_e_l.find("span",attrs={'class': "component--field-formatter"}).get_text()
+                    # print(det_e.strip())
 
-                tag_e = tag_e.replace(" ","_").strip()
+                elif('label-with-info' in str(each_e_l)):
 
-                tag_e = tag_e+'_cb'
-                if ('facebook' in det_e.lower()):
-                    # print(each_det)
-                    a = each_e_l.find('a', href=True)
-                    # print(tag_e,a['href'])
-                    data_dict[tag_e]=a['href']
-                    # details.append(a['href'])
-                elif ('twitter' in det_e.lower()):
-                    # print(each_det)
-                    a = each_e_l.find('a', href=True)
-                    # print(tag_e,a['href'])
-                    data_dict[tag_e] = a['href']
-                    # details.append(a['href'])
-                elif ('linkedin' in det_e.lower()):
-                    # print(each_det)
-                    a = each_e_l.find('a', href=True)
-                    # print(tag_e,a['href'])
-                    data_dict[tag_e] = a['href']
-                    # details.append(a['href'])
-                else:
-                    data_dict[tag_e] = det_e
+                    tag_e = each_e_l.find("span", attrs={'class':"wrappable-label-with-info ng-star-inserted"}).get_text()
+                    det_e = each_e_l.find("field-formatter", attrs={'class':"ng-star-inserted"}).get_text()
+                    tags.append(tag_e)
+
+                    tag_e = tag_e.replace(" ","_").strip()
+
+                    if('Headquarters_Location' in tag_e):
+                        tag_e = 'comp_headquaters_cb'
+                        data_dict[tag_e] = det_e
+                    tag_e = tag_e+'_cb'
+                    if ('facebook' in det_e.lower()):
+                        # print(each_det)
+                        a = each_e_l.find('a', href=True)
+                        # print(tag_e,a['href'])
+                        data_dict[tag_e]=a['href']
+                        # details.append(a['href'])
+                    elif ('twitter' in det_e.lower()):
+                        # print(each_det)
+                        a = each_e_l.find('a', href=True)
+                        # print(tag_e,a['href'])
+                        data_dict[tag_e] = a['href']
+                        # details.append(a['href'])
+                    elif ('linkedin' in det_e.lower()):
+                        # print(each_det)
+                        a = each_e_l.find('a', href=True)
+                        # print(tag_e,a['href'])
+                        data_dict[tag_e] = a['href']
+                        # details.append(a['href'])
+                    else:
+                        data_dict[tag_e] = det_e
                     # print(tag_e,det_e)
         # tags_ele = soup.findAll("span", attrs={'class': 'cb-text-color-medium field-label flex-100 flex-gt-sm-25 ng-star-inserted'}) + soup.findAll("span",
         #                                                                                                          attrs={
@@ -193,10 +219,12 @@ def scrape_cb(url):
         if(len(data_dict.keys())):
             data_dict['link_cb'] = url
         if(c_name!=''):data_dict['comp_name_cb']=c_name
-        if (c_name != ''): data_dict['comp_description_cb'] = descrip
-        if (c_name != ''): data_dict['comp_headquaters_cb'] = head_q
+        if (descrip != ''): data_dict['comp_description_cb'] = descrip
+        if('comp_headquaters_cb' in data_dict.keys()):
+            head_q = data_dict['comp_headquaters_cb']
+        # if (c_name != ''): data_dict['comp_headquaters_cb'] = head_q
 
-        print(data_dict)
+        # print(data_dict)
 
         if(c_name=='List Australia'):
             print('wrong crunchbase profile found list australia')
@@ -223,7 +251,7 @@ def scrape_cb(url):
         print("Exception Occured!", e)
         return 'error'
 
-# scrape_cb('https://www.crunchbase.com/organization/scrim-safety-first')
+# scrape_cb('https://www.crunchbase.com/organization/coles')
 def get_cb_data(id_list):
     mycol = refer_collection()
     for entry_id in id_list:
@@ -352,3 +380,16 @@ left_set = [item for item in all_ids_fixed if item not in edu_set]
 
 # add_to_cb_queue(left_set)
 # get_cb_data_via_queue()
+
+# <li _ngcontent-sc391="" class="ng-star-inserted">
+# <label-with-icon _ngcontent-sc391="" _nghost-sc247="" class="ng-star-inserted">
+# <theme-icon _ngcontent-sc391="" aria-describedby="cdk-describedby-message-214852" cdk-describedby-host="" class="mat-tooltip-trigger inherit default ng-star-inserted" color="inherit" mattooltipshowdelay="500">
+# <icon class="ng-star-inserted" style="color:;"><svg class="default inherit" viewbox="0 0 24 24">
+# <path d="M12,2C8.1,2,5,5.1,5,9c0,5.2,7,13,7,13s7-7.8,7-13C19,5.1,15.9,2,12,2z M12,11.5c-1.4,0-2.5-1.1-2.5-2.5s1.1-2.5,2.5-2.5s2.5,1.1,2.5,2.5S13.4,11.5,12,11.5z"></path></svg></icon></theme-icon>
+#
+# <span _ngcontent-sc247="">
+# <field-formatter _ngcontent-sc391="" class="ng-star-inserted">
+# <identifier-multi-formatter _nghost-sc231="" class="ng-star-inserted">
+# <span _ngcontent-sc231="" class="component--field-formatter field-type-identifier-multi">
+# <a _ngcontent-sc231="" class="link-accent ng-star-inserted" href="/search/organizations/field/organizations/location_group_identifiers/asia-pacific" title="Asia-Pacific (APAC)">
+# Asia-Pacific (APAC)</a>,<a _ngcontent-sc231="" class="link-accent ng-star-inserted" href="/search/organizations/field/organizations/location_group_identifiers/australasia" title="Australasia"> Australasia</a></span></identifier-multi-formatter></field-formatter></span></label-with-icon></li>
