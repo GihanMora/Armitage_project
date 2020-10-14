@@ -224,6 +224,7 @@ def update_a_company(comp_name, db_collection, entry_id):
 def search_a_query(search_query,number_of_results,db_collection,query_entry):
     try:
         sr = getGoogleLinksForSearchText(search_query, number_of_results, 'normal')
+        print('came',len(sr))
         count = 0
         while (sr == 'captcha'):
             count = count + 1
@@ -241,7 +242,7 @@ def search_a_query(search_query,number_of_results,db_collection,query_entry):
             filtered_received_links = []
             for each_l in received_links:
                 if (('.com/' in each_l) or ('.education/' in each_l) or ('.io/' in each_l) or ('.com.au/' in each_l) or (
-                        '.net/' in each_l) or ('.org/' in each_l) or ('.co.nz/' in each_l) or ('.nz/' in each_l) or (
+                        '.net/' in each_l)  or ('.co.nz/' in each_l) or ('.nz/' in each_l) or (
                         '.au/' in each_l) or ('.biz/' in each_l)):
                     # print(each)
                     filtered_received_links.append(each_l)
@@ -262,11 +263,11 @@ def search_a_query(search_query,number_of_results,db_collection,query_entry):
                     continue
                 if (('.gov.' in received_domains[k]) or ('.govt.' in received_domains[k]) or ('.edu.' in received_domains[k]) or ('.uk' in received_domains[k]) ):  # filter non wanted websites
                     continue
-                sr = getGoogleLinksForSearchText(received_domains[k], 3, 'normal')
+                sr = getGoogleLinksForSearchText(received_domains[k], 3, 'initial')
                 if (len(sr) == 0):
-                    sr = getGoogleLinksForSearchText(received_domains[k], 3, 'normal')
+                    sr = getGoogleLinksForSearchText(received_domains[k], 3, 'initial')
                     if (len(sr) == 0):
-                        sr = getGoogleLinksForSearchText(received_domains[k], 3, 'normal')
+                        sr = getGoogleLinksForSearchText(received_domains[k], 3, 'initial')
                 if(len(sr)>0):
                     print(sr[0])
                     res_data = is_profile_exist(sr[0]['link'])
@@ -305,6 +306,11 @@ def search_a_query(search_query,number_of_results,db_collection,query_entry):
                         sr[0]['comp_name'] = c_name
                     print(sr[0])
                     sr[0]['query_id'] = query_entry
+                    sr[0]['ignore_flag']= '0'
+                    rich_description = sr[0]['rich_description']
+                    if (rich_description != 'None' or rich_description != ''):
+                        sr[0]['description'] = rich_description
+
                     record_entry = db_collection.insert_one(sr[0])
                     print("search record stored in db: ", record_entry.inserted_id)
                     ids_list.append(record_entry.inserted_id)

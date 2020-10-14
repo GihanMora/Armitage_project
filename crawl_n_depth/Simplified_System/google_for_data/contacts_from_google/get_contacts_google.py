@@ -76,13 +76,17 @@ def scrape_cp_from_google(company_name,role):
         if (is_captcha_on_page):  # a captcha triggered
             print("Captcha Detected")
             return 'captcha'
-
+        print(searchGoogle)
 
         panels = soup.find_all('div', attrs={'class': 'kp-blk c2xzTb Wnoohf OJXvsb'})
         for each_pan in panels:
             descriptions = each_pan.find_all('div', attrs={'class': 'LGOjhe'})
             cp_names = each_pan.find_all('div',attrs={'class':"Z0LcW XcVN5d AZCkJd"})
-            sources_r = each_pan.find('div', attrs={'class': 'r'})
+            sources_r = each_pan.find('div', attrs={'class': 'rc'})
+            print(descriptions,cp_names,sources_r)
+            print('des',descriptions)
+            print('cp_names',cp_names)
+            print('sources',sources_r)
             sources_kp = sources_r.find_all('a')
             for each_r in cp_names:
                 # print(each_r.get_text())
@@ -148,7 +152,7 @@ def scrape_cp_from_google(company_name,role):
         return 'error'
 
 
-# scrape_cp_from_google('canva','CEO')
+# print(scrape_cp_from_google('canva','CEO'))
 
 def get_cp_from_google(id_list):
     # mycol = refer_collection()
@@ -193,12 +197,13 @@ def get_cp_from_google_via_queue():
     cp_client = QueueClient.from_connection_string(connect_str, "google-cp-queue")
 
     while (True):
+        time.sleep(10)
         rows = cp_client.receive_messages()
         for msg in rows:
             time.sleep(120)
             row = msg.content
             row = ast.literal_eval(row)
-            print(row[0])
+            print(row[0],'google cp')
             entry_id = ObjectId(row[0])
             comp_data_entry = mycol.find({"_id": entry_id})
             data = [i for i in comp_data_entry]

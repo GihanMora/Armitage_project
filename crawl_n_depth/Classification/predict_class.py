@@ -45,6 +45,7 @@ def predict_class_tags_via_queue():
         mycol = refer_collection()
         while (True):
             try:
+                time.sleep(10)
                 rows = cl_client.receive_messages()
                 for msg in rows:
                     time.sleep(8)

@@ -7,7 +7,7 @@ import time
 from azure.storage.queue import QueueClient
 from bson import ObjectId
 #fix this path variable when using in another machine
-
+# C:\Users\gihan\AppData\Local\Programs\Python\Python37\python.exe execute_pipeline_via_queues.py
 
 
 from os.path import dirname as up
@@ -15,8 +15,9 @@ from os.path import dirname as up
 
 
 three_up = up(up(up(__file__)))
-# sys.path.insert(0, three_up)
-sys.path.insert(0,'F:/from git/Armitage_project/crawl_n_depth')
+# print('relative',three_up)
+sys.path.insert(0, three_up)
+sys.path.insert(0,'C:/Project_files/Armitage_project/crawl_n_depth')
 # print(three_up)
 # print(sys.path)
 from fake_useragent import UserAgent
@@ -63,6 +64,7 @@ def query_state_update_via_queue():
 
     while (True):
         # print('q')
+        time.sleep(200)
         rows = query_client.receive_messages()
         for msg in rows:
             time.sleep(10)
@@ -81,6 +83,7 @@ def query_state_update_via_queue():
                 completed_count = 0
                 for each_entry_res in associated_entries:
                     res_entry = mycol.find({"_id": each_entry_res})
+                    # print("profile",each_entry_res)
                     data_res = [i for i in res_entry]
                     if(data_res[0]['simplified_dump_state']=='Completed'):
                         completed_count+=1
@@ -110,18 +113,18 @@ def project_state_update_via_queue():
     proj_collection = refer_projects_col()
     query_collection = refer_query_col()
 
-
     connect_str = os.getenv('AZURE_STORAGE_CONNECTION_STRING')
     project_comp_client = QueueClient.from_connection_string(connect_str, "project-completion-queue")
 
     while (True):
         # print('*')
+        time.sleep(600)
         rows = project_comp_client.receive_messages()
         for msg in rows:
             time.sleep(10)
             row = msg.content
             row = ast.literal_eval(row)
-            # print(row[0])
+            print(row[0])
             entry_id = ObjectId(row[0])
             project_data_entry = proj_collection.find({"_id": entry_id})
             data = [i for i in project_data_entry]
@@ -134,7 +137,7 @@ def project_state_update_via_queue():
                     data_res = [i for i in que_entry]
                     if(data_res[0]['state']=='Completed'):
                         completed_count+=1
-
+                print(['comp',completed_count,data[0]['query_count']])
                 if(completed_count==data[0]['query_count']):
                     print("All the queries are completed for the project",completed_count)
                     proj_collection.update_one({'_id': entry_id},
@@ -148,8 +151,10 @@ def project_state_update_via_queue():
             except Exception as e:
                 print("Exception Occured during dumping ",e)
 if __name__ == '__main__':
-    f = open("test_out.txt", 'w')
-    sys.stdout = f
+    # import sys
+
+    # f = open("test_out.txt", 'w')
+    # sys.stdout = f
     print("Pipeline execution started via queues")
     p1 = Process(target=run_crawlers_via_queue_chain)
     p1.start()
@@ -165,8 +170,8 @@ if __name__ == '__main__':
     p6.start()
     p7 = Process(target=get_oc_data_via_queue)
     p7.start()
-    p8 = Process(target=get_aven_data_via_queue)
-    p8.start()
+    # p8 = Process(target=get_aven_data_via_queue)
+    # p8.start()
     p9 = Process(target=get_ad_from_google_via_queue)
     p9.start()
     p10 = Process(target=get_dnb_data_via_queue)
@@ -185,13 +190,11 @@ if __name__ == '__main__':
     p16.start()
 
 
-
     connect_str = os.getenv('AZURE_STORAGE_CONNECTION_STRING')
     ic_client = QueueClient.from_connection_string(connect_str, "initial-crawling-queue")
     mycol = refer_collection()
     projects_col = refer_projects_col()
     while (True):
-        # print("reading messages")
         rows = ic_client.receive_messages()
         for msg in rows:
             # time.sleep(120)
@@ -214,11 +217,11 @@ if __name__ == '__main__':
                     print("Started on", dateTimeObj)
                     started = time.time()
                     print("***Initial Crawling Phrase***")
-                    entry_id_list = search_a_query(query, 5, mycol, record_entry.inserted_id)
+                    entry_id_list = search_a_query(query, 100, mycol, record_entry.inserted_id)
                     if (entry_id_list == None):
                         for i in range(3):
                             print("Initial crawling incomplete..retrying", i)
-                            entry_id_list = search_a_query(query, 5, mycol, record_entry.inserted_id)
+                            entry_id_list = search_a_query(query, 100, mycol, record_entry.inserted_id)
                             time.sleep(5)
                             if (entry_id_list != None): break
                     if (entry_id_list == None):
@@ -262,8 +265,8 @@ if __name__ == '__main__':
                         add_to_tp_queue(entry_id_list)
                         # print("Adding to Avention extraction queue")
                         # add_to_avention_queue(entry_id_list)
-                        # print("Adding to Crunchbase extraction queue")
-                        # add_to_cb_queue(entry_id_list)
+                        print("Adding to Crunchbase extraction queue")
+                        add_to_cb_queue(entry_id_list)
                         print("Adding to linkedin cp extraction queue")
                         add_to_li_cp_queue(entry_id_list)
                         print("Adding to simplified dump queue")
@@ -295,11 +298,11 @@ if __name__ == '__main__':
                     print("Started on", dateTimeObj)
                     started = time.time()
                     print("***Initial Crawling Phrase***")
-                    entry_id_list = search_a_query(query, 5, mycol, record_entry.inserted_id)
+                    entry_id_list = search_a_query(query, 100, mycol, record_entry.inserted_id)
                     if (entry_id_list == None):
                         for i in range(3):
                             print("Initial crawling incomplete..retrying", i)
-                            entry_id_list = search_a_query(query, 5, mycol, record_entry.inserted_id)
+                            entry_id_list = search_a_query(query, 100, mycol, record_entry.inserted_id)
                             time.sleep(5)
                             if (entry_id_list != None): break
                     if (entry_id_list == None):
@@ -336,8 +339,8 @@ if __name__ == '__main__':
                         add_to_dnb_queue(entry_id_list)
                         print("Adding to google tp extraction queue")
                         add_to_tp_queue(entry_id_list)
-                        print("Adding to Avention extraction queue")
-                        add_to_avention_queue(entry_id_list)
+                        # print("Adding to Avention extraction queue")
+                        # add_to_avention_queue(entry_id_list)
                         # print("Adding to Crunchbase extraction queue")
                         # add_to_cb_queue(entry_id_list)
                         print("Adding to linkedin cp extraction queue")
@@ -406,5 +409,5 @@ if __name__ == '__main__':
             except IndexError:
                 print("Query is not in required format")
 
-        sys.stdout.flush()
-    f.close()
+
+# project_state_update_via_queue()

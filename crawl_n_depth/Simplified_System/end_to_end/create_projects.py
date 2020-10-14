@@ -2,7 +2,7 @@ import ast
 import os
 from datetime import datetime
 import sys
-
+import time
 from azure.storage.queue import QueueClient
 from bson import ObjectId
 from os.path import dirname as up
@@ -59,7 +59,7 @@ def get_projects_via_queue():
     projects_client = QueueClient.from_connection_string(connect_str, "projects-queue")
 
     while (True):
-
+        time.sleep(10)
         rows = projects_client.receive_messages()
         # print(rows)
         for msg in rows:

@@ -12,7 +12,7 @@ from os.path import dirname as up
 three_up = up(up(up(__file__)))
 sys.path.insert(0, three_up)
 from Simplified_System.Database.db_connect import refer_collection
-
+import time
 
 from key_phrase_extractors.kpe_model import key_phrase_extract
 from LDA_models.lda_model import run_lda_model
@@ -50,6 +50,7 @@ def extract_features_via_queue():
     connect_str = os.getenv('AZURE_STORAGE_CONNECTION_STRING')
     f_e_client = QueueClient.from_connection_string(connect_str, "feature-extraction-queue")
     while (True):
+        time.sleep(10)
         rows = f_e_client.receive_messages()
         for msg in rows:
             row = msg.content
@@ -87,6 +88,7 @@ def extract_features_via_queue_chain():
     f_e_client = QueueClient.from_connection_string(connect_str, "feature-extraction-queue")
     cl_client = QueueClient.from_connection_string(connect_str, "type-predict-queue")
     while (True):
+        time.sleep(10)
         rows = f_e_client.receive_messages()
         for msg in rows:
             row = msg.content

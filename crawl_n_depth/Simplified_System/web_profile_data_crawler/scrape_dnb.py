@@ -246,7 +246,7 @@ def get_dnb_data(id_list):
     for entry_id in id_list:
         comp_data_entry = mycol.find({"_id": entry_id})
         data = [i for i in comp_data_entry]
-        print(data)
+        # print(data)
         comp_name = data[0]['comp_name']
         print(entry_id)
         try:
@@ -294,6 +294,7 @@ def get_dnb_data_via_queue():
     connect_str = os.getenv('AZURE_STORAGE_CONNECTION_STRING')
     dnb_client = QueueClient.from_connection_string(connect_str, "dnb-extraction-queue")
     while (True):
+        time.sleep(10)
         rows = dnb_client.receive_messages()
         for msg in rows:
             time.sleep(120)
@@ -304,7 +305,7 @@ def get_dnb_data_via_queue():
     # for entry_id in id_list:
             comp_data_entry = mycol.find({"_id": entry_id})
             data = [i for i in comp_data_entry]
-            print(data)
+            # print(data)
             comp_name = data[0]['comp_name']
             print(entry_id)
             try:

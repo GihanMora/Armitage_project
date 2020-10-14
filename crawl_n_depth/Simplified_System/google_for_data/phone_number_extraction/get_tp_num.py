@@ -59,6 +59,7 @@ def scrape_tp_from_google(company_name):
         browser = get_browser()
         searchText = company_name+' australia phone number'
         searchGoogle = URL = f"https://google.com/search?q={searchText}"+"&num=" + str(10)
+        print(searchGoogle)
         browser.get(searchGoogle)
         time.sleep(5)
         pageSource = browser.page_source
@@ -123,7 +124,7 @@ def scrape_tp_from_google(company_name):
             browser.close()
             browser.quit()
         return 'error'
-
+# scrape_tp_from_google('skedulo')
 
 def get_tp_from_google(id_list):
     # mycol = refer_collection()
@@ -169,9 +170,10 @@ def get_tp_from_google_via_queue():
     connect_str = os.getenv('AZURE_STORAGE_CONNECTION_STRING')
     tp_client = QueueClient.from_connection_string(connect_str, "google-tp-queue")
     while (True):
+        time.sleep(10)
         rows = tp_client.receive_messages()
         for msg in rows:
-            time.sleep(120)
+            time.sleep(60)
             row = msg.content
             row = ast.literal_eval(row)
             print(row[0])

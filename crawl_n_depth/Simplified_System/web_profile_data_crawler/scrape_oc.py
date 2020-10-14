@@ -192,6 +192,7 @@ def get_oc_data_via_queue():
     connect_str = os.getenv('AZURE_STORAGE_CONNECTION_STRING')
     oc_client = QueueClient.from_connection_string(connect_str, "opencorporates-extraction-queue")
     while (True):
+        time.sleep(10)
         rows = oc_client.receive_messages()
         for msg in rows:
             time.sleep(120)

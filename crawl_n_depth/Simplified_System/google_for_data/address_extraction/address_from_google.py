@@ -106,6 +106,7 @@ def scrape_address_from_google(company_name):
         browser = get_browser()
         searchText = company_name+' australia street address'
         searchGoogle = URL = f"https://google.com/search?q={searchText}"+"&num=" + str(10)
+        print(searchGoogle)
         browser.get(searchGoogle)
         time.sleep(5)
         pageSource = browser.page_source
@@ -137,8 +138,8 @@ def scrape_address_from_google(company_name):
             is_captcha_on_page = soup.find("div", id="recaptcha") is not None
 
 
-        result_div = soup.find('div', attrs={'class': 'NqXXPb'})
-        result_des = soup.find('div', attrs={'class': 'yhMtKb'})
+        result_div = soup.find('div', attrs={'class': 'MWXBS'})
+        result_des = soup.find('div', attrs={'class': 'DoKLEd'})
         # print(result_div,result_des)
         if(result_div!=None):
 
@@ -163,7 +164,7 @@ def scrape_address_from_google(company_name):
             browser.close()
             browser.quit()
         return 'error'
-# scrape_address_from_google("2and2asasz")
+# scrape_address_from_google("2and2")
 
 def get_ad_from_google(id_list):
     # mycol = refer_collection()
@@ -209,6 +210,7 @@ def get_ad_from_google_via_queue():
     connect_str = os.getenv('AZURE_STORAGE_CONNECTION_STRING')
     ad_client = QueueClient.from_connection_string(connect_str, "google-address-queue")
     while (True):
+        time.sleep(10)
         rows = ad_client.receive_messages()
         for msg in rows:
             time.sleep(120)

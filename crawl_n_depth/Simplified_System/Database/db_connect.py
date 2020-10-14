@@ -15,9 +15,6 @@ from bson import ObjectId
 import csv
 
 from os.path import dirname as up
-
-
-
 three_up = up(up(up(__file__)))
 sys.path.insert(0, three_up)
 
@@ -25,7 +22,7 @@ from Simplified_System.evaluate_results.address_confidence import get_address_co
 from Simplified_System.evaluate_results.cp_confidence import get_cp_confidence,get_every_cp_confidence
 from Simplified_System.evaluate_results.hq_confidence import get_hq_confidence,get_every_hq_confidence
 from Simplified_System.evaluate_results.tp_confidence import get_tp_confidence,get_every_tp_confidence
-from Simplified_System.evaluate_results.row_accuracy import moderate_confidence
+
 
 nz_prefixes = ['0320','0321','0322','0323','0324','0326','0327','0328','0330','0331','0332','0333','0334','0335','0336','0337','0338','03409','0341','0343','0344','0345','0346','0347','0348','0352','0354','0357','0361','0368','0369','0373','0375','0376','0378','0390','03927','0394','0395','0396','0397','0398','0423','0429','043','044','045','0480','0490','049','0627','0630','0632','0634','0635','0636','0637','0638','0675','0676','0683','0684','0685','0686','0687','0694','0695','0696','0697','0698','0730','0731','0732','0733','0734','0735','0736','0737','0738','0754','0757','0756','0782','0783','0784','0785','0786','0787','0788','0789','0790','0792','0793','0795','0796','0923','092','093','0940','0941','0942','0943','0944','0947','0948','095','096','098','0990','0998','099','0201','0202','0203','0204','0205','0206','0207','0208','0209','021','022','023','024','025','026','027','0280','028','0284','02885','02886','02889','02896','029']
 au_prefixes = ['0233','0237','0238','0239','0240','0241','0242','0243','0244','0245','0246','0247','0248','0249','0250','0251','0252','0253','0254','0255','0256','0257','0258','0259','0260','0261','0262','0263','0264','0265','0266','0267','0268','0269','027','028','029','0332','0333','0334','0340','0341','0342','0343','0344','0345','0346','0347','0348','0349','0350','0351','0352','0353','0354','0355','0356','0357','0358','0359','0361','0362','0363','0364','0365','0367','037','038','039','072','073','0740','0741','0742','0743','0744','0745','0746','0747','0748','0749','0752','0753','0754','0755','0756','0757','0770','0775','0776','0777','0779','0825','0826','0851','0852','0853','0854','0855','0858','0860','0861','0862','0863','0864','0865','0866','0867','0868','0869','0870','0871','0872','0873','0874','0875','0876','0877','0878','0879','0880','0880','0881','0882','0883','0884','0885','0886','0887','0888','0889','0890','0891','0892','0893','0894','0895','0896','0897','0898','0899','040','041','042','043','044','045','046','047','048','049']
@@ -150,10 +147,13 @@ def get_all_ids():
     print(lst)
 # get_all_ids()
 def clear_the_collection():
-  mycol = refer_collection()
-  mycol.delete_many({})
+  mycol = refer_query_col()
+  mycol.delete_many({'state':'incomplete'})
   print("collection is cleared!")
 # clear_the_collection()
+
+
+
 
 def isvalid_hq(loc):
     is_valid = False
@@ -683,16 +683,18 @@ def simplified_export_via_queue():
 
     # results_writer.writerow(attributes_a)
     while (True):
+        time.sleep(10)
         rows = simplified_dump_client.receive_messages()
         for msg in rows:
             time.sleep(10)
             row = msg.content
             row = ast.literal_eval(row)
-            # print(row[0])
+            print('profile dumping',row[0])
             entry_id = ObjectId(row[0])
             comp_data_entry = mycol.find({"_id": entry_id})
             data = [i for i in comp_data_entry]
             #check_for_the_completion_of_components
+            # print(data[0]['deep_crawling_state'],data[0]['feature_extraction_state'],data[0]['classification_state'],data[0]['owler_qa_state'],data[0]['li_cp_state'],data[0]['google_cp_state'],data[0]['oc_extraction_state'],data[0]['google_address_state'],data[0]['dnb_extraction_state'],data[0]['google_tp_state'])
             try:
                 # if (data[0]['deep_crawling_state'] == data[0]['feature_extraction_state'] == data[0][
                 #     'classification_state'] == data[0]['owler_qa_state'] == data[0]['li_cp_state'] == data[0][
@@ -799,7 +801,7 @@ def simplified_update(id_list):
     mycol = refer_collection()
     csv_dump_col = refer_simplified_dump_col_min()
     # store data in a csv file
-    dump_name = 'F:\Armitage_project\crawl_n_depth\Simplified_System\end_to_end\data_dump\\' + str(
+    dump_name = 'C:\\Project_files\\Armitage_project\\crawl_n_depth\\Simplified_System\\dumps' + str(
         id_list[0]) + '_company_dump_simplified.csv'
     with open(dump_name, mode='w', encoding='utf8',
               newline='') as results_file:  # store search results in to a csv file
@@ -1420,643 +1422,6 @@ def simplified_export_with_sources(id_list,output_path):
             print("comp profile record stored")
         results_file.close()
     print("CSV export completed!")
-
-
-def simplified_export_with_sources_and_confidence(id_list,output_path):
-    print('simplified export with sources and confidence')
-    mycol = refer_collection()
-    csv_dump_col = refer_simplified_dump_col_min()
-    # store data in a csv file
-    # dump_name = 'F:\\from git\\Armitage_project\\crawl_n_depth\\Simplified_System\\dumps\\' + 'new_companies_with_sources.csv'
-    dump_name = output_path
-    with open(dump_name, mode='w', encoding='utf8',
-              newline='') as results_file:  # store search results in to a csv file
-        results_writer = csv.writer(results_file, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
-        attributes_a = ['search_text', 'title', 'link', 'description', 'comp_name',
-                        'address', 'email','telephone_number', 'keywords','contact_person', 'type_or_sector', 'founded_year',
-                        'revenue','funding','headquarters','No_of_employees','company_status']
-        confs = ['address_confidence', 'tp_confidence', 'headquarters_confidence', 'contact_confidence',
-                 'Total_confidence']
-        results_writer.writerow(attributes_a + confs)
-
-        for entry_id in id_list:
-            comp_data_entry = mycol.find({"_id": entry_id})
-            data = [i for i in comp_data_entry]
-            comp_data_entry_min = csv_dump_col.find({"_id": entry_id})
-            data_min = [i for i in comp_data_entry_min]
-
-
-            my_link = data[0]['link']
-            # for k in data[0].keys():
-            #     print(k)
-            # print(data)
-            data_list = []
-            data_list.extend([data[0]['search_text'],data[0]['title'],data[0]['link'],data[0]['description'],data[0]['comp_name']])
-            attribute_keys = list(data[0].keys())
-
-            if ('google_tp_source' in attribute_keys):google_tp_source = data[0]['google_tp_source']
-            else:google_tp_source = 'None'
-
-            if ('google_cp_source' in attribute_keys):google_cp_source = data[0]['google_cp_source']
-            else:google_cp_source = 'None'
-
-            if ('google_address_source' in attribute_keys):google_address_source = data[0]['google_address_source']
-            else:google_address_source = 'None'
-
-            if ('link_dnb' in attribute_keys):link_dnb = data[0]['link_dnb']
-            else:link_dnb = 'None'
-
-            if ('link_cb' in attribute_keys):link_cb = data[0]['link_cb']
-            else:link_cb = 'None'
-
-            if ('li_url' in attribute_keys):link_li = data[0]['li_url']
-            else:link_li = 'None'
-
-            if ('site_url_oc' in attribute_keys):site_url_oc = data[0]['site_url_oc']
-            else:site_url_oc = 'None'
-
-            if ('link_owler' in attribute_keys):link_owler = data[0]['link_owler']
-            else:link_owler = 'None'
-
-            if('comp_url_aven' in attribute_keys):
-                if('https://app.avention.com' not in data[0]['comp_url_aven']):
-                    link_aven = 'https://app.avention.com'+data[0]['comp_url_aven']
-                else:
-                    link_aven =data[0]['comp_url_aven']
-            else:link_aven = 'None'
-            a_conf = tp_conf = cp_conf = hq_conf = None
-            # print(attribute_keys)
-            for each_a in attributes_a:
-                try:
-                    if(each_a == 'address'):
-                        #address_fix
-                        try:
-                            g_add, w_ad, dnb_add, oc_add = '', '', '', ''
-                            if ('google_address' in attribute_keys):
-                                if (len(data[0]['google_address'])):
-                                    g_add = data[0]['google_address']
-                            if (len(data[0]['website_addresses_with_sources'])):
-                                for each in data[0]['website_addresses_with_sources']:
-                                    if (isvalid_hq(each[0])):
-                                        w_ad = each
-                                        break
-                            if ('company_address_dnb' in attribute_keys):
-                                if (len(data[0]['company_address_dnb'])):
-                                    dnb_add = data[0]['company_address_dnb'][0]
-                            if ('registered_address_adr_oc' in attribute_keys):
-                                oc_add = data[0]['registered_address_adr_oc']
-                            aven_add = ''
-                            if ('address_aven' in attribute_keys):
-                                aven_add = data[0]['address_aven']
-
-                            if (len(w_ad) != 0):
-                                # print('w')
-                                data_list.append([w_ad[0],w_ad[1]])
-                            elif (isvalid_hq(g_add)):
-                                # print('g')
-                                data_list.append([g_add,google_address_source])  # from google
-                            elif (isvalid_hq(aven_add)):
-                                # print('d')
-                                data_list.append([aven_add,link_aven])
-                            elif (isvalid_hq(dnb_add)):
-                                # print('d')
-                                data_list.append([dnb_add,link_dnb])
-                            elif (isvalid_hq(oc_add.lower())):
-                                # print('o')
-                                data_list.append([oc_add,site_url_oc])
-                            else:
-                                data_list.append('None')
-
-                            print("selected_address", data_list[-1])
-                            if (data_list[-1] != 'None'):
-                                a_conf = get_address_confidence(data_list[-1][0], entry_id)
-                                print('confidence of selected address', a_conf)
-                                if (a_conf != None):
-                                    if (a_conf > 0):
-                                        continue
-                                    else:
-                                        all_ads_with_conf = get_every_address_confidence(entry_id)
-                                        print('confidence of all addresses', all_ads_with_conf)
-                                        if (all_ads_with_conf != None):
-                                            highest_ads_with_conf = all_ads_with_conf[-1:]
-                                            print('highest', highest_ads_with_conf)
-                                            if (highest_ads_with_conf[0][2] > 0):
-                                                if(highest_ads_with_conf[0][1]=='google'):
-                                                    data_list[-1] = [highest_ads_with_conf[0][0],google_address_source]
-                                                if (highest_ads_with_conf[0][1] =='website'):
-                                                    for each in data[0]['website_addresses_with_sources']:
-                                                        if (each[0]==highest_ads_with_conf[0][0]):
-                                                            w_ad = each
-                                                            break
-                                                    data_list[-1] = w_ad
-                                                if (highest_ads_with_conf[0][1] == 'dnb'):
-                                                    data_list[-1] = [highest_ads_with_conf[0][0], link_dnb]
-                                                if (highest_ads_with_conf[0][1] == 'oc'):
-                                                    data_list[-1] = [highest_ads_with_conf[0][0], site_url_oc]
-                                                if (highest_ads_with_conf[0][1] == 'avention'):
-                                                    data_list[-1] = [highest_ads_with_conf[0][0], link_aven]
-
-
-                                                print('updated with highest confidence')
-
-                        except KeyError:
-                            data_list.append('None')
-
-                    if (each_a == 'email'):
-                        # print("***********eml")
-                        #email_fix
-                        try:
-                            if ('Contact_Email_cb' in attribute_keys):
-                                data_list.append([data[0]['Contact_Email_cb'],link_cb])
-                            elif (len(data[0]['emails_with_sources'])):
-                                data_list.append([data[0]['emails_with_sources'][0][0],data[0]['emails_with_sources'][0][1]])  # from website
-                            else:
-                                data_list.append("None")
-                            # else:
-                            #     data_list.append("None")
-                        except KeyError:
-                            data_list.append('None')
-
-                    if (each_a == 'telephone_number'):
-                        # print("***********tp")
-                        #tp_fix
-                        try:
-                            tp_cb_valid = False
-                            if ('Phone_Number_cb' in attribute_keys):
-                                # print('cb',data[0]['Phone_Number_cb'])
-                                if (is_valid_tp(data[0]['Phone_Number_cb'])):
-                                    tp_cb_valid = True
-                            tp_google_valid = False
-                            if ('google_tp' in attribute_keys):
-                                # print('cb',data[0]['Phone_Number_cb'])
-                                if (is_valid_tp(data[0]['google_tp'])):
-                                    tp_google_valid = True
-                            dnb_tp = []
-                            if ('company_tp_dnb' in attribute_keys):
-                                dnb_tp = data[0]['company_tp_dnb']  # from dnb
-                                # print(data_list,type(data_list))
-                            w_tp = []
-                            if (len(data[0]['telephone_numbers_with_sources'])):
-                                plus_t = []
-                                s_six = []
-                                other_t = []
-                                for each_tl in data[0]['telephone_numbers_with_sources']:
-                                    each_t = each_tl[0]
-                                    if (each_t[:3] in ['+61', '+64']):
-                                        if (is_valid_tp(each_t)):
-                                            plus_t.append(each_tl)
-                                    if (each_t[:2] in ['61', '64']):
-                                        if (is_valid_tp(each_t)):
-                                            s_six.append(each_tl)
-                                    if ((each_t[0] in ['0']) or (each_t[:4] in ['1300', '1800', '0800'])):
-                                        if (is_valid_tp(each_t)):
-                                            other_t.append(each_tl)
-                                w_tp = plus_t + s_six + other_t
-
-                            if (len(w_tp)):
-                                data_list.append([w_tp[0][0], w_tp[0][1]])
-                            elif (tp_google_valid):
-                                data_list.append([data[0]['google_tp'],google_tp_source])  # from google
-                            elif (tp_cb_valid):
-                                data_list.append([data[0]['Phone_Number_cb'],link_cb])
-                            elif ('Tel:_aven' in attribute_keys):
-                                # print(data[0]['Tel:_aven'])
-                                data_list.append([data[0]['Tel:_aven'],link_aven])
-                            elif ('phone_li' in attribute_keys):
-                                # print(data[0]['phone_li'].split("\n")[0])
-                                data_list.append([data[0]['phone_li'].split("\n")[0],link_li])
-                            elif (len(dnb_tp)):
-                                data_list.append([dnb_tp,link_dnb])  # from dnb
-                            else:
-                                data_list.append("None")
-
-                            if(len(data_list[-1])==2):
-                                data_list[-1][0] = restructure_tp(data_list[-1][0])
-                            # print(data_list[-1])
-
-                            # else:
-                            #     data_list.append("None")
-                            print("selected_tp", data_list[-1])
-                            if (data_list[-1] != 'None'):
-                                a_conf = get_tp_confidence(data_list[-1][0], entry_id)
-                                print('confidence of selected tp', a_conf)
-                                if (a_conf != None):
-                                    if (a_conf > 0):
-                                        continue
-                                    else:
-                                        all_ads_with_conf = get_every_tp_confidence(entry_id)
-                                        print('confidence of all tps', all_ads_with_conf)
-                                        if (all_ads_with_conf != None):
-                                            highest_ads_with_conf = all_ads_with_conf[-1:]
-                                            print('highest', highest_ads_with_conf)
-                                            if (highest_ads_with_conf[0][2] > 0):
-                                                if (highest_ads_with_conf[0][1] == 'google'):
-                                                    data_list[-1] = [highest_ads_with_conf[0][0], google_tp_source]
-                                                if (highest_ads_with_conf[0][1] == 'website'):
-                                                    for each in data[0]['telephone_numbers_with_sources']:
-                                                        if (each[0] == highest_ads_with_conf[0][0]):
-                                                            w_ad = each
-                                                            break
-                                                    data_list[-1] = w_ad
-                                                if (highest_ads_with_conf[0][1] == 'crunchbase'):
-                                                    data_list[-1] = [restructure_tp(highest_ads_with_conf[0][0]), link_cb]
-                                                if (highest_ads_with_conf[0][1] == 'dnb'):
-                                                    data_list[-1] = [restructure_tp(highest_ads_with_conf[0][0]), link_dnb]
-                                                if (highest_ads_with_conf[0][1] == 'linkein'):
-                                                    data_list[-1] = [restructure_tp(highest_ads_with_conf[0][0]), link_li]
-                                                if (highest_ads_with_conf[0][1] == 'avention'):
-                                                    data_list[-1] = [restructure_tp(highest_ads_with_conf[0][0]), link_aven]
-
-
-
-                                                print('updated with highest confidence')
-                        except KeyError:
-                            data_list.append('None')
-
-                    if (each_a == 'keywords'):
-                        # print("***********kw")
-                        if (len(data[0]['textrank_results'])):data_list.append(data[0]['textrank_results'][:10])  # from website
-                        else:data_list.append("None")
-
-                    if (each_a == 'contact_person'):
-                        # print("***********cp")
-                        #contact_person_fix
-                        #fix thissssssssssssssssssss********************************************************************************
-                        try:
-                            wb_list = []
-                            if ('important_person_company' in attribute_keys):
-                                det_wb = data[0]['important_person_company']
-
-                                # print(det_wb)
-                                if (det_wb != 'No important persons found'):
-                                    # wb_list = [det_wb[0]['name'], det_wb[0]['job_title']]
-                                    wb_list = det_wb[0]
-
-                            li_list = []
-                            if (len(data[0]['linkedin_cp_info'])):
-                                for each in data[0]['linkedin_cp_info']:
-                                    data_li = (each[0].split('|')[0]).split('-')
-                                    if (len(data_li) > 2):
-                                        # print('li cp',[data_li[0],data_li[1].strip()+'_'+data_li[2].strip()])
-                                        li_list.append([data_li[0], data_li[1].strip() + '_' + data_li[2].strip()])
-
-                            if (len(wb_list)):
-                                # print('g')
-                                data_list.append([wb_list,'from_website'])  # from google
-
-                            elif ('google_cp' in attribute_keys):
-                                # print('g')
-                                det_gcp = data[0]['google_cp']
-                                # print('gog',det_gcp)
-                                data_list.append([det_gcp,google_cp_source])  # from google
-                            # crunchbase
-                            elif ('Founders_cb' in attribute_keys):
-                                det_cb = data[0]['Founders_cb']
-                                det_cb = [cb.strip() for cb in det_cb.split(',')][0]
-                                data_list.append([det_cb, 'founder(s)',link_cb])
-
-                            elif ('contacts_aven' in attribute_keys):
-                                det_aven = data[0]['contacts_aven'][0]
-                                data_list.append([det_aven,link_aven])
-
-                            elif ('company_contacts_dnb' in attribute_keys):
-                                # print('dnb',data[0]['dnb_cp_info'])
-                                # print('dnb',dnb_list[0])
-                                det_dnb = data[0]['company_contacts_dnb']
-                                data_list.append([det_dnb[0],link_dnb])  # from dnb
-
-                            elif ('directors_or_officers_oc' in attribute_keys):
-                                # print('oc')
-
-                                # print('oc',data[0]['oc_cp_info'])
-                                oc_cps = []
-                                # print(data[0]['directors_or_officers_oc'])
-                                for each_oc in [data[0]['directors_or_officers_oc']]:
-                                    # print(each_oc)
-                                    oc_det = each_oc.split(',')
-                                    # print(oc_det)
-                                    if (len(oc_det) > 1):
-                                        oc_name = oc_det[0]
-                                        # print(oc_name)
-                                        if (len(oc_name) > 1):
-                                            oc_post = oc_det[1]
-                                            oc_cps.append([oc_name, oc_post])
-                                    else:
-                                        oc_cps.append([oc_det, 'agent_' + each_oc[1]])
-
-                                # print('oc',oc_cps[0])
-                                data_list.append([oc_cps[0],site_url_oc])  # from oc
-                            elif ('CEO_g' in attribute_keys):
-                                # print('gc')
-                                # print('gogq',[data[0]['CEO_g'],'CEO'])
-                                data_list.append([data[0]['CEO_g'], 'CEO',link_owler])  # from google qa
-                            elif ('agent_name_oc' in attribute_keys):
-                                # print('oca')
-                                # print('oc_ag',[data[0]['agent_name_oc'],'agent'])
-                                data_list.append([data[0]['agent_name_oc'][0], 'agent',site_url_oc])  # from oc_agent
-                            elif (len(li_list)):
-
-                                data_list.append([li_list[0],'from linkedin search google'])  # from linkedin
-                                # print('*****')
-                            else:
-                                # print('None')
-                                data_list.append("None")
-
-                            print("selected_contact_person", data_list[-1])
-                            if (data_list[-1] != 'None'):
-                                if(len(data_list[-1][0])==2):
-                                    a_conf = get_cp_confidence(data_list[-1][0][0], entry_id)
-                                else:
-                                    a_conf = get_cp_confidence(data_list[-1][0], entry_id)
-                                print('confidence of selected cp', a_conf)
-                                if (a_conf != None):
-                                    if (a_conf > 0):
-                                        continue
-                                    else:
-                                        all_ads_with_conf = get_every_cp_confidence(entry_id)
-                                        print('confidence of all cps', all_ads_with_conf)
-                                        if (all_ads_with_conf != None):
-                                            highest_ads_with_conf = all_ads_with_conf[-1:]
-                                            print('highest', highest_ads_with_conf)
-                                            if (highest_ads_with_conf[0][3] > 0):
-                                                if (highest_ads_with_conf[0][2] == 'google'):
-                                                    data_list[-1] = [highest_ads_with_conf[0][0:2], google_cp_source]
-                                                if (highest_ads_with_conf[0][2] == 'website'):
-                                                    data_list[-1] = [highest_ads_with_conf[0][0:2], 'website']
-                                                if (highest_ads_with_conf[0][2] == 'crunchbase'):
-                                                    data_list[-1] = [highest_ads_with_conf[0][0:2], link_cb]
-                                                if (highest_ads_with_conf[0][2] == 'dnb'):
-                                                    data_list[-1] = [highest_ads_with_conf[0][0:2], link_dnb]
-                                                if (highest_ads_with_conf[0][2] == 'oc'):
-                                                    data_list[-1] = [highest_ads_with_conf[0][0:2], site_url_oc]
-                                                if (highest_ads_with_conf[0][2] == 'owler'):
-                                                    data_list[-1] = [highest_ads_with_conf[0][0:2], link_owler]
-                                                if (highest_ads_with_conf[0][2] == 'linkedin'):
-                                                    data_list[-1] = [highest_ads_with_conf[0][0:2], link_li]
-                                                if (highest_ads_with_conf[0][2] == 'avention'):
-                                                    data_list[-1] = [highest_ads_with_conf[0][0:2], link_aven]
-
-                                                print('updated with highest confidence')
-
-                        except KeyError:
-                            data_list.append('None')
-
-                    if (each_a == 'type_or_sector'):
-                        #sector_fix
-                        # print("***********ty")
-                        try:
-                            if ('Industries_cb' in attribute_keys):
-                                # print('cb', data[0]['Industries_cb'].split(', ')[:2])
-                                data_list.append([data[0]['Industries_cb'].split(', ')[:2],link_cb])
-                            elif ('Industry:_aven' in attribute_keys):
-                                # print('aven', data[0]['Industry:_aven'])
-                                data_list.append([data[0]['Industry:_aven'],link_aven])
-                            elif ('industry_li' in attribute_keys):
-                                # print('li', data[0]['industry_li'])
-                                data_list.append([data[0]['industry_li'],link_li])  # from linkedin
-                            elif ('comp_type_pred' in attribute_keys):
-                                # print('clas', data[0]['comp_type_pred'][0])
-                                data_list.append([data[0]['comp_type_pred'][0][0] + ', ' + data[0]['comp_type_pred'][1][
-                                    0],'from_classification_model'])  # from classification
-                            else:
-                                data_list.append("None")
-
-                        except KeyError:
-                            data_list.append('None')
-
-                    if (each_a == 'founded_year'):
-                        #fy_fix
-                        # print("***********fy")
-                        try:
-                            if ('Founded_Date_cb' in attribute_keys):
-                                # print('cb',data[0]['Founded Date_cb'])
-                                data_list.append([data[0]['Founded_Date_cb'],link_cb])  # from linkedin
-                            elif ('founded_li' in attribute_keys):
-                                # print('li',data[0]['founded_li'])
-                                data_list.append([data[0]['founded_li'],link_li])  # from linkedin
-                            elif ('incorporation_date_oc' in attribute_keys):
-                                # print('oc', data[0]['incorporation_date_oc'].split(' (')[0])
-                                data_list.append([data[0]['incorporation_date_oc'].split(' (')[0],site_url_oc])  # from oc
-                            elif ('founded_year_g' in attribute_keys):
-                                # print('g', data[0]['founded_year_g'])
-                                data_list.append([data[0]['founded_year_g'],link_owler])  # from google
-                            else:
-                                data_list.append("None")
-                            # if ('Industries_cb' in attribute_keys):
-                            #     print('cb',data[0]['Industries_cb'].split(', ')[:2])
-                            #     data_list.extend(data[0]['Industries_cb'].split(', ')[:2])
-                            # elif ('industry_li' in attribute_keys):
-                            #     print('li',data[0]['industry_li'])
-                            #     data_list.extend([data[0]['industry_li']])  # from linkedin
-                            # elif ('comp_type_pred' in attribute_keys):
-                            #     print('clas',data[0]['comp_type_pred'][0])
-                            #     data_list.extend([data[0]['comp_type_pred'][0][0]+', '+ data[0]['comp_type_pred'][1][0]])  # from classification
-                            # else:
-                            #     data_list.append("None")
-
-                        except KeyError:
-                            data_list.append('None')
-
-                    if (each_a == 'revenue'):
-                        #rev_fix
-                        # print("***********rv")
-                        try:
-                            rev_d = []
-                            if ('company_revenue_dnb' in attribute_keys):
-                                if (len(data[0]['company_revenue_dnb'])):
-                                    rev_d = data[0]['company_revenue_dnb']
-                            if ('Annual_Sales:_aven' in attribute_keys):
-                                # print('g')
-                                data_list.append([data[0]['Annual_Sales:_aven'],link_aven])  # from google
-                            elif ('revenue_g' in attribute_keys):
-                                # print('g')
-                                data_list.append([data[0]['revenue_g'],link_owler])  # from google
-                            elif (len(rev_d)):
-                                # print('d')
-                                a_rev = rev_d[0].split('|')[1]
-                                print(a_rev)
-                                data_list.append([a_rev,link_dnb])  # from dnb
-                            else:
-                                data_list.append("None")
-                            # if ('Contact Email_cb' in attribute_keys):
-                            #     data_list = data[0]['Contact Email_cb']
-                            # elif (len(data[0]['emails'])):
-                            #     data_list.append(data[0]['emails'][0])  # from website
-                            # else:
-                            #     data_list.append("None")
-                            # # else:
-                            # #     data_list.append("None")
-                        except KeyError:
-                            data_list.append('None')
-
-                    if (each_a == 'funding'):
-                        # print("***********f")
-                        if ('funding_g' in attribute_keys):data_list.append([data[0]['funding_g'],link_owler])  # from google
-                        else:data_list.append("None")
-
-                    if (each_a == 'headquarters'):
-                        #hq_fix
-                        # print("***********hq")
-                        try:
-                            hq_cb, hq_g, hq_li, j_oc = '', '', '', ''
-                            if ('comp_headquaters_cb' in attribute_keys):
-                                hq_cb = data[0]['comp_headquaters_cb']
-
-                            if ('headquarters_li' in attribute_keys):
-                                hq_li = data[0]['headquarters_li']
-
-                            if ('jurisdiction_oc' in attribute_keys):
-                                j_oc = data[0]['jurisdiction_oc']
-
-                            if ('headquarters_g' in attribute_keys):
-                                hq_g = data[0]['headquarters_g']
-
-                            if (isvalid_hq(hq_cb)):
-                                data_list.append([hq_cb,link_cb])
-                            elif (isvalid_hq(hq_li)):
-                                data_list.append([hq_li,link_li])
-                            elif (isvalid_hq(hq_g)):
-                                data_list.append([hq_g,link_owler])
-                            elif (isvalid_hq(j_oc)):
-                                data_list.append([j_oc,site_url_oc])
-                            else:
-                                data_list.append("None")
-                            # else:
-                            #     data_list.append("None")
-
-                            if (data_list[-1] != 'None'):
-                                a_conf = get_hq_confidence(data_list[-1][0], entry_id)
-                                print('confidence of selected hq', a_conf)
-                                if (a_conf != None):
-                                    if (a_conf > 0):
-                                        continue
-                                    else:
-                                        all_ads_with_conf = get_every_hq_confidence(entry_id)
-                                        print('confidence of all hqs', all_ads_with_conf)
-                                        if (all_ads_with_conf != None):
-                                            highest_ads_with_conf = all_ads_with_conf[-1:]
-                                            print('highest', highest_ads_with_conf)
-                                            if (highest_ads_with_conf[0][2] > 0):
-                                                if (highest_ads_with_conf[0][1] == 'crunchbase'):
-                                                    data_list[-1] = [highest_ads_with_conf[0][0], link_cb]
-                                                if (highest_ads_with_conf[0][1] == 'oc'):
-                                                    data_list[-1] = [highest_ads_with_conf[0][0], site_url_oc]
-                                                if (highest_ads_with_conf[0][1] == 'owler'):
-                                                    data_list[-1] = [highest_ads_with_conf[0][0], link_owler]
-                                                if (highest_ads_with_conf[0][1] == 'linkedin'):
-                                                    data_list[-1] = [highest_ads_with_conf[0][0], link_li]
-
-                                                print('updated with highest confidence')
-
-
-                        except KeyError:
-                            data_list.append('None')
-
-                    if (each_a == 'No_of_employees'):
-                        #fix_ne
-                        # print("***********ne")
-                        try:
-                            data_lil = None
-                            if ('company_size_li' in attribute_keys):
-                                if (data[0]['company_size_li'] != None):
-                                    if (' employees' in data[0]['company_size_li']):
-                                        data_lil = data[0]['company_size_li'].replace(' employees', '')
-                            if ('Number_of_Employees_cb' in attribute_keys):
-                                # print('cb')
-                                data_list.append([data[0]['Number_of_Employees_cb'],link_cb])  # from company_size_li
-                            elif ('Employees_(All_Sites):_aven' in attribute_keys):
-                                data_list.append([data[0]['Employees_(All_Sites):_aven'],link_aven])
-                            elif (data_lil != None):
-                                data_list.append([data_lil,link_li])  # from company_size_li
-
-                            elif ('num_employees_li' in attribute_keys):
-                                # print('li')
-                                data_list.append([str(data[0]['num_employees_li']).split("\n")[0],link_li])  # from linkedin
-                            elif ('no_of_employees_g' in attribute_keys):
-                                # print('g')
-                                data_list.append([data[0]['no_of_employees_g'],link_owler])  # from googlecompany_size_li
-                            else:
-                                data_list.append("None")
-                            # else:
-                            #     data_list.append("None")
-                        except KeyError:
-                            data_list.append('None')
-
-                    if (each_a == 'company_status'):
-                        # fix_cs
-
-                        try:
-                            if ('IPO_Status_cb' in attribute_keys):
-                                # print('cb', data[0]['IPO_Status_cb'])
-                                data_list.append([data[0]['IPO_Status_cb'],link_cb])
-                            elif ('Company_Type:_aven' in attribute_keys):
-                                # print('aven', data[0]['Company_Type:_aven'])
-                                data_list.append([data[0]['Company_Type:_aven'],link_aven])
-                            elif ('company_type_dnb' in attribute_keys):
-                                # print('dnb', data[0]['company_type_dnb'][0].split(': ')[1])
-                                data_list.append([data[0]['company_type_dnb'][0].split(': ')[1],link_dnb])
-                            elif ('company_type_oc' in attribute_keys):
-                                # print('oc', data[0]['company_type_oc'])
-                                data_list.append([data[0]['company_type_oc'],site_url_oc])
-                            else:
-                                data_list.append("None")
-                            # else:
-                            #     data_list.append("None")
-                        except KeyError:
-                            data_list.append('None')
-
-                except KeyError:
-                    data_list.append('None')
-                except Exception as e:
-                    data_list.append('None')
-                    print("Exception Occured during dumping ", e)
-
-            if (data_min[0]['address'] != 'None'):
-                a_conf = get_address_confidence(data_min[0]['address'], entry_id)
-                a_conf = moderate_confidence('address', data_min[0]['address'], entry_id, a_conf)
-                print('address_conf', a_conf)
-
-            if (data_min[0]['telephone_number'] != 'None'):
-                tp_conf = get_tp_confidence(data_min[0]['telephone_number'], entry_id)
-                tp_conf = moderate_confidence('tp', data_min[0]['telephone_number'], entry_id, tp_conf)
-                print('tp_conf', tp_conf)
-
-            if (data_min[0]['contact_person'] != 'None'):
-                print('id', entry_id)
-                print('collected cp', data_min[0]['contact_person'][0])
-                cp_conf = get_cp_confidence(data_min[0]['contact_person'][0], entry_id)
-                cp_conf = moderate_confidence('cp', data_min[0]['contact_person'], entry_id, cp_conf)
-                print('cp_conf', cp_conf)
-
-            if (data_min[0]['headquarters'] != 'None'):
-                hq_conf = get_hq_confidence(data_min[0]['headquarters'], entry_id)
-                hq_conf = moderate_confidence('hq', data_min[0]['headquarters'], entry_id, hq_conf)
-                print('hq_conf', hq_conf)
-
-            if (a_conf == None): a_conf = 0.0
-            if (tp_conf == None): tp_conf = 0.0
-            if (cp_conf == None): cp_conf = 0.0
-            if (hq_conf == None): hq_conf = 0.0
-
-            total_conf = (a_conf + tp_conf + cp_conf + hq_conf) / 4
-
-            data_list.extend([a_conf])
-            data_list.extend([tp_conf])
-            data_list.extend([cp_conf])
-            data_list.extend([hq_conf])
-            data_list.extend([total_conf])
-            results_writer.writerow(data_list)
-            # dict_to_dump = {}
-            # for i in range(len(attributes_a)):
-            #     dict_to_dump[attributes_a[i]] = data_list[i]
-            # print(dict_to_dump)
-            #
-            # # record_entry = csv_dump_col.insert_one(dict_to_dump)
-            # csv_dump_col.update_one({'_id': entry_id}, {'$set': dict_to_dump})
-            print("comp profile record stored")
-        results_file.close()
-    print("CSV export completed!")
-
 
 def flat_csv(id_list):
     mycol = refer_collection()
@@ -4023,7 +3388,113 @@ to_fix_all = [ObjectId('5f183d9b464603f10dce0d9e'), ObjectId('5f183dde464603f10d
 # [ObjectId('5eb7c0a011ad0e77a8454c2c'), ObjectId('5eb81dd8312f24e51eaa1667'), ObjectId('5eb81e2a312f24e51eaa166a'), ObjectId('5eb94caf01a53921bf21f86d'), ObjectId('5ebc44847ce40c9ba7bb9565'), ObjectId('5ebc452ac7057c1a4cbb9565'), ObjectId('5ebcc58db3643873f0bb9565')]
 to_get = [ObjectId('5f3d21329e81673edaf9fae6'),ObjectId('5ebe0cd9a0d22e0d5723510e'),ObjectId('5ebe0a0d110384add423510e'),ObjectId('5f3cfbf0c71b48600826b3ec'),ObjectId('5ebe17207e47e5354a23510e'),ObjectId('5f1881c535a2278f64f9e5d8'),ObjectId('5ebe0bb08df9dfa24723510e'),ObjectId('5f3cfc2fc71b48600826b407'),ObjectId('5ebe1c36bc048b033d23510e'),ObjectId('5f3cfc5dc71b48600826b41a'),ObjectId('5f3cfc79c71b48600826b429'),ObjectId('5f3cfc8fc71b48600826b438'),ObjectId('5ec27727fd3d080103d08ffd'),ObjectId('5ec277d5ca4f08b78dd08ffd'),ObjectId('5f3cfcc1c71b48600826b44f'),ObjectId('5ec27a0560b88319b4d08ffd'),ObjectId('5ebc53a9503b1f44d4bb9565'),ObjectId('5eb957e0b1f04156bd21f86d'),ObjectId('5ebc54e10c8dd65b2ebb9565'),ObjectId('5ebc55d8b8becb694ebb9565')]
 later = [ObjectId('5f4f18e1b40ca91fa5181641'),ObjectId('5f4f19b0b40ca91fa518165f'),ObjectId('5f4f19efb40ca91fa518166e'),ObjectId('5f4f3fabb40ca91fa5181690'),ObjectId('5f4f4035b40ca91fa51816ae'),ObjectId('5f4f3fe9b40ca91fa518169f'),ObjectId('5f4f1953b40ca91fa5181650'),ObjectId('5f4f406bb40ca91fa51816bd'),ObjectId('5f4f3f69b40ca91fa5181681')]
-# simplified_export_with_sources_and_confidence([ObjectId('5f642cce31749be621a90bbd'),ObjectId('5f642ce531749be621a90bbf')],'F:/from git/Armitage_project/crawl_n_depth/Simplified_System/dumps/conf_sources.csv')
+
 # simplified_export_with_sources(later)
 # simplified_export([ObjectId('5ebc56ea2e7d8c6aeebb9565')])
 # dnb, crunchbase, owler, oc, linkedin, avention
+def check_ids(id_list):
+    csv_dump_col = refer_simplified_dump_col_min()
+    for id in id_list:
+        entry = csv_dump_col.find({"_id": str(id)},)
+        data = [d for d in entry]
+        print(data[0]['_id'])
+        csv_dump_col.update_one({'_id': id}, {'$set': {'u_id': ObjectId(id)}})
+def re_fix(id_list):
+    mycol = refer_collection()
+    for id_a in id_list:
+        entry = mycol.find({"_id": id_a}, )
+        data = [d for d in entry]
+        print(data[0]['_id'])
+        mycol.update_one({'_id': id_a}, {'$set': {'simplified_dump_state': 'Completed'}})
+re_list = [ObjectId('5f183d9b464603f10dce0d9e'), ObjectId('5f183dde464603f10dce0da2'), ObjectId('5f183dfe464603f10dce0da4'), ObjectId('5f183e14464603f10dce0da6'), ObjectId('5f183e53464603f10dce0dab'), ObjectId('5f183e89464603f10dce0dae'), ObjectId('5f183e89464603f10dce0dae'), ObjectId('5f183e9d464603f10dce0db0'), ObjectId('5f183eb3464603f10dce0db2'), ObjectId('5f183ec8464603f10dce0db4'), ObjectId('5f183ee7464603f10dce0db6'), ObjectId('5f183efd464603f10dce0db8'), ObjectId('5f183f13464603f10dce0dba'), ObjectId('5f183f28464603f10dce0dbc'), ObjectId('5f186b7cb448d46665f7ff02'), ObjectId('5f18750a182dbb7a59a62642'), ObjectId('5f187522182dbb7a59a62644'), ObjectId('5f187556182dbb7a59a62647'), ObjectId('5f18756b182dbb7a59a62649'), ObjectId('5f187580182dbb7a59a6264b'), ObjectId('5f187595182dbb7a59a6264d'), ObjectId('5f1875c9182dbb7a59a62650'), ObjectId('5f18840a35a2278f64f9e5f2'), ObjectId('5f18841f35a2278f64f9e5f4'), ObjectId('5f18843e35a2278f64f9e5f6'), ObjectId('5f18962935a2278f64f9e647'), ObjectId('5f189e1d35a2278f64f9e676'), ObjectId('5f18ec3135a2278f64f9e6a7'), ObjectId('5f18ec4635a2278f64f9e6a9'), ObjectId('5f18ec7035a2278f64f9e6ac'), ObjectId('5f18ec8435a2278f64f9e6ae'), ObjectId('5f18eca435a2278f64f9e6b0'), ObjectId('5f18ecbb35a2278f64f9e6b2'), ObjectId('5f18ecd035a2278f64f9e6b4'), ObjectId('5f18ece535a2278f64f9e6b6'), ObjectId('5f18ecfa35a2278f64f9e6b8'), ObjectId('5f18ed0f35a2278f64f9e6ba'), ObjectId('5f18ed5035a2278f64f9e6bd'), ObjectId('5f18ed6535a2278f64f9e6bf'), ObjectId('5f18ed8f35a2278f64f9e6ce'), ObjectId('5f19077f5fe76f8f85f401fa'), ObjectId('5f197a573efb8669e251a4f6'), ObjectId('5f197b283efb8669e251a500'), ObjectId('5f19c87c09e1c3c703025666'), ObjectId('5f19c8a709e1c3c70302566a'), ObjectId('5f19c8bc09e1c3c70302566c'), ObjectId('5f19c8f009e1c3c703025670'), ObjectId('5f19c95d09e1c3c70302567a'), ObjectId('5f19c98709e1c3c70302567e'), ObjectId('5f19c9a609e1c3c703025680'), ObjectId('5f19ca3509e1c3c70302568c'), ObjectId('5f19ca4a09e1c3c70302568e'), ObjectId('5f19ca5e09e1c3c703025690'), ObjectId('5f19ca9409e1c3c703025694'), ObjectId('5f19cabe09e1c3c703025698'), ObjectId('5f19d54209e1c3c7030256a9'), ObjectId('5f19d55909e1c3c7030256ab'), ObjectId('5f19d56f09e1c3c7030256ad'), ObjectId('5f19d58409e1c3c7030256af'), ObjectId('5f19d59a09e1c3c7030256b1'), ObjectId('5f19d5af09e1c3c7030256b3'), ObjectId('5f19d61009e1c3c7030256bb'), ObjectId('5f19d65209e1c3c7030256c1'), ObjectId('5f19d68709e1c3c7030256c5'), ObjectId('5f19d6b209e1c3c7030256c9'), ObjectId('5f19d6df09e1c3c7030256cd'), ObjectId('5f19d70b09e1c3c7030256d1'), ObjectId('5f19d72109e1c3c7030256d3'), ObjectId('5f19d78d09e1c3c7030256dd'), ObjectId('5f1e94db027fb1582fb3874a'), ObjectId('5f1e9574027fb1582fb38758'), ObjectId('5f1e997862de5888b3f12e3e'), ObjectId('5f1e99ee62de5888b3f12e46'), ObjectId('5f1e9be462de5888b3f12e5b'), ObjectId('5f1e9c3b62de5888b3f12e63'), ObjectId('5f1e9cb062de5888b3f12e6d'), ObjectId('5f1eac7f62de5888b3f12ea3'), ObjectId('5f1eacf362de5888b3f12ea7'), ObjectId('5f1ead1d62de5888b3f12eab'), ObjectId('5f1ead5462de5888b3f12eaf'), ObjectId('5f1eadd362de5888b3f12eb3'), ObjectId('5f1eae8662de5888b3f12ec8'), ObjectId('5f1eaef362de5888b3f12ed2'), ObjectId('5f1ecdec62de5888b3f12ee7'), ObjectId('5f1ece0162de5888b3f12ee9'), ObjectId('5f1ece2062de5888b3f12eeb'), ObjectId('5f1ece6962de5888b3f12eef'), ObjectId('5f1ece9262de5888b3f12ef1'), ObjectId('5f1ecf5362de5888b3f12f04'), ObjectId('5f1ecf8662de5888b3f12f06'), ObjectId('5f1ed77162de5888b3f12f17'), ObjectId('5f1ed7a562de5888b3f12f1b'), ObjectId('5f1ed7c362de5888b3f12f1d'), ObjectId('5f1ed7ee62de5888b3f12f21'), ObjectId('5f1ed83762de5888b3f12f25'), ObjectId('5f1ed8eb62de5888b3f12f3a'), ObjectId('5f1ed90062de5888b3f12f3c'), ObjectId('5f1ed92a62de5888b3f12f40'), ObjectId('5f1ed94062de5888b3f12f42'), ObjectId('5f1ed98b62de5888b3f12f48'), ObjectId('5f1ed9a162de5888b3f12f4a'), ObjectId('5f1ed9fe62de5888b3f12f5b'), ObjectId('5f1eda3262de5888b3f12f5f'), ObjectId('5f1eda4862de5888b3f12f61')]
+# re_fix(re_list)
+
+def get_entries_project(project_id):
+    all_entires = []
+    profile_col = refer_collection()
+    projects_col= refer_projects_col()
+    query_collection = refer_query_col()
+    proj_data_entry = projects_col.find({"_id": project_id})
+    print('proj',proj_data_entry)
+    proj_data = [i for i in proj_data_entry]
+    print('data',len(proj_data))
+    proj_attribute_keys = list(proj_data[-1].keys())
+    if ('associated_queries' in proj_attribute_keys):
+        associated_queries = proj_data[-1]['associated_queries']
+        for each_query in associated_queries:
+            query_data_entry = query_collection.find({"_id": ObjectId(each_query)})
+            query_data = [i for i in query_data_entry]
+            print([query_data[0]['search_query'],query_data[0]['state'],query_data[0]['_id']])
+            query_attribute_keys = list(query_data[0].keys())
+            if ('associated_entries' in query_attribute_keys):
+                associated_entries = query_data[0]['associated_entries']
+                # print('kk',associated_entries)
+                obs_ids = [ObjectId(i) for i in associated_entries]
+                all_entires.extend(obs_ids)
+                # completed_count = 0
+                # incomplete_count = 0
+                # incompletes = []
+                # problems = []
+                # for k in obs_ids:
+                #     prof_data_entry = profile_col.find({"_id": k})
+                #     # print('proj', proj_data_entry)
+                #     prof_data = [i for i in prof_data_entry]
+                #     prof_attribute_keys = list(prof_data[0].keys())
+                #
+                #     if ('simplified_dump_state' in prof_attribute_keys):
+                #         if(prof_data[0]['simplified_dump_state']=='Completed'):
+                #             completed_count+=1
+                #         # else:print(prof_data[0]['simplified_dump_state'])
+                #         elif (prof_data[0]['simplified_dump_state'] == 'Incomplete'):
+                #             incomplete_count+= 1
+                #             incompletes.append(k)
+                #         else:
+                #             problems.append(k)
+                #     else:
+                #         problems.append(k)
+                #
+                # print(['completed',completed_count,'all',len(obs_ids),'incompleted',incomplete_count,incompletes,'prob',problems])
+                # # filt = []
+                # # for k in obs_ids:
+                # #     if(k not in problems):
+                # #         filt.append(k)
+                # # print('filt',filt)
+                # if(completed_count==len(obs_ids)):
+                #     query_collection.update_one({'_id': ObjectId(each_query)}, {'$set': {'state': 'Completed'}})
+
+                # return obs_ids
+
+        all_entires = list(set(all_entires))
+        return all_entires
+    else:
+        print("This project do not have any queries yet")
+        return []
+
+# print(len(get_entries_project(ObjectId('5f7558e6fce4b64506137661'))))
+
+
+
+
+
+def adding_ig(id_list):
+
+    mycol = refer_collection()
+    for id_a in id_list:
+        entry = mycol.find({"_id": id_a})
+        data = [d for d in entry]
+        print(data[0]['_id'])
+        mycol.update_one({'_id': id_a}, {'$set': {'ignore_flag': '0'}})
+# print(get_entries_project(ObjectId('5f6d7213c7efa7fb46a2c44a')))
+# simplified_update([ObjectId('5f183d9b464603f10dce0d9e'), ObjectId('5f183dde464603f10dce0da2'), ObjectId('5f183dfe464603f10dce0da4'), ObjectId('5f183e14464603f10dce0da6'), ObjectId('5f183e53464603f10dce0dab'), ObjectId('5f183e89464603f10dce0dae'), ObjectId('5f183e89464603f10dce0dae'), ObjectId('5f183e9d464603f10dce0db0'), ObjectId('5f183eb3464603f10dce0db2'), ObjectId('5f183ec8464603f10dce0db4'), ObjectId('5f183ee7464603f10dce0db6'), ObjectId('5f183efd464603f10dce0db8'), ObjectId('5f183f13464603f10dce0dba'), ObjectId('5f183f28464603f10dce0dbc'), ObjectId('5f186b7cb448d46665f7ff02'), ObjectId('5f18750a182dbb7a59a62642'), ObjectId('5f187522182dbb7a59a62644'), ObjectId('5f187556182dbb7a59a62647'), ObjectId('5f18756b182dbb7a59a62649'), ObjectId('5f187580182dbb7a59a6264b'), ObjectId('5f187595182dbb7a59a6264d'), ObjectId('5f1875c9182dbb7a59a62650'), ObjectId('5f18840a35a2278f64f9e5f2'), ObjectId('5f18841f35a2278f64f9e5f4'), ObjectId('5f18843e35a2278f64f9e5f6'), ObjectId('5f18962935a2278f64f9e647'), ObjectId('5f189e1d35a2278f64f9e676'), ObjectId('5f18ec3135a2278f64f9e6a7'), ObjectId('5f18ec4635a2278f64f9e6a9'), ObjectId('5f18ec7035a2278f64f9e6ac'), ObjectId('5f18ec8435a2278f64f9e6ae'), ObjectId('5f18eca435a2278f64f9e6b0'), ObjectId('5f18ecbb35a2278f64f9e6b2'), ObjectId('5f18ecd035a2278f64f9e6b4'), ObjectId('5f18ece535a2278f64f9e6b6'), ObjectId('5f18ecfa35a2278f64f9e6b8'), ObjectId('5f18ed0f35a2278f64f9e6ba'), ObjectId('5f18ed5035a2278f64f9e6bd'), ObjectId('5f18ed6535a2278f64f9e6bf'), ObjectId('5f18ed8f35a2278f64f9e6ce'), ObjectId('5f19077f5fe76f8f85f401fa'), ObjectId('5f197a573efb8669e251a4f6'), ObjectId('5f197b283efb8669e251a500'), ObjectId('5f19c87c09e1c3c703025666'), ObjectId('5f19c8a709e1c3c70302566a'), ObjectId('5f19c8bc09e1c3c70302566c'), ObjectId('5f19c8f009e1c3c703025670'), ObjectId('5f19c95d09e1c3c70302567a'), ObjectId('5f19c98709e1c3c70302567e'), ObjectId('5f19c9a609e1c3c703025680'), ObjectId('5f19ca3509e1c3c70302568c'), ObjectId('5f19ca4a09e1c3c70302568e'), ObjectId('5f19ca5e09e1c3c703025690'), ObjectId('5f19ca9409e1c3c703025694'), ObjectId('5f19cabe09e1c3c703025698'), ObjectId('5f19d54209e1c3c7030256a9'), ObjectId('5f19d55909e1c3c7030256ab'), ObjectId('5f19d56f09e1c3c7030256ad'), ObjectId('5f19d58409e1c3c7030256af'), ObjectId('5f19d59a09e1c3c7030256b1'), ObjectId('5f19d5af09e1c3c7030256b3'), ObjectId('5f19d61009e1c3c7030256bb'), ObjectId('5f19d65209e1c3c7030256c1'), ObjectId('5f19d68709e1c3c7030256c5'), ObjectId('5f19d6b209e1c3c7030256c9'), ObjectId('5f19d6df09e1c3c7030256cd'), ObjectId('5f19d70b09e1c3c7030256d1'), ObjectId('5f19d72109e1c3c7030256d3'), ObjectId('5f19d78d09e1c3c7030256dd'), ObjectId('5f1e94db027fb1582fb3874a'), ObjectId('5f1e9574027fb1582fb38758'), ObjectId('5f1e997862de5888b3f12e3e'), ObjectId('5f1e99ee62de5888b3f12e46'), ObjectId('5f1e9be462de5888b3f12e5b'), ObjectId('5f1e9c3b62de5888b3f12e63'), ObjectId('5f1e9cb062de5888b3f12e6d'), ObjectId('5f1eac7f62de5888b3f12ea3'), ObjectId('5f1eacf362de5888b3f12ea7'), ObjectId('5f1ead1d62de5888b3f12eab'), ObjectId('5f1ead5462de5888b3f12eaf'), ObjectId('5f1eadd362de5888b3f12eb3'), ObjectId('5f1eae8662de5888b3f12ec8'), ObjectId('5f1eaef362de5888b3f12ed2'), ObjectId('5f1ecdec62de5888b3f12ee7'), ObjectId('5f1ece0162de5888b3f12ee9'), ObjectId('5f1ece2062de5888b3f12eeb'), ObjectId('5f1ece6962de5888b3f12eef'), ObjectId('5f1ece9262de5888b3f12ef1'), ObjectId('5f1ecf5362de5888b3f12f04'), ObjectId('5f1ecf8662de5888b3f12f06'), ObjectId('5f1ed77162de5888b3f12f17'), ObjectId('5f1ed7a562de5888b3f12f1b'), ObjectId('5f1ed7c362de5888b3f12f1d'), ObjectId('5f1ed7ee62de5888b3f12f21'), ObjectId('5f1ed83762de5888b3f12f25'), ObjectId('5f1ed8eb62de5888b3f12f3a'), ObjectId('5f1ed90062de5888b3f12f3c'), ObjectId('5f1ed92a62de5888b3f12f40'), ObjectId('5f1ed94062de5888b3f12f42'), ObjectId('5f1ed98b62de5888b3f12f48'), ObjectId('5f1ed9a162de5888b3f12f4a'), ObjectId('5f1ed9fe62de5888b3f12f5b'), ObjectId('5f1eda3262de5888b3f12f5f'), ObjectId('5f1eda4862de5888b3f12f61')]
+# )
+# check_ids([ObjectId('5f183d9b464603f10dce0d9e'), ObjectId('5f183dde464603f10dce0da2'), ObjectId('5f183dfe464603f10dce0da4'), ObjectId('5f183e14464603f10dce0da6'), ObjectId('5f183e53464603f10dce0dab'), ObjectId('5f183e89464603f10dce0dae'), ObjectId('5f183e9d464603f10dce0db0'), ObjectId('5f183ec8464603f10dce0db4'), ObjectId('5f183f13464603f10dce0dba'), ObjectId('5f183eb3464603f10dce0db2'), ObjectId('5f183f28464603f10dce0dbc'), ObjectId('5f183efd464603f10dce0db8'), ObjectId('5f183ee7464603f10dce0db6'), ObjectId('5f183e29464603f10dce0da8'), ObjectId('5f186b7cb448d46665f7ff02'), ObjectId('5f18750a182dbb7a59a62642'), ObjectId('5f187522182dbb7a59a62644'), ObjectId('5f18756b182dbb7a59a62649'), ObjectId('5f187595182dbb7a59a6264d'), ObjectId('5f1875c9182dbb7a59a62650'), ObjectId('5f187556182dbb7a59a62647'), ObjectId('5f187580182dbb7a59a6264b'), ObjectId('5f18840a35a2278f64f9e5f2'), ObjectId('5f18841f35a2278f64f9e5f4'), ObjectId('5f18843e35a2278f64f9e5f6'), ObjectId('5f18962935a2278f64f9e647'), ObjectId('5f189e1d35a2278f64f9e676'), ObjectId('5f18ed6535a2278f64f9e6bf'), ObjectId('5f18ec3135a2278f64f9e6a7'), ObjectId('5f18ec4635a2278f64f9e6a9'), ObjectId('5f18ec7035a2278f64f9e6ac'), ObjectId('5f18ec8435a2278f64f9e6ae'), ObjectId('5f18eca435a2278f64f9e6b0'), ObjectId('5f18ecbb35a2278f64f9e6b2'), ObjectId('5f18ecd035a2278f64f9e6b4'), ObjectId('5f18ece535a2278f64f9e6b6'), ObjectId('5f18ecfa35a2278f64f9e6b8'), ObjectId('5f18ed0f35a2278f64f9e6ba'), ObjectId('5f18ed5035a2278f64f9e6bd'), ObjectId('5f18ed8f35a2278f64f9e6ce'), ObjectId('5f19077f5fe76f8f85f401fa'), ObjectId('5f197a573efb8669e251a4f6'), ObjectId('5f197b283efb8669e251a500'), ObjectId('5f19c87c09e1c3c703025666'), ObjectId('5f19c8a709e1c3c70302566a'), ObjectId('5f19c95d09e1c3c70302567a'), ObjectId('5f19c9a609e1c3c703025680'), ObjectId('5f19ca3509e1c3c70302568c'), ObjectId('5f19ca4a09e1c3c70302568e'), ObjectId('5f19ca9409e1c3c703025694'), ObjectId('5f19c8f009e1c3c703025670'), ObjectId('5f19cabe09e1c3c703025698'), ObjectId('5f19c8bc09e1c3c70302566c'), ObjectId('5f19c98709e1c3c70302567e'), ObjectId('5f19ca5e09e1c3c703025690'), ObjectId('5f19d55909e1c3c7030256ab'), ObjectId('5f19d58409e1c3c7030256af'), ObjectId('5f19d59a09e1c3c7030256b1'), ObjectId('5f19d5af09e1c3c7030256b3'), ObjectId('5f19d61009e1c3c7030256bb'), ObjectId('5f19d68709e1c3c7030256c5'), ObjectId('5f19d6b209e1c3c7030256c9'), ObjectId('5f19d6df09e1c3c7030256cd'), ObjectId('5f19d72109e1c3c7030256d3'), ObjectId('5f19d56f09e1c3c7030256ad'), ObjectId('5f19d78d09e1c3c7030256dd'), ObjectId('5f19d54209e1c3c7030256a9'), ObjectId('5f19d65209e1c3c7030256c1'), ObjectId('5f19d70b09e1c3c7030256d1'), ObjectId('5f1e94db027fb1582fb3874a'), ObjectId('5f1e9574027fb1582fb38758'), ObjectId('5f1e997862de5888b3f12e3e'), ObjectId('5f1e99ee62de5888b3f12e46'), ObjectId('5f1e9be462de5888b3f12e5b'), ObjectId('5f1e9c3b62de5888b3f12e63'), ObjectId('5f1e9cb062de5888b3f12e6d'), ObjectId('5f1eac7f62de5888b3f12ea3'), ObjectId('5f1eacf362de5888b3f12ea7'), ObjectId('5f1ead1d62de5888b3f12eab'), ObjectId('5f1ead5462de5888b3f12eaf'), ObjectId('5f1eadd362de5888b3f12eb3'), ObjectId('5f1eae8662de5888b3f12ec8'), ObjectId('5f1eaef362de5888b3f12ed2'), ObjectId('5f1ecdec62de5888b3f12ee7'), ObjectId('5f1ece0162de5888b3f12ee9'), ObjectId('5f1ece2062de5888b3f12eeb'), ObjectId('5f1ece9262de5888b3f12ef1'), ObjectId('5f1ecf5362de5888b3f12f04'), ObjectId('5f1ecf8662de5888b3f12f06'), ObjectId('5f1ece6962de5888b3f12eef'), ObjectId('5f1ed77162de5888b3f12f17'), ObjectId('5f1ed7a562de5888b3f12f1b'), ObjectId('5f1ed7c362de5888b3f12f1d'), ObjectId('5f1ed7ee62de5888b3f12f21'), ObjectId('5f1ed83762de5888b3f12f25'), ObjectId('5f1ed8eb62de5888b3f12f3a'), ObjectId('5f1ed90062de5888b3f12f3c'), ObjectId('5f1ed9a162de5888b3f12f4a'), ObjectId('5f1ed9fe62de5888b3f12f5b'), ObjectId('5f1eda3262de5888b3f12f5f'), ObjectId('5f1eda4862de5888b3f12f61'), ObjectId('5f1ed92a62de5888b3f12f40'), ObjectId('5f1ed94062de5888b3f12f42'), ObjectId('5f1ed98b62de5888b3f12f48')]
+# )
+all_ids = [ObjectId('5f6436fe8af3a4af8c749ef9'), ObjectId('5f6437128af3a4af8c749efb'), ObjectId('5f6437328af3a4af8c749efd'), ObjectId('5f6437528af3a4af8c749eff'), ObjectId('5f6437688af3a4af8c749f01'), ObjectId('5f645f754c677bfa552c5bd2'), ObjectId('5f645f944c677bfa552c5bd4'), ObjectId('5f645fe04c677bfa552c5be2'), ObjectId('5f6460134c677bfa552c5be5'), ObjectId('5f6460344c677bfa552c5be7'), ObjectId('5f646d804c677bfa552c5bf5'), ObjectId('5f646d9f4c677bfa552c5bf7'), ObjectId('5f646db54c677bfa552c5bf9'), ObjectId('5f646dee4c677bfa552c5c07'), ObjectId('5f646e034c677bfa552c5c09'), ObjectId('5f646e194c677bfa552c5c0b'), ObjectId('5f682551a7cef498a185c2a4'), ObjectId('5f682585a7cef498a185c2a6'), ObjectId('5f68359a9d6d5b0536dfd377'), ObjectId('5f6835ba9d6d5b0536dfd379'), ObjectId('5f6835da9d6d5b0536dfd37b'), ObjectId('5f6835fa9d6d5b0536dfd37d'), ObjectId('5f183d9b464603f10dce0d9e'), ObjectId('5f183dde464603f10dce0da2'), ObjectId('5f183dfe464603f10dce0da4'), ObjectId('5f183e14464603f10dce0da6'), ObjectId('5f183e29464603f10dce0da8'), ObjectId('5f183e53464603f10dce0dab'), ObjectId('5f183e89464603f10dce0dae'), ObjectId('5f183e9d464603f10dce0db0'), ObjectId('5f183eb3464603f10dce0db2'), ObjectId('5f183ec8464603f10dce0db4'), ObjectId('5f183ee7464603f10dce0db6'), ObjectId('5f183efd464603f10dce0db8'), ObjectId('5f183f13464603f10dce0dba'), ObjectId('5f183f28464603f10dce0dbc'), ObjectId('5f186b7cb448d46665f7ff02'), ObjectId('5f18750a182dbb7a59a62642'), ObjectId('5f187522182dbb7a59a62644'), ObjectId('5f187556182dbb7a59a62647'), ObjectId('5f18756b182dbb7a59a62649'), ObjectId('5f187580182dbb7a59a6264b'), ObjectId('5f187595182dbb7a59a6264d'), ObjectId('5f1875c9182dbb7a59a62650'), ObjectId('5f18840a35a2278f64f9e5f2'), ObjectId('5f18841f35a2278f64f9e5f4'), ObjectId('5f18843e35a2278f64f9e5f6'), ObjectId('5f18962935a2278f64f9e647'), ObjectId('5f189e1d35a2278f64f9e676'), ObjectId('5f18ec3135a2278f64f9e6a7'), ObjectId('5f18ec4635a2278f64f9e6a9'), ObjectId('5f18ec7035a2278f64f9e6ac'), ObjectId('5f18ec8435a2278f64f9e6ae'), ObjectId('5f18eca435a2278f64f9e6b0'), ObjectId('5f18ecbb35a2278f64f9e6b2'), ObjectId('5f18ecd035a2278f64f9e6b4'), ObjectId('5f18ece535a2278f64f9e6b6'), ObjectId('5f18ecfa35a2278f64f9e6b8'), ObjectId('5f18ed0f35a2278f64f9e6ba'), ObjectId('5f18ed5035a2278f64f9e6bd'), ObjectId('5f18ed6535a2278f64f9e6bf'), ObjectId('5f18ed8f35a2278f64f9e6ce'), ObjectId('5f19077f5fe76f8f85f401fa'), ObjectId('5f197a573efb8669e251a4f6'), ObjectId('5f197b283efb8669e251a500'), ObjectId('5f19c87c09e1c3c703025666'), ObjectId('5f19c8a709e1c3c70302566a'), ObjectId('5f19c8bc09e1c3c70302566c'), ObjectId('5f19c8f009e1c3c703025670'), ObjectId('5f19c95d09e1c3c70302567a'), ObjectId('5f19c98709e1c3c70302567e'), ObjectId('5f19c9a609e1c3c703025680'), ObjectId('5f19ca3509e1c3c70302568c'), ObjectId('5f19ca4a09e1c3c70302568e'), ObjectId('5f19ca5e09e1c3c703025690'), ObjectId('5f19ca9409e1c3c703025694'), ObjectId('5f19cabe09e1c3c703025698'), ObjectId('5f19d54209e1c3c7030256a9'), ObjectId('5f19d55909e1c3c7030256ab'), ObjectId('5f19d56f09e1c3c7030256ad'), ObjectId('5f19d58409e1c3c7030256af'), ObjectId('5f19d59a09e1c3c7030256b1'), ObjectId('5f19d5af09e1c3c7030256b3'), ObjectId('5f19d61009e1c3c7030256bb'), ObjectId('5f19d65209e1c3c7030256c1'), ObjectId('5f19d68709e1c3c7030256c5'), ObjectId('5f19d6b209e1c3c7030256c9'), ObjectId('5f19d6df09e1c3c7030256cd'), ObjectId('5f19d70b09e1c3c7030256d1'), ObjectId('5f19d72109e1c3c7030256d3'), ObjectId('5f19d78d09e1c3c7030256dd'), ObjectId('5f1e94db027fb1582fb3874a'), ObjectId('5f1e9574027fb1582fb38758'), ObjectId('5f1e997862de5888b3f12e3e'), ObjectId('5f1e99ee62de5888b3f12e46'), ObjectId('5f1e9be462de5888b3f12e5b'), ObjectId('5f1e9c3b62de5888b3f12e63'), ObjectId('5f1e9cb062de5888b3f12e6d'), ObjectId('5f1eac7f62de5888b3f12ea3'), ObjectId('5f1eacf362de5888b3f12ea7'), ObjectId('5f1ead1d62de5888b3f12eab'), ObjectId('5f1ead5462de5888b3f12eaf'), ObjectId('5f1eadd362de5888b3f12eb3'), ObjectId('5f1eae8662de5888b3f12ec8'), ObjectId('5f1eaef362de5888b3f12ed2'), ObjectId('5f1ecdec62de5888b3f12ee7'), ObjectId('5f1ece0162de5888b3f12ee9'), ObjectId('5f1ece2062de5888b3f12eeb'), ObjectId('5f1ece6962de5888b3f12eef'), ObjectId('5f1ece9262de5888b3f12ef1'), ObjectId('5f1ecf5362de5888b3f12f04'), ObjectId('5f1ecf8662de5888b3f12f06'), ObjectId('5f1ed77162de5888b3f12f17'), ObjectId('5f1ed7a562de5888b3f12f1b'), ObjectId('5f1ed7c362de5888b3f12f1d'), ObjectId('5f1ed7ee62de5888b3f12f21'), ObjectId('5f1ed83762de5888b3f12f25'), ObjectId('5f1ed8eb62de5888b3f12f3a'), ObjectId('5f1ed90062de5888b3f12f3c'), ObjectId('5f1ed92a62de5888b3f12f40'), ObjectId('5f1ed94062de5888b3f12f42'), ObjectId('5f1ed98b62de5888b3f12f48'), ObjectId('5f1ed9a162de5888b3f12f4a'), ObjectId('5f1ed9fe62de5888b3f12f5b'), ObjectId('5f1eda3262de5888b3f12f5f'), ObjectId('5f1eda4862de5888b3f12f61'), ObjectId('5f6b551776b9c3d24f773d0a'), ObjectId('5f6b556e76b9c3d24f773d19'), ObjectId('5f6b55b276b9c3d24f773d28'), ObjectId('5f6b55dc76b9c3d24f773d2b'), ObjectId('5f6c4b1978da94daec47bcc3'), ObjectId('5f6db6e97e23326b374cc46d'), ObjectId('5f6db71c7e23326b374cc46f'), ObjectId('5f6db7bc7e23326b374cc472'), ObjectId('5f6db8bf7e23326b374cc490'), ObjectId('5f6dbc147e23326b374cc4d2'), ObjectId('5f6dbc547e23326b374cc4d4'), ObjectId('5f6dbcf37e23326b374cc4e5'), ObjectId('5f6dbd117e23326b374cc4e7'), ObjectId('5f6dbd317e23326b374cc4e9'), ObjectId('5f6ddd5c144e831840676828'), ObjectId('5f6dddb9144e83184067682b'), ObjectId('5f6dddda144e83184067682d'), ObjectId('5f6dde8e144e831840676832'), ObjectId('5f6ddeb6144e831840676834'), ObjectId('5f6ddf0b144e831840676837'), ObjectId('5f6ddf35144e831840676839'), ObjectId('5f6ddf60144e83184067683b'), ObjectId('5f6ddf94144e83184067683d'), ObjectId('5f6ddfb4144e83184067683f'), ObjectId('5f6de01b144e831840676842'), ObjectId('5f6de03a144e831840676844'), ObjectId('5f6de095144e831840676853'), ObjectId('5f6de0e1144e831840676857'), ObjectId('5f6de0f8144e831840676859'), ObjectId('5f6de111144e83184067685b'), ObjectId('5f6de148144e83184067685e'), ObjectId('5f6de160144e831840676860'), ObjectId('5f6de1c3144e831840676864'), ObjectId('5f6de1f6144e831840676867'), ObjectId('5f6de2b2144e83184067686e'), ObjectId('5f6de2d2144e831840676870'), ObjectId('5f6de354144e831840676881'), ObjectId('5f6de383144e831840676884'), ObjectId('5f6de541144e831840676892'), ObjectId('5f6de5dc144e8318406768a4'), ObjectId('5f6de61d144e8318406768a8'), ObjectId('5f6de658144e8318406768ab'), ObjectId('5f6de715144e8318406768b3'), ObjectId('5f6de825144e8318406768bd'), ObjectId('5f6dea93144e8318406768dd'), ObjectId('5f6deb3b144e8318406768e4'), ObjectId('5f6deca7144e8318406768f9'), ObjectId('5f6ded59144e8318406768fe'), ObjectId('5f6deda2144e831840676901'), ObjectId('5f6deec2144e831840676914'), ObjectId('5f6def24144e831840676918'), ObjectId('5f6def4b144e83184067691a'), ObjectId('5f6def7b144e83184067691d'), ObjectId('5f6def95144e83184067691f'), ObjectId('5f6df0b0144e831840676929'), ObjectId('5f6df104144e83184067692c'), ObjectId('5f6df196144e83184067693d'), ObjectId('5f6df1b7144e83184067693f'), ObjectId('5f6df1ee144e831840676941'), ObjectId('5f6df20e144e831840676943'), ObjectId('5f6df244144e831840676946'), ObjectId('5f6df25b144e831840676948'), ObjectId('5f6df275144e83184067694a'), ObjectId('5f6df291144e83184067694c'), ObjectId('5f6df2ff144e831840676950'), ObjectId('5f6f42ee45dea3de8461691f'), ObjectId('5f6f432745dea3de84616921'), ObjectId('5f6f4fcb41c09be1b8045811'), ObjectId('5f6f683b2606fbee80f75246'), ObjectId('5f6f68852606fbee80f75249'), ObjectId('5f6f68a22606fbee80f7524b'), ObjectId('5f6f68bb2606fbee80f7524d'), ObjectId('5f6f68d62606fbee80f7524f'), ObjectId('5f709a5d0269a3cd9caf4fc6'), ObjectId('5f709a870269a3cd9caf4fc8'), ObjectId('5f709ae10269a3cd9caf4fcc'), ObjectId('5f709be90269a3cd9caf4fd4'), ObjectId('5f709c4e0269a3cd9caf4fd8'), ObjectId('5f709ce30269a3cd9caf4fdd'), ObjectId('5f709d0b0269a3cd9caf4fdf'), ObjectId('5f709d930269a3cd9caf4fe4'), ObjectId('5f709dd10269a3cd9caf4fe7'), ObjectId('5f709e1d0269a3cd9caf4fea'), ObjectId('5f709e7a0269a3cd9caf4fed'), ObjectId('5f709ec20269a3cd9caf4ff0'), ObjectId('5f709f0e0269a3cd9caf4ff3'), ObjectId('5f709fa50269a3cd9caf4ff8'), ObjectId('5f709fcd0269a3cd9caf4ffa'), ObjectId('5f70a0520269a3cd9caf4fff'), ObjectId('5f70a1020269a3cd9caf5004'), ObjectId('5f70a1250269a3cd9caf5006'), ObjectId('5f70a1440269a3cd9caf5008'), ObjectId('5f70a1620269a3cd9caf500a'), ObjectId('5f70a1cf0269a3cd9caf500d'), ObjectId('5f70a1ea0269a3cd9caf500f'), ObjectId('5f70a2170269a3cd9caf5011'), ObjectId('5f70a24c0269a3cd9caf5013'), ObjectId('5f70a3470269a3cd9caf5019'), ObjectId('5f70a3990269a3cd9caf501c'), ObjectId('5f70a3ba0269a3cd9caf501e'), ObjectId('5f70a4170269a3cd9caf502d'), ObjectId('5f70c3c00269a3cd9caf502f'), ObjectId('5f70c3d90269a3cd9caf5031'), ObjectId('5f70c4b60269a3cd9caf503a'), ObjectId('5f70c5090269a3cd9caf503e'), ObjectId('5f70c52d0269a3cd9caf5040'), ObjectId('5f70c56d0269a3cd9caf5043'), ObjectId('5f70c6050269a3cd9caf5048'), ObjectId('5f70c61e0269a3cd9caf504a'), ObjectId('5f70c65e0269a3cd9caf504d'), ObjectId('5f70c6910269a3cd9caf504f'), ObjectId('5f70c7290269a3cd9caf5054'), ObjectId('5f70c7430269a3cd9caf5056'), ObjectId('5f70c7660269a3cd9caf5058'), ObjectId('5f70c7bf0269a3cd9caf505c'), ObjectId('5f70c7df0269a3cd9caf505e'), ObjectId('5f70c86a0269a3cd9caf5063'), ObjectId('5f70c8970269a3cd9caf5065'), ObjectId('5f70c9480269a3cd9caf506b'), ObjectId('5f70ca3e0269a3cd9caf5074'), ObjectId('5f70ca580269a3cd9caf5076'), ObjectId('5f70ca750269a3cd9caf5078'), ObjectId('5f70ca8e0269a3cd9caf507a'), ObjectId('5f70cb4d0269a3cd9caf5080'), ObjectId('5f70cbb50269a3cd9caf5084'), ObjectId('5f70cbce0269a3cd9caf5086'), ObjectId('5f70cc670269a3cd9caf5098'), ObjectId('5f70cd450269a3cd9caf50a1'), ObjectId('5f70ce2a0269a3cd9caf50a9'), ObjectId('5f70ce780269a3cd9caf50ac'), ObjectId('5f70cf020269a3cd9caf50b1'), ObjectId('5f70d1240269a3cd9caf50c3'), ObjectId('5f70d15e0269a3cd9caf50c6'), ObjectId('5f70d1990269a3cd9caf50c8'), ObjectId('5f70d1ae0269a3cd9caf50ca'), ObjectId('5f70d1db0269a3cd9caf50cd'), ObjectId('5f70d2410269a3cd9caf50d2'), ObjectId('5f70d2f70269a3cd9caf50d9'), ObjectId('5f70d4410269a3cd9caf50f0'), ObjectId('5f70d4600269a3cd9caf50f2'), ObjectId('5f70d60b0269a3cd9caf5101'), ObjectId('5f70d6a70269a3cd9caf5109'), ObjectId('5f70d72b0269a3cd9caf510e'), ObjectId('5f70d7aa0269a3cd9caf5114'), ObjectId('5f70d80d0269a3cd9caf5119'), ObjectId('5f70d8460269a3cd9caf511c'), ObjectId('5f70d8a00269a3cd9caf5120'), ObjectId('5f70d9100269a3cd9caf5124'), ObjectId('5f70d9270269a3cd9caf5126'), ObjectId('5f70d93d0269a3cd9caf5128'), ObjectId('5f70db280269a3cd9caf5138'), ObjectId('5f70dcd50269a3cd9caf5152'), ObjectId('5f70de1d0269a3cd9caf515e'), ObjectId('5f70dfe00269a3cd9caf516d'), ObjectId('5f70e01f0269a3cd9caf5170'), ObjectId('5f70e08a0269a3cd9caf5175'), ObjectId('5f70e1130269a3cd9caf517b'), ObjectId('5f70e12b0269a3cd9caf517d'), ObjectId('5f70e16f0269a3cd9caf5180'), ObjectId('5f70e2160269a3cd9caf5187'), ObjectId('5f70e2560269a3cd9caf518a'), ObjectId('5f70e2c60269a3cd9caf518e'), ObjectId('5f70e3730269a3cd9caf5195'), ObjectId('5f70e3ae0269a3cd9caf5198'), ObjectId('5f70e3dd0269a3cd9caf519a'), ObjectId('5f70e4a30269a3cd9caf51a2'), ObjectId('5f70e52a0269a3cd9caf51b4'), ObjectId('5f70e5400269a3cd9caf51b6'), ObjectId('5f70e5dd0269a3cd9caf51bd'), ObjectId('5f70e6770269a3cd9caf51c3'), ObjectId('5f70e74f0269a3cd9caf51cc'), ObjectId('5f70e7b40269a3cd9caf51d1'), ObjectId('5f70e85b0269a3cd9caf51d9'), ObjectId('5f70e9d60269a3cd9caf51e7'), ObjectId('5f70ea2d0269a3cd9caf51eb'), ObjectId('5f70ebbb0269a3cd9caf51f7'), ObjectId('5f70ebf00269a3cd9caf51f9'), ObjectId('5f70ec280269a3cd9caf51fc'), ObjectId('5f70ec530269a3cd9caf51fe'), ObjectId('5f70ecff0269a3cd9caf5211'), ObjectId('5f70ed210269a3cd9caf5213'), ObjectId('5f70eda40269a3cd9caf5217'), ObjectId('5f70edd90269a3cd9caf5219'), ObjectId('5f70ef740269a3cd9caf5228'), ObjectId('5f70ef8d0269a3cd9caf522a'), ObjectId('5f70efbe0269a3cd9caf522c'), ObjectId('5f70f02b0269a3cd9caf5231'), ObjectId('5f70f1180269a3cd9caf523a'), ObjectId('5f70f16c0269a3cd9caf523e'), ObjectId('5f70f1840269a3cd9caf5240'), ObjectId('5f70f2510269a3cd9caf5249'), ObjectId('5f70f28c0269a3cd9caf524c'), ObjectId('5f70f2c20269a3cd9caf524e'), ObjectId('5f70f3280269a3cd9caf5252'), ObjectId('5f70f3480269a3cd9caf5254'), ObjectId('5f70f3d80269a3cd9caf5259'), ObjectId('5f70f3f10269a3cd9caf525b'), ObjectId('5f70f4090269a3cd9caf525d'), ObjectId('5f70f4210269a3cd9caf525f'), ObjectId('5f70f4490269a3cd9caf5261'), ObjectId('5f70f4b60269a3cd9caf5266'), ObjectId('5f70f5590269a3cd9caf5278'), ObjectId('5f70f58d0269a3cd9caf527b'), ObjectId('5f70f5a20269a3cd9caf527d'), ObjectId('5f70f5c10269a3cd9caf527f'), ObjectId('5f70f6270269a3cd9caf5283'), ObjectId('5f70f6820269a3cd9caf5287'), ObjectId('5f70f7340269a3cd9caf528e'), ObjectId('5f70f74c0269a3cd9caf5290'), ObjectId('5f70f7c80269a3cd9caf5294'), ObjectId('5f70f8830269a3cd9caf529b'), ObjectId('5f70f8e20269a3cd9caf529f'), ObjectId('5f70f8f90269a3cd9caf52a1'), ObjectId('5f70f9330269a3cd9caf52a4'), ObjectId('5f70f94d0269a3cd9caf52a6'), ObjectId('5f70f9640269a3cd9caf52a8'), ObjectId('5f70f9910269a3cd9caf52ab'), ObjectId('5f70fa840269a3cd9caf52b5'), ObjectId('5f70fac70269a3cd9caf52b8'), ObjectId('5f70fb380269a3cd9caf52bc'), ObjectId('5f70fb8c0269a3cd9caf52bf'), ObjectId('5f70fba60269a3cd9caf52c1'), ObjectId('5f70fbd30269a3cd9caf52c3'), ObjectId('5f70fc260269a3cd9caf52c6'), ObjectId('5f70fc3d0269a3cd9caf52c8'), ObjectId('5f70fc760269a3cd9caf52cb')]
+# adding_ig(all_ids)
+# simplified_update([ObjectId('5f183e29464603f10dce0da8')])
+assets= [ObjectId('5f76ec8f087161005148ece3'), ObjectId('5f76cb2b087161005148eb9f'), ObjectId('5f6437688af3a4af8c749f01'), ObjectId('5f76c4b1087161005148eb6b'), ObjectId('5f76e7ac087161005148eca9'), ObjectId('5f76e7fe087161005148ecad'), ObjectId('5f76e69a087161005148eca0'), ObjectId('5f76d1f0087161005148ebe0'), ObjectId('5f76d1a1087161005148ebdc'), ObjectId('5f76f8be087161005148ed47'), ObjectId('5f759f47087161005148e8c9'), ObjectId('5f76d14d087161005148ebd8'), ObjectId('5f70d93d0269a3cd9caf5128'), ObjectId('5f76df57087161005148ec60'), ObjectId('5f76f5f1087161005148ed31'), ObjectId('5f76f854087161005148ed44'), ObjectId('5f76b30c087161005148eaea'), ObjectId('5f75b8b5087161005148e9bf'), ObjectId('5f76b114087161005148eae1'), ObjectId('5f76dec8087161005148ec5c'), ObjectId('5f76f487087161005148ed24'), ObjectId('5f70ca3e0269a3cd9caf5074'), ObjectId('5f76f633087161005148ed33'), ObjectId('5f76c0f5087161005148eb4f'), ObjectId('5f7701de087161005148ed85'), ObjectId('5f76e417087161005148ec8a'), ObjectId('5f76b472087161005148eaf2'), ObjectId('5f76dafc087161005148ec35'), ObjectId('5f19d55909e1c3c7030256ab'), ObjectId('5f76d28e087161005148ebe6'), ObjectId('5f76dea4087161005148ec5a'), ObjectId('5f76edca087161005148ecee'), ObjectId('5f68359a9d6d5b0536dfd377'), ObjectId('5f19c8f009e1c3c703025670'), ObjectId('5f76e265087161005148ec7c'), ObjectId('5f76ecb8087161005148ece5'), ObjectId('5f6835fa9d6d5b0536dfd37d'), ObjectId('5f76c486087161005148eb69'), ObjectId('5f76cf06087161005148ebc8'), ObjectId('5f770a5b087161005148edbf'), ObjectId('5f758107087161005148e7b5'), ObjectId('5f76ec3e087161005148ece0'), ObjectId('5f76e5a4087161005148ec97'), ObjectId('5f76c428087161005148eb66'), ObjectId('5f76a470087161005148eaa6'), ObjectId('5f770236087161005148ed89'), ObjectId('5f76db20087161005148ec37'), ObjectId('5f76e0fb087161005148ec6f'), ObjectId('5f76e1a8087161005148ec77'), ObjectId('5f76b342087161005148eaec'), ObjectId('5f76cbc6087161005148eba4'), ObjectId('5f76ec10087161005148ecde'), ObjectId('5f76e290087161005148ec7e'), ObjectId('5f76d79b087161005148ec0e'), ObjectId('5f76ef07087161005148ecfa'), ObjectId('5f76a332087161005148ea9f'), ObjectId('5f76e042087161005148ec68'), ObjectId('5f75bb46087161005148e9d3'), ObjectId('5f75684c087161005148e6b3'), ObjectId('5f75b696087161005148e9af'), ObjectId('5f76f3dd087161005148ed20'), ObjectId('5f75a410087161005148e8ef'), ObjectId('5f76ae75087161005148ead1'), ObjectId('5f6835ba9d6d5b0536dfd379'), ObjectId('5f758438087161005148e7d2'), ObjectId('5f76bac7087161005148eb18'), ObjectId('5f76efb0087161005148ed00'), ObjectId('5f76d9bf087161005148ec1f'), ObjectId('5f76bb08087161005148eb1a'), ObjectId('5f76e891087161005148ecb4'), ObjectId('5f76bec1087161005148eb3c'), ObjectId('5f76ce73087161005148ebc3'), ObjectId('5f76f010087161005148ed03'), ObjectId('5f76e016087161005148ec66'), ObjectId('5f76ee87087161005148ecf4'), ObjectId('5f6437528af3a4af8c749eff'), ObjectId('5f76b0d3087161005148eadf'), ObjectId('5f76bc7b087161005148eb2e'), ObjectId('5f75ab4b087161005148e93f'), ObjectId('5f76a714087161005148eab4'), ObjectId('5f757af0087161005148e76f'), ObjectId('5f75b835087161005148e9ba'), ObjectId('5f75a551087161005148e904'), ObjectId('5f76c1ed087161005148eb55'), ObjectId('5f76eead087161005148ecf6'), ObjectId('5f76d6df087161005148ec08'), ObjectId('5f76fd8c087161005148ed6b'), ObjectId('5f76c830087161005148eb87'), ObjectId('5f76c939087161005148eb8e'), ObjectId('5f75bc04087161005148e9da'), ObjectId('5f76d603087161005148ebff'), ObjectId('5f76af76087161005148ead7'), ObjectId('5f76adda087161005148eace'), ObjectId('5f76b8b2087161005148eb0c'), ObjectId('5f75a954087161005148e92c'), ObjectId('5f76cfae087161005148ebcd'), ObjectId('5f76e0ab087161005148ec6c'), ObjectId('5f76e15d087161005148ec73'), ObjectId('5f76d3c4087161005148ebef'), ObjectId('5f76e949087161005148ecba'), ObjectId('5f76eb43087161005148ecd7'), ObjectId('5f76f104087161005148ed0c'), ObjectId('5f770a2f087161005148edbd'), ObjectId('5f76f28f087161005148ed16'), ObjectId('5f75ae6b087161005148e958'), ObjectId('5f76db77087161005148ec3a'), ObjectId('5f76b70a087161005148eb01'), ObjectId('5f76ba22087161005148eb14'), ObjectId('5f76a522087161005148eaaa'), ObjectId('5f76e8f5087161005148ecb7'), ObjectId('5f76eeda087161005148ecf8'), ObjectId('5f76e7d8087161005148ecab'), ObjectId('5f76e49a087161005148ec8f'), ObjectId('5f75bb1c087161005148e9d1'), ObjectId('5f19ca5e09e1c3c703025690'), ObjectId('5f76ed74087161005148ecea'), ObjectId('5f76f225087161005148ed13'), ObjectId('5f76de1a087161005148ec56'), ObjectId('5f76f353087161005148ed1c'), ObjectId('5f76f767087161005148ed3b'), ObjectId('5f76bf47087161005148eb40'), ObjectId('5f76da03087161005148ec22'), ObjectId('5f76d174087161005148ebda'), ObjectId('5f76e642087161005148ec9d'), ObjectId('5f76d35f087161005148ebec'), ObjectId('5f76e3e8087161005148ec88'), ObjectId('5f1ed9fe62de5888b3f12f5b'), ObjectId('5f7705ce087161005148ed9f'), ObjectId('5f7582bc087161005148e7c3'), ObjectId('5f19d65209e1c3c7030256c1'), ObjectId('5f75b34b087161005148e988'), ObjectId('5f70c86a0269a3cd9caf5063'), ObjectId('5f76c9fe087161005148eb96'), ObjectId('5f76b99a087161005148eb10'), ObjectId('5f76f58d087161005148ed2f'), ObjectId('5f76f15f087161005148ed0f'), ObjectId('5f76ece4087161005148ece7'), ObjectId('5f76f544087161005148ed2b'), ObjectId('5f76c30a087161005148eb5d'), ObjectId('5f76f6be087161005148ed36'), ObjectId('5f709be90269a3cd9caf4fd4'), ObjectId('5f76cae4087161005148eb9d'), ObjectId('5f70c7df0269a3cd9caf505e'), ObjectId('5f757a68087161005148e76a'), ObjectId('5f76dc20087161005148ec40'), ObjectId('5f76e9fc087161005148eccb'), ObjectId('5f183d9b464603f10dce0d9e'), ObjectId('5f76e3b2087161005148ec86'), ObjectId('5f76ab3b087161005148eac4'), ObjectId('5f76e844087161005148ecb1'), ObjectId('5f76d717087161005148ec0a'), ObjectId('5f76cb54087161005148eba1'), ObjectId('5f75893f087161005148e800'), ObjectId('5f76df82087161005148ec62'), ObjectId('5f76d060087161005148ebd2'), ObjectId('5f76e5f0087161005148ec99'), ObjectId('5f70d60b0269a3cd9caf5101'), ObjectId('5f76c572087161005148eb71'), ObjectId('5f76d1c4087161005148ebde'), ObjectId('5f7577b0087161005148e74f'), ObjectId('5f76ce4f087161005148ebc1'), ObjectId('5f76e454087161005148ec8c'), ObjectId('5f76c18d087161005148eb52'), ObjectId('5f76ea22087161005148eccd'), ObjectId('5f76eda5087161005148ecec'), ObjectId('5f76bb54087161005148eb1c'), ObjectId('5f76ddfe087161005148ec54'), ObjectId('5f1ecf5362de5888b3f12f04'), ObjectId('5f76d65e087161005148ec03'), ObjectId('5f76b9dd087161005148eb12'), ObjectId('5f76b749087161005148eb03'), ObjectId('5f76bf6e087161005148eb42'), ObjectId('5f770534087161005148ed9a'), ObjectId('5f76da81087161005148ec31'), ObjectId('5f76ee12087161005148ecf0'), ObjectId('5f76b61c087161005148eafb'), ObjectId('5f770688087161005148eda5'), ObjectId('5f76e33b087161005148ec82'), ObjectId('5f76bd6c087161005148eb32'), ObjectId('5f76e6f1087161005148eca3'), ObjectId('5f19d59a09e1c3c7030256b1'), ObjectId('5f77086d087161005148edb1'), ObjectId('5f76d6af087161005148ec06'), ObjectId('5f6de2d2144e831840676870'), ObjectId('5f76aea8087161005148ead3'), ObjectId('5f76f323087161005148ed1a'), ObjectId('5f76dc89087161005148ec44'), ObjectId('5f76ebea087161005148ecdc'), ObjectId('5f76d919087161005148ec19'), ObjectId('5f76e99d087161005148ecc8'), ObjectId('5f76c35c087161005148eb60'), ObjectId('5f76f7ba087161005148ed3f'), ObjectId('5f76c062087161005148eb4b'), ObjectId('5f76ff6d087161005148ed75'), ObjectId('5f76afdb087161005148ead9'), ObjectId('5f709ec20269a3cd9caf4ff0'), ObjectId('5f183ec8464603f10dce0db4'), ObjectId('5f76a7ca087161005148eab7'), ObjectId('5f76a58e087161005148eaae'), ObjectId('5f76b698087161005148eafe'), ObjectId('5f76af3b087161005148ead5'), ObjectId('5f75bbcf087161005148e9d8'), ObjectId('5f76d4c5087161005148ebf7'), ObjectId('5f76d82f087161005148ec12'), ObjectId('5f76f03b087161005148ed05'), ObjectId('5f76bbc6087161005148eb1f'), ObjectId('5f76f56b087161005148ed2d'), ObjectId('5f76f908087161005148ed49'), ObjectId('5f76c03d087161005148eb49'), ObjectId('5f76cd00087161005148ebba'), ObjectId('5f77016e087161005148ed81'), ObjectId('5f76bd93087161005148eb34'), ObjectId('5f76f78d087161005148ed3d'), ObjectId('5f75b5ac087161005148e9a2'), ObjectId('5f76c773087161005148eb81'), ObjectId('5f76ceb7087161005148ebc5'), ObjectId('5f76d895087161005148ec15'), ObjectId('5f76eb1b087161005148ecd5'), ObjectId('5f75983d087161005148e88e'), ObjectId('5f76b04d087161005148eadb'), ObjectId('5f76b82d087161005148eb08'), ObjectId('5f76bf94087161005148eb44'), ObjectId('5f76c6c6087161005148eb7c'), ObjectId('5f76c7a4087161005148eb83'), ObjectId('5f76b878087161005148eb0a'), ObjectId('5f76d632087161005148ec01'), ObjectId('5f76dcf2087161005148ec49'), ObjectId('5f76f4e2087161005148ed28'), ObjectId('5f76c3b8087161005148eb63'), ObjectId('5f76c988087161005148eb92'), ObjectId('5f76c246087161005148eb58'), ObjectId('5f1ecf8662de5888b3f12f06'), ObjectId('5f76e12b087161005148ec71'), ObjectId('5f18841f35a2278f64f9e5f4'), ObjectId('5f19d54209e1c3c7030256a9'), ObjectId('5f76b784087161005148eb05'), ObjectId('5f76b20a087161005148eae6'), ObjectId('5f76dde3087161005148ec52'), ObjectId('5f76b08c087161005148eadd'), ObjectId('5f1ed8eb62de5888b3f12f3a'), ObjectId('5f76dd3c087161005148ec4c'), ObjectId('5f76d265087161005148ebe4'), ObjectId('5f76ef33087161005148ecfc'), ObjectId('5f76e616087161005148ec9b'), ObjectId('5f770205087161005148ed87'), ObjectId('5f76b5d7087161005148eaf9'), ObjectId('5f76c5be087161005148eb74'), ObjectId('5f76a55d087161005148eaac'), ObjectId('5f75b9c8087161005148e9c6'), ObjectId('5f18ec4635a2278f64f9e6a9'), ObjectId('5f76eaca087161005148ecd2'), ObjectId('5f76ba6c087161005148eb16'), ObjectId('5f756a60087161005148e6c5'), ObjectId('5f76c503087161005148eb6e'), ObjectId('5f76f821087161005148ed42'), ObjectId('5f76cce2087161005148ebb8'), ObjectId('5f76b4b9087161005148eaf4'), ObjectId('5f76d59f087161005148ebfc'), ObjectId('5f76dba7087161005148ec3c'), ObjectId('5f76a8f1087161005148eabd'), ObjectId('5f76b18a087161005148eae3'), ObjectId('5f76dca5087161005148ec46'), ObjectId('5f76e81e087161005148ecaf'), ObjectId('5f76e184087161005148ec75'), ObjectId('5f76ada5087161005148eacc'), ObjectId('5f76e4e9087161005148ec92'), ObjectId('5f76d414087161005148ebf2'), ObjectId('5f76a3b4087161005148eaa2'), ObjectId('5f75b933087161005148e9c2'), ObjectId('5f76e746087161005148eca6'), ObjectId('5f76b4f1087161005148eaf6'), ObjectId('5f76c66d087161005148eb79'), ObjectId('5f76c962087161005148eb90'), ObjectId('5f76d99a087161005148ec1d'), ObjectId('5f19c98709e1c3c70302567e'), ObjectId('5f6ddf0b144e831840676837'), ObjectId('5f76f0c1087161005148ed09'), ObjectId('5f76f4b7087161005148ed26'), ObjectId('5f76e526087161005148ec94')]
+ndis = [ObjectId('5f759112087161005148e847'), ObjectId('5f759644087161005148e872'), ObjectId('5f75b490087161005148e994'), ObjectId('5f75a2c1087161005148e8e4'), ObjectId('5f757b5f087161005148e774'), ObjectId('5f7594c8087161005148e865'), ObjectId('5f757c05087161005148e77c'), ObjectId('5f75ab1e087161005148e93d'), ObjectId('5f757570087161005148e736'), ObjectId('5f757ee2087161005148e794'), ObjectId('5f709ec20269a3cd9caf4ff0'), ObjectId('5f757243087161005148e70d'), ObjectId('5f75751a087161005148e732'), ObjectId('5f758324087161005148e7c5'), ObjectId('5f756b98087161005148e6cf'), ObjectId('5f7574de087161005148e72e'), ObjectId('5f7566da087161005148e6a8'), ObjectId('5f758e08087161005148e82f'), ObjectId('5f756edf087161005148e6eb'), ObjectId('5f757f85087161005148e79a'), ObjectId('5f75a551087161005148e904'), ObjectId('5f756a60087161005148e6c5'), ObjectId('5f75a613087161005148e90d'), ObjectId('5f7569f5087161005148e6c1'), ObjectId('5f758030087161005148e7a1'), ObjectId('5f75ae44087161005148e956'), ObjectId('5f7581ef087161005148e7bb'), ObjectId('5f75bf72087161005148e9fb'), ObjectId('5f75ca29087161005148ea4b'), ObjectId('5f756958087161005148e6bb'), ObjectId('5f7598d6087161005148e897'), ObjectId('5f75b882087161005148e9bd'), ObjectId('5f756cb8087161005148e6d8'), ObjectId('5f756a8c087161005148e6c7'), ObjectId('5f75c020087161005148ea00'), ObjectId('5f75a7e0087161005148e91c'), ObjectId('5f75be3c087161005148e9e7'), ObjectId('5f756708087161005148e6aa'), ObjectId('5f75af0b087161005148e95c'), ObjectId('5f7596ec087161005148e879'), ObjectId('5f758f57087161005148e839'), ObjectId('5f75bbcf087161005148e9d8'), ObjectId('5f759c13087161005148e8b2'), ObjectId('5f75972e087161005148e87c'), ObjectId('5f75c3e6087161005148ea1e'), ObjectId('5f75bb46087161005148e9d3'), ObjectId('5f75b1c7087161005148e97b'), ObjectId('5f75a3ed087161005148e8ed'), ObjectId('5f7592f0087161005148e857'), ObjectId('5f75adcd087161005148e952'), ObjectId('5f75b933087161005148e9c2'), ObjectId('5f757be1087161005148e77a'), ObjectId('5f7586b4087161005148e7ec'), ObjectId('5f75b330087161005148e986'), ObjectId('5f756605087161005148e6a2'), ObjectId('5f75826d087161005148e7bf'), ObjectId('5f759e42087161005148e8c2'), ObjectId('5f75b515087161005148e999'), ObjectId('5f758ab9087161005148e80c'), ObjectId('5f75700e087161005148e6f7'), ObjectId('5f756f45087161005148e6ef'), ObjectId('5f7565b7087161005148e6a0'), ObjectId('5f75c521087161005148ea29'), ObjectId('5f757674087161005148e742'), ObjectId('5f75b8b5087161005148e9bf'), ObjectId('5f757a68087161005148e76a'), ObjectId('5f75a410087161005148e8ef'), ObjectId('5f757857087161005148e758'), ObjectId('5f756c72087161005148e6d6'), ObjectId('5f75b316087161005148e984'), ObjectId('5f759f47087161005148e8c9'), ObjectId('5f75c5fd087161005148ea30'), ObjectId('5f75ab4b087161005148e93f'), ObjectId('5f7564f4087161005148e69c'), ObjectId('5f1ecdec62de5888b3f12ee7'), ObjectId('5f757bb3087161005148e778'), ObjectId('5f6f432745dea3de84616921'), ObjectId('5f75ca53087161005148ea4d'), ObjectId('5f757c4b087161005148e77e'), ObjectId('5f75881d087161005148e7f9'), ObjectId('5f757213087161005148e70b'), ObjectId('5f75bd43087161005148e9e2'), ObjectId('5f757a23087161005148e767'), ObjectId('5f758696087161005148e7ea'), ObjectId('5f758528087161005148e7dc'), ObjectId('5f7585c7087161005148e7e0'), ObjectId('5f7573a7087161005148e71a'), ObjectId('5f75ba51087161005148e9ca'), ObjectId('5f75805f087161005148e7a3'), ObjectId('5f75703c087161005148e6f9'), ObjectId('5f1ece2062de5888b3f12eeb'), ObjectId('5f757309087161005148e715'), ObjectId('5f756bd4087161005148e6d1'), ObjectId('5f758374087161005148e7c9'), ObjectId('5f75ac8e087161005148e949'), ObjectId('5f757e19087161005148e78c'), ObjectId('5f75ad68087161005148e94e'), ObjectId('5f709f0e0269a3cd9caf4ff3'), ObjectId('5f757769087161005148e74c'), ObjectId('5f75a0a1087161005148e8d3'), ObjectId('5f75b7e5087161005148e9b7'), ObjectId('5f756906087161005148e6b9'), ObjectId('5f75c7bc087161005148ea3b'), ObjectId('5f75ca87087161005148ea4f'), ObjectId('5f756f18087161005148e6ed'), ObjectId('5f75961f087161005148e870'), ObjectId('5f7570ff087161005148e701'), ObjectId('5f757e3b087161005148e78e'), ObjectId('5f75af97087161005148e961'), ObjectId('5f7569be087161005148e6bf'), ObjectId('5f75719c087161005148e707'), ObjectId('5f75a22d087161005148e8df'), ObjectId('5f75789a087161005148e75c'), ObjectId('5f757f59087161005148e798'), ObjectId('5f75b249087161005148e97e'), ObjectId('5f759ba5087161005148e8ae'), ObjectId('5f1ecf8662de5888b3f12f06'), ObjectId('5f758de7087161005148e82d'), ObjectId('5f7575ad087161005148e738'), ObjectId('5f75aa92087161005148e936'), ObjectId('5f756e7b087161005148e6e7'), ObjectId('5f759399087161005148e85b'), ObjectId('5f6dddda144e83184067682d'), ObjectId('5f75c7ec087161005148ea3d'), ObjectId('5f757643087161005148e73e'), ObjectId('5f758c3f087161005148e816'), ObjectId('5f75aafd087161005148e93b'), ObjectId('5f75907d087161005148e843'), ObjectId('5f75a802087161005148e91e'), ObjectId('5f75a18f087161005148e8da'), ObjectId('5f757a01087161005148e765'), ObjectId('5f75adac087161005148e950'), ObjectId('5f7588c3087161005148e7fd'), ObjectId('5f75781d087161005148e754'), ObjectId('5f758676087161005148e7e8'), ObjectId('5f756b59087161005148e6cd'), ObjectId('5f758c67087161005148e818'), ObjectId('5f758780087161005148e7f3'), ObjectId('5f757836087161005148e756'), ObjectId('5f75a485087161005148e8fe'), ObjectId('5f7568cf087161005148e6b7'), ObjectId('5f7593cd087161005148e85d'), ObjectId('5f75bcb7087161005148e9df'), ObjectId('5f70e85b0269a3cd9caf51d9'), ObjectId('5f758dae087161005148e82b'), ObjectId('5f758459087161005148e7d4'), ObjectId('5f183d9b464603f10dce0d9e'), ObjectId('5f7576bd087161005148e745'), ObjectId('5f75a259087161005148e8e1'), ObjectId('5f70c65e0269a3cd9caf504d'), ObjectId('5f756f79087161005148e6f1'), ObjectId('5f757e71087161005148e790'), ObjectId('5f758419087161005148e7d0'), ObjectId('5f75aab1087161005148e938'), ObjectId('5f75a5cd087161005148e90a'), ObjectId('5f75c979087161005148ea46'), ObjectId('5f758723087161005148e7f1'), ObjectId('5f75b9c8087161005148e9c6'), ObjectId('5f75654d087161005148e69e'), ObjectId('5f75677c087161005148e6ac'), ObjectId('5f75706e087161005148e6fb'), ObjectId('5f75b9f6087161005148e9c8'), ObjectId('5f7598a0087161005148e893'), ObjectId('5f757279087161005148e70f'), ObjectId('5f75aa09087161005148e932'), ObjectId('5f759db2087161005148e8bc'), ObjectId('5f75ab78087161005148e941'), ObjectId('5f757af0087161005148e76f'), ObjectId('5f6de1f6144e831840676867'), ObjectId('5f75749e087161005148e72c'), ObjectId('5f759535087161005148e869'), ObjectId('5f75983d087161005148e88e'), ObjectId('5f19ca4a09e1c3c70302568e'), ObjectId('5f75a745087161005148e918'), ObjectId('5f758299087161005148e7c1'), ObjectId('5f75a982087161005148e92e'), ObjectId('5f758438087161005148e7d2'), ObjectId('5f758006087161005148e79f'), ObjectId('5f759167087161005148e84b'), ObjectId('5f757b3b087161005148e772'), ObjectId('5f75a885087161005148e923'), ObjectId('5f709c4e0269a3cd9caf4fd8'), ObjectId('5f7584c9087161005148e7d8'), ObjectId('5f70ed210269a3cd9caf5213'), ObjectId('5f7571e3087161005148e709'), ObjectId('5f7567de087161005148e6b0'), ObjectId('5f759f9b087161005148e8cc'), ObjectId('5f75bacd087161005148e9cd'), ObjectId('5f75a8c0087161005148e927'), ObjectId('5f757fdb087161005148e79d'), ObjectId('5f75709a087161005148e6fd'), ObjectId('5f758508087161005148e7da'), ObjectId('5f758107087161005148e7b5'), ObjectId('5f75765b087161005148e740'), ObjectId('5f7593fa087161005148e85f'), ObjectId('5f75a82e087161005148e920'), ObjectId('5f75a8de087161005148e929'), ObjectId('5f758962087161005148e802'), ObjectId('5f7583f3087161005148e7ce'), ObjectId('5f18ec4635a2278f64f9e6a9'), ObjectId('5f756eac087161005148e6e9'), ObjectId('5f757545087161005148e734'), ObjectId('5f756984087161005148e6bd'), ObjectId('5f6460344c677bfa552c5be7'), ObjectId('5f757372087161005148e718'), ObjectId('5f75b604087161005148e9a7'), ObjectId('5f7587d8087161005148e7f6'), ObjectId('5f756fd9087161005148e6f5'), ObjectId('5f75b3dd087161005148e98e'), ObjectId('5f75c4d6087161005148ea26'), ObjectId('5f7577b0087161005148e74f'), ObjectId('5f758ae7087161005148e80e'), ObjectId('5f759b5e087161005148e8ab'), ObjectId('5f75c059087161005148ea03'), ObjectId('5f75b67c087161005148e9ad'), ObjectId('5f1ed8eb62de5888b3f12f3a'), ObjectId('5f75bc04087161005148e9da'), ObjectId('5f759cc6087161005148e8b6'), ObjectId('5f758b3d087161005148e810'), ObjectId('5f70a3ba0269a3cd9caf501e'), ObjectId('5f70ec280269a3cd9caf51fc'), ObjectId('5f70ca580269a3cd9caf5076'), ObjectId('5f75687a087161005148e6b5'), ObjectId('5f75bb93087161005148e9d6'), ObjectId('5f7570cb087161005148e6ff'), ObjectId('5f75b5ac087161005148e9a2'), ObjectId('5f75787a087161005148e75a'), ObjectId('5f758a6b087161005148e809'), ObjectId('5f757d70087161005148e787'), ObjectId('5f75a954087161005148e92c'), ObjectId('5f682585a7cef498a185c2a6'), ObjectId('5f757733087161005148e749'), ObjectId('5f7574ff087161005148e730'), ObjectId('5f75893f087161005148e800'), ObjectId('5f70f28c0269a3cd9caf524c'), ObjectId('5f7596c5087161005148e877'), ObjectId('5f7583c4087161005148e7cc'), ObjectId('5f756fab087161005148e6f3'), ObjectId('5f75950e087161005148e867'), ObjectId('5f75b58c087161005148e9a0'), ObjectId('5f759df9087161005148e8bf'), ObjectId('5f7591ae087161005148e84d'), ObjectId('5f70cc670269a3cd9caf5098'), ObjectId('5f75a1af087161005148e8dc'), ObjectId('5f75baf3087161005148e9cf'), ObjectId('5f70efbe0269a3cd9caf522c'), ObjectId('5f756e20087161005148e6e3'), ObjectId('5f756a2c087161005148e6c3'), ObjectId('5f1ed7ee62de5888b3f12f21'), ObjectId('5f75966e087161005148e874'), ObjectId('5f75b364087161005148e98a'), ObjectId('5f758f80087161005148e83b'), ObjectId('5f75a8a2087161005148e925'), ObjectId('5f75b34b087161005148e988'), ObjectId('5f75c0d1087161005148ea08'), ObjectId('5f75acfb087161005148e94c'), ObjectId('5f75b620087161005148e9a9'), ObjectId('5f758d50087161005148e828'), ObjectId('5f759fce087161005148e8ce'), ObjectId('5f759281087161005148e854'), ObjectId('5f757ab4087161005148e76d'), ObjectId('5f756c03087161005148e6d3'), ObjectId('5f757f1b087161005148e796'), ObjectId('5f75899f087161005148e804'), ObjectId('5f75958c087161005148e86c'), ObjectId('5f7566ab087161005148e6a6'), ObjectId('5f757136087161005148e703'), ObjectId('5f75b54f087161005148e99c'), ObjectId('5f75c747087161005148ea37'), ObjectId('5f75a340087161005148e8e8'), ObjectId('5f757165087161005148e705'), ObjectId('5f7590d6087161005148e845'), ObjectId('5f758708087161005148e7ef'), ObjectId('5f758648087161005148e7e6'), ObjectId('5f75985d087161005148e890'), ObjectId('5f75b56b087161005148e99e'), ObjectId('5f75c19e087161005148ea0d'), ObjectId('5f758084087161005148e7a5'), ObjectId('5f758b5d087161005148e812'), ObjectId('5f75976e087161005148e87e'), ObjectId('5f758615087161005148e7e4'), ObjectId('5f756deb087161005148e6e1'), ObjectId('5f75834f087161005148e7c7'), ObjectId('5f75b05a087161005148e966'), ObjectId('5f75c417087161005148ea20'), ObjectId('5f75b29a087161005148e980'), ObjectId('5f7582bc087161005148e7c3'), ObjectId('5f75ae6b087161005148e958'), ObjectId('5f756e4d087161005148e6e5'), ObjectId('5f75a578087161005148e906'), ObjectId('5f75b6bb087161005148e9b1'), ObjectId('5f75a5a8087161005148e908'), ObjectId('5f75b835087161005148e9ba'), ObjectId('5f7585eb087161005148e7e2'), ObjectId('5f75c1be087161005148ea0f'), ObjectId('5f75ae03087161005148e954'), ObjectId('5f6437328af3a4af8c749efd'), ObjectId('5f759ac1087161005148e8a5'), ObjectId('5f75a6a9087161005148e913'), ObjectId('5f75684c087161005148e6b3'), ObjectId('5f756d0c087161005148e6da'), ObjectId('5f7591df087161005148e84f'), ObjectId('5f756d41087161005148e6dc'), ObjectId('5f7598bc087161005148e895'), ObjectId('5f75a62f087161005148e90f'), ObjectId('5f183ec8464603f10dce0db4'), ObjectId('5f7567aa087161005148e6ae'), ObjectId('5f757cd7087161005148e782'), ObjectId('5f759137087161005148e849'), ObjectId('5f75746f087161005148e72a'), ObjectId('5f75b5ea087161005148e9a5'), ObjectId('5f758e28087161005148e831'), ObjectId('5f75af75087161005148e95f'), ObjectId('5f7580a4087161005148e7a7'), ObjectId('5f759492087161005148e863'), ObjectId('5f19d65209e1c3c7030256c1'), ObjectId('5f75bc63087161005148e9dc'), ObjectId('5f70a2170269a3cd9caf5011'), ObjectId('5f7578da087161005148e75e'), ObjectId('5f757d4e087161005148e785'), ObjectId('5f7572a8087161005148e711'), ObjectId('5f758ee4087161005148e836'), ObjectId('5f757b86087161005148e776'), ObjectId('5f75900c087161005148e840'), ObjectId('5f75bb1c087161005148e9d1'), ObjectId('5f756d76087161005148e6de'), ObjectId('5f756677087161005148e6a4'), ObjectId('5f756abd087161005148e6c9'), ObjectId('5f6db7bc7e23326b374cc472'), ObjectId('5f7572dc087161005148e713'), ObjectId('5f75b696087161005148e9af')]
+
+ids_first = [ObjectId('5f19d55909e1c3c7030256ab'), ObjectId('5f7b937ff5bb1adde1413e72'), ObjectId('5f757733087161005148e749'), ObjectId('5f75b5ac087161005148e9a2'), ObjectId('5f1ed9a162de5888b3f12f4a'), ObjectId('5f18ed5035a2278f64f9e6bd'), ObjectId('5f1ed98b62de5888b3f12f48'), ObjectId('5f7b9e6cf5bb1adde1413f02'), ObjectId('5f7b67aff5bb1adde1413dd3'), ObjectId('5f70a2170269a3cd9caf5011'), ObjectId('5f183f13464603f10dce0dba'), ObjectId('5f6437688af3a4af8c749f01'), ObjectId('5f18ec4635a2278f64f9e6a9'), ObjectId('5f7b66d6f5bb1adde1413dc8'), ObjectId('5f76ea22087161005148eccd'), ObjectId('5f7b8fb5f5bb1adde1413e40'), ObjectId('5f7b9865f5bb1adde1413eb3'), ObjectId('5f645f754c677bfa552c5bd2'), ObjectId('5f76c773087161005148eb81'), ObjectId('5f75b6bb087161005148e9b1'), ObjectId('5f7b902ff5bb1adde1413e45'), ObjectId('5f75983d087161005148e88e'), ObjectId('5f7ba504f5bb1adde1413f5a'), ObjectId('5f758438087161005148e7d2'), ObjectId('5f6835da9d6d5b0536dfd37b'), ObjectId('5f7ba3abf5bb1adde1413f3e'), ObjectId('5f7ba94df5bb1adde1413f7f'), ObjectId('5f19d6df09e1c3c7030256cd'), ObjectId('5f1ed9fe62de5888b3f12f5b'), ObjectId('5f76ba6c087161005148eb16'), ObjectId('5f758107087161005148e7b5'), ObjectId('5f75893f087161005148e800'), ObjectId('5f645f944c677bfa552c5bd4'), ObjectId('5f7b9241f5bb1adde1413e5f'), ObjectId('5f756abd087161005148e6c9'), ObjectId('5f7bb0fdf5bb1adde1413fcd'), ObjectId('5f19c98709e1c3c70302567e'), ObjectId('5f7ba2baf5bb1adde1413f31'), ObjectId('5f183e14464603f10dce0da6'), ObjectId('5f19c8bc09e1c3c70302566c'), ObjectId('5f76bf47087161005148eb40'), ObjectId('5f7b9276f5bb1adde1413e62'), ObjectId('5f19cabe09e1c3c703025698'), ObjectId('5f770a2f087161005148edbd'), ObjectId('5f1ece2062de5888b3f12eeb'), ObjectId('5f70eda40269a3cd9caf5217'), ObjectId('5f19c87c09e1c3c703025666'), ObjectId('5f7ba0eef5bb1adde1413f19'), ObjectId('5f7baae8f5bb1adde1413f8b'), ObjectId('5f7b64aef5bb1adde1413da9'), ObjectId('5f7ba054f5bb1adde1413f12'), ObjectId('5f7570ff087161005148e701'), ObjectId('5f759cc6087161005148e8b6'), ObjectId('5f19d6b209e1c3c7030256c9'), ObjectId('5f7baff0f5bb1adde1413fc3'), ObjectId('5f76e290087161005148ec7e'), ObjectId('5f7b90d3f5bb1adde1413e4e'), ObjectId('5f7ba204f5bb1adde1413f27'), ObjectId('5f7ba6bff5bb1adde1413f6b'), ObjectId('5f758528087161005148e7dc'), ObjectId('5f6437128af3a4af8c749efb'), ObjectId('5f76d59f087161005148ebfc'), ObjectId('5f7b6409f5bb1adde1413da0'), ObjectId('5f7b6465f5bb1adde1413da6'), ObjectId('5f7592f0087161005148e857'), ObjectId('5f6460344c677bfa552c5be7'), ObjectId('5f7b9d59f5bb1adde1413ef4'), ObjectId('5f75ae6b087161005148e958'), ObjectId('5f7b9db8f5bb1adde1413ef8'), ObjectId('5f6835ba9d6d5b0536dfd379'), ObjectId('5f76b784087161005148eb05'), ObjectId('5f7b69b0f5bb1adde1413dea'), ObjectId('5f76aea8087161005148ead3'), ObjectId('5f7b65fef5bb1adde1413dbc'), ObjectId('5f183efd464603f10dce0db8'), ObjectId('5f1ecdec62de5888b3f12ee7'), ObjectId('5f7b8f0bf5bb1adde1413e37'), ObjectId('5f6f4fcb41c09be1b8045811'), ObjectId('5f1ed7ee62de5888b3f12f21'), ObjectId('5f7b930bf5bb1adde1413e6a'), ObjectId('5f19d59a09e1c3c7030256b1'), ObjectId('5f7b8db4f5bb1adde1413e2b'), ObjectId('5f7b6524f5bb1adde1413db1'), ObjectId('5f7b8d46f5bb1adde1413e27'), ObjectId('5f7b9320f5bb1adde1413e6c'), ObjectId('5f70a3ba0269a3cd9caf501e'), ObjectId('5f7b665af5bb1adde1413dc2'), ObjectId('5f7b8a75f5bb1adde1413dfb'), ObjectId('5f75958c087161005148e86c'), ObjectId('5f7ba776f5bb1adde1413f70'), ObjectId('5f76ee87087161005148ecf4'), ObjectId('5f1eadd362de5888b3f12eb3'), ObjectId('5f7b9e83f5bb1adde1413f04'), ObjectId('5f7ba265f5bb1adde1413f2d'), ObjectId('5f7bb5bef5bb1adde1413fff'), ObjectId('5f7b643df5bb1adde1413da3'), ObjectId('5f7b97a5f5bb1adde1413ea9'), ObjectId('5f7ba617f5bb1adde1413f65'), ObjectId('5f19d5af09e1c3c7030256b3'), ObjectId('5f7ba341f5bb1adde1413f37'), ObjectId('5f76d6df087161005148ec08'), ObjectId('5f77086d087161005148edb1'), ObjectId('5f70c86a0269a3cd9caf5063'), ObjectId('5f7b9b6cf5bb1adde1413ed7'), ObjectId('5f1ed90062de5888b3f12f3c'), ObjectId('5f76ff6d087161005148ed75'), ObjectId('5f7b6854f5bb1adde1413ddc'), ObjectId('5f75719c087161005148e707'), ObjectId('5f7b8b50f5bb1adde1413e0f'), ObjectId('5f7ba21af5bb1adde1413f29'), ObjectId('5f7582bc087161005148e7c3'), ObjectId('5f70ca580269a3cd9caf5076'), ObjectId('5f19d78d09e1c3c7030256dd'), ObjectId('5f7b67e3f5bb1adde1413dd6'), ObjectId('5f7b8c4af5bb1adde1413e1b'), ObjectId('5f76adda087161005148eace'), ObjectId('5f709c4e0269a3cd9caf4fd8'), ObjectId('5f75961f087161005148e870'), ObjectId('5f75b9f6087161005148e9c8'), ObjectId('5f7b8bdff5bb1adde1413e16'), ObjectId('5f7b8c1df5bb1adde1413e19'), ObjectId('5f6437528af3a4af8c749eff'), ObjectId('5f7b9a50f5bb1adde1413ec9'), ObjectId('5f1eaef362de5888b3f12ed2'), ObjectId('5f756a60087161005148e6c5'), ObjectId('5f7b96b6f5bb1adde1413e9d'), ObjectId('5f7ba119f5bb1adde1413f1d'), ObjectId('5f7b9465f5bb1adde1413e85'), ObjectId('5f75881d087161005148e7f9'), ObjectId('5f183d9b464603f10dce0d9e'), ObjectId('5f76bd93087161005148eb34'), ObjectId('5f7bac35f5bb1adde1413f9c'), ObjectId('5f7bac60f5bb1adde1413fa0'), ObjectId('5f75aafd087161005148e93b'), ObjectId('5f7ba5c7f5bb1adde1413f62'), ObjectId('5f7bb407f5bb1adde1413feb'), ObjectId('5f19d54209e1c3c7030256a9'), ObjectId('5f76f4b7087161005148ed26'), ObjectId('5f19d65209e1c3c7030256c1'), ObjectId('5f7b9b3ff5bb1adde1413ed5'), ObjectId('5f7b9534f5bb1adde1413e8d'), ObjectId('5f75ad68087161005148e94e'), ObjectId('5f757243087161005148e70d'), ObjectId('5f7b68eef5bb1adde1413de2'), ObjectId('5f76f8be087161005148ed47'), ObjectId('5f7ba53df5bb1adde1413f5d'), ObjectId('5f7b8a01f5bb1adde1413df5'), ObjectId('5f19d58409e1c3c7030256af'), ObjectId('5f7b9f38f5bb1adde1413f0b'), ObjectId('5f1ece0162de5888b3f12ee9'), ObjectId('5f7b978ff5bb1adde1413ea7'), ObjectId('5f7b6697f5bb1adde1413dc5'), ObjectId('5f75b56b087161005148e99e'), ObjectId('5f7b928cf5bb1adde1413e64'), ObjectId('5f76a332087161005148ea9f'), ObjectId('5f7bb4faf5bb1adde1413ff6'), ObjectId('5f76a7ca087161005148eab7'), ObjectId('5f18ece535a2278f64f9e6b6'), ObjectId('5f19ca9409e1c3c703025694'), ObjectId('5f76c486087161005148eb69'), ObjectId('5f7b9ed6f5bb1adde1413f07'), ObjectId('5f7b984ef5bb1adde1413eb1'), ObjectId('5f7b69eef5bb1adde1413dee'), ObjectId('5f7bb093f5bb1adde1413fc8'), ObjectId('5f183e89464603f10dce0dae'), ObjectId('5f1e99ee62de5888b3f12e46'), ObjectId('5f7b9e09f5bb1adde1413efc'), ObjectId('5f1ecf5362de5888b3f12f04'), ObjectId('5f7b9215f5bb1adde1413e5b'), ObjectId('5f7b89c4f5bb1adde1413df2'), ObjectId('5f6de160144e831840676860'), ObjectId('5f75bb46087161005148e9d3'), ObjectId('5f7babdff5bb1adde1413f97'), ObjectId('5f76c5be087161005148eb74'), ObjectId('5f19d70b09e1c3c7030256d1'), ObjectId('5f7b94c8f5bb1adde1413e89'), ObjectId('5f19ca5e09e1c3c703025690'), ObjectId('5f7b960cf5bb1adde1413e98'), ObjectId('5f183dde464603f10dce0da2'), ObjectId('5f7bac4af5bb1adde1413f9e'), ObjectId('5f70d60b0269a3cd9caf5101'), ObjectId('5f7bb593f5bb1adde1413ffd'), ObjectId('5f1ecf8662de5888b3f12f06'), ObjectId('5f709be90269a3cd9caf4fd4'), ObjectId('5f70fa840269a3cd9caf52b5'), ObjectId('5f7b8b9ef5bb1adde1413e13'), ObjectId('5f7ba3ebf5bb1adde1413f43'), ObjectId('5f7b9070f5bb1adde1413e48'), ObjectId('5f18eca435a2278f64f9e6b0'), ObjectId('5f709f0e0269a3cd9caf4ff3'), ObjectId('5f7ba3c1f5bb1adde1413f40'), ObjectId('5f7b8d02f5bb1adde1413e23'), ObjectId('5f18841f35a2278f64f9e5f4'), ObjectId('5f7b6612f5bb1adde1413dbe'), ObjectId('5f7b9a87f5bb1adde1413ecc'), ObjectId('5f76a470087161005148eaa6'), ObjectId('5f7b8e14f5bb1adde1413e2f'), ObjectId('5f7596c5087161005148e877'), ObjectId('5f7b922bf5bb1adde1413e5d'), ObjectId('5f6ddf0b144e831840676837'), ObjectId('5f7ba37ff5bb1adde1413f3b'), ObjectId('5f7ba355f5bb1adde1413f39'), ObjectId('5f758ee4087161005148e836'), ObjectId('5f7b934bf5bb1adde1413e6f'), ObjectId('5f7ba90cf5bb1adde1413f7d'), ObjectId('5f7b980df5bb1adde1413eae'), ObjectId('5f76d174087161005148ebda'), ObjectId('5f19d56f09e1c3c7030256ad'), ObjectId('5f70c65e0269a3cd9caf504d'), ObjectId('5f183e29464603f10dce0da8'), ObjectId('5f75b882087161005148e9bd'), ObjectId('5f1e9cb062de5888b3f12e6d'), ObjectId('5f76c7a4087161005148eb83'), ObjectId('5f7b699cf5bb1adde1413de8'), ObjectId('5f18ec8435a2278f64f9e6ae'), ObjectId('5f7ba85ef5bb1adde1413f77'), ObjectId('5f7bb5f3f5bb1adde1414002'), ObjectId('5f7bab76f5bb1adde1413f92'), ObjectId('5f7b98c6f5bb1adde1413eb8'), ObjectId('5f18750a182dbb7a59a62642'), ObjectId('5f7b9750f5bb1adde1413ea3'), ObjectId('5f7b9f8bf5bb1adde1413f0e'), ObjectId('5f7b692cf5bb1adde1413de5'), ObjectId('5f75684c087161005148e6b3'), ObjectId('5f75b8b5087161005148e9bf'), ObjectId('5f7b95a1f5bb1adde1413e93'), ObjectId('5f7b9abdf5bb1adde1413ecf'), ObjectId('5f7ba190f5bb1adde1413f22'), ObjectId('5f75b696087161005148e9af'), ObjectId('5f7b65a1f5bb1adde1413db8'), ObjectId('5f7b8f95f5bb1adde1413e3e'), ObjectId('5f7572dc087161005148e713'), ObjectId('5f7b9e34f5bb1adde1413eff'), ObjectId('5f7ba73ff5bb1adde1413f6e'), ObjectId('5f75bacd087161005148e9cd'), ObjectId('5f7b8f72f5bb1adde1413e3c'), ObjectId('5f75700e087161005148e6f7'), ObjectId('5f7ba9e0f5bb1adde1413f84'), ObjectId('5f7bab60f5bb1adde1413f90'), ObjectId('5f7bab11f5bb1adde1413f8d'), ObjectId('5f7b8ad9f5bb1adde1413e0a'), ObjectId('5f7b90eaf5bb1adde1413e50'), ObjectId('5f76b82d087161005148eb08'), ObjectId('5f76bf94087161005148eb44'), ObjectId('5f76c4b1087161005148eb6b'), ObjectId('5f7b954df5bb1adde1413e8f'), ObjectId('5f7b9afff5bb1adde1413ed2'), ObjectId('5f1ed8eb62de5888b3f12f3a'), ObjectId('5f7b6503f5bb1adde1413daf'), ObjectId('5f7b90bdf5bb1adde1413e4c'), ObjectId('5f7b8a61f5bb1adde1413df9'), ObjectId('5f7b6754f5bb1adde1413dcf'), ObjectId('5f76d28e087161005148ebe6'), ObjectId('5f75b5ea087161005148e9a5'), ObjectId('5f7b98fdf5bb1adde1413ebc'), ObjectId('5f7ba075f5bb1adde1413f14'), ObjectId('5f1eae8662de5888b3f12ec8'), ObjectId('5f7b6735f5bb1adde1413dcd'), ObjectId('5f7ba66cf5bb1adde1413f68'), ObjectId('5f7ba805f5bb1adde1413f74'), ObjectId('5f7ba4c2f5bb1adde1413f57'), ObjectId('5f7ba104f5bb1adde1413f1b'), ObjectId('5f19ca4a09e1c3c70302568e'), ObjectId('5f7b64c2f5bb1adde1413dab'), ObjectId('5f7b658cf5bb1adde1413db6'), ObjectId('5f7b98dcf5bb1adde1413eba'), ObjectId('5f757e19087161005148e78c'), ObjectId('5f7bb160f5bb1adde1413fd2'), ObjectId('5f7ba40af5bb1adde1413f45'), ObjectId('5f75bbcf087161005148e9d8'), ObjectId('5f75b933087161005148e9c2'), ObjectId('5f7b6820f5bb1adde1413dd9'), ObjectId('5f183ec8464603f10dce0db4'), ObjectId('5f7574de087161005148e72e'), ObjectId('5f682585a7cef498a185c2a6'), ObjectId('5f7bb4c2f5bb1adde1413ff3')]
+# simplified_update(ndis)
+# simplified_export_via_queue()

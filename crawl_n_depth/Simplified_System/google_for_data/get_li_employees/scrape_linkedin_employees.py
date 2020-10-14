@@ -58,6 +58,7 @@ def get_li_emp_via_queue():
     connect_str = os.getenv('AZURE_STORAGE_CONNECTION_STRING')
     li_cp_client = QueueClient.from_connection_string(connect_str, "li-cp-extraction-queue")
     while (True):
+        time.sleep(10)
         rows = li_cp_client.receive_messages()
         for msg in rows:
             # time.sleep(120)

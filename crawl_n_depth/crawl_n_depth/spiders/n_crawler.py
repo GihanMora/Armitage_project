@@ -500,6 +500,7 @@ def run_sequential_crawlers_m_via_queue(depth_limit,crawl_limit):#method used to
         deep_crawling_client = QueueClient.from_connection_string(connect_str, "deep-crawling-queue")
         # mycol = refer_cleaned_collection()
         while (True):
+            time.sleep(10)
             rows = deep_crawling_client.receive_messages()
             for msg in rows:
                 # time.sleep(120)
@@ -563,6 +564,7 @@ def run_sequential_crawlers_m_via_queue_chain(depth_limit,crawl_limit):#method u
         f_e_client = QueueClient.from_connection_string(connect_str, "feature-extraction-queue")
         # mycol = refer_cleaned_collection()
         while (True):
+            time.sleep(10)
             rows = deep_crawling_client.receive_messages()
             for msg in rows:
                 # time.sleep(120)

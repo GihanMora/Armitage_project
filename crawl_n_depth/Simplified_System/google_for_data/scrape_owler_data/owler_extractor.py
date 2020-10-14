@@ -104,6 +104,7 @@ def scrape_qa_from_google(company_name):
             browser = get_browser()
             searchText = 'How many employees does ' + company_name + ' australia have? owler.com'
             searchGoogle = URL = f"https://google.com/search?q={searchText}" + "&num=" + str(10)
+
             browser.get(searchGoogle)
             time.sleep(5)
             pageSource = browser.page_source
@@ -113,9 +114,7 @@ def scrape_qa_from_google(company_name):
             soup = BeautifulSoup(pageSource, 'html.parser')  # bs4 TxZVoe
             is_captcha_on_page = soup.find("div", id="recaptcha") is not None
 
-
-
-
+        print('ll', searchGoogle)
 
         search_divs = soup.find_all('g-expandable-container')
 
@@ -180,7 +179,7 @@ def scrape_qa_from_google(company_name):
             browser.close()
             browser.quit()
         return 'error'
-# print(scrape_qa_from_google('caltex'))
+# print(scrape_qa_from_google('coles'))
 
 def get_qa_from_google(id_list):
     # mycol = refer_collection()
@@ -217,6 +216,7 @@ def get_qa_from_google_via_queue():
     connect_str = os.getenv('AZURE_STORAGE_CONNECTION_STRING')
     qa_client = QueueClient.from_connection_string(connect_str, "owler-qa-queue")
     while (True):
+        time.sleep(10)
         rows = qa_client.receive_messages()
         for msg in rows:
             time.sleep(120)
