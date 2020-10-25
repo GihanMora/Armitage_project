@@ -3411,6 +3411,10 @@ re_list = [ObjectId('5f183d9b464603f10dce0d9e'), ObjectId('5f183dde464603f10dce0
 
 def get_entries_project(project_id):
     all_entires = []
+    completed_count = 0
+    incomplete_count = 0
+    incompletes = []
+    problems = []
     profile_col = refer_collection()
     projects_col= refer_projects_col()
     query_collection = refer_query_col()
@@ -3431,27 +3435,24 @@ def get_entries_project(project_id):
                 # print('kk',associated_entries)
                 obs_ids = [ObjectId(i) for i in associated_entries]
                 all_entires.extend(obs_ids)
-                # completed_count = 0
-                # incomplete_count = 0
-                # incompletes = []
-                # problems = []
-                # for k in obs_ids:
-                #     prof_data_entry = profile_col.find({"_id": k})
-                #     # print('proj', proj_data_entry)
-                #     prof_data = [i for i in prof_data_entry]
-                #     prof_attribute_keys = list(prof_data[0].keys())
-                #
-                #     if ('simplified_dump_state' in prof_attribute_keys):
-                #         if(prof_data[0]['simplified_dump_state']=='Completed'):
-                #             completed_count+=1
-                #         # else:print(prof_data[0]['simplified_dump_state'])
-                #         elif (prof_data[0]['simplified_dump_state'] == 'Incomplete'):
-                #             incomplete_count+= 1
-                #             incompletes.append(k)
-                #         else:
-                #             problems.append(k)
-                #     else:
-                #         problems.append(k)
+
+                for k in obs_ids:
+                    prof_data_entry = profile_col.find({"_id": k})
+                    # print('proj', proj_data_entry)
+                    prof_data = [i for i in prof_data_entry]
+                    prof_attribute_keys = list(prof_data[0].keys())
+
+                    if ('simplified_dump_state' in prof_attribute_keys):
+                        if(prof_data[0]['simplified_dump_state']=='Completed'):
+                            completed_count+=1
+                        # else:print(prof_data[0]['simplified_dump_state'])
+                        elif (prof_data[0]['simplified_dump_state'] == 'Incomplete'):
+                            incomplete_count+= 1
+                            incompletes.append(k)
+                        else:
+                            problems.append(k)
+                    else:
+                        problems.append(k)
                 #
                 # print(['completed',completed_count,'all',len(obs_ids),'incompleted',incomplete_count,incompletes,'prob',problems])
                 # # filt = []
@@ -3464,11 +3465,16 @@ def get_entries_project(project_id):
 
                 # return obs_ids
 
-        all_entires = list(set(all_entires))
-        return all_entires
+        # all_entires = list(set(all_entires))
+        # return all_entires
     else:
         print("This project do not have any queries yet")
-        return []
+        # return []
+
+    print('comp',completed_count)
+    print('inc',incomplete_count)
+    print('inc',incompletes)
+    print('prob',problems)
 
 # print(len(get_entries_project(ObjectId('5f7558e6fce4b64506137661'))))
 
@@ -3498,3 +3504,6 @@ ndis = [ObjectId('5f759112087161005148e847'), ObjectId('5f759644087161005148e872
 ids_first = [ObjectId('5f19d55909e1c3c7030256ab'), ObjectId('5f7b937ff5bb1adde1413e72'), ObjectId('5f757733087161005148e749'), ObjectId('5f75b5ac087161005148e9a2'), ObjectId('5f1ed9a162de5888b3f12f4a'), ObjectId('5f18ed5035a2278f64f9e6bd'), ObjectId('5f1ed98b62de5888b3f12f48'), ObjectId('5f7b9e6cf5bb1adde1413f02'), ObjectId('5f7b67aff5bb1adde1413dd3'), ObjectId('5f70a2170269a3cd9caf5011'), ObjectId('5f183f13464603f10dce0dba'), ObjectId('5f6437688af3a4af8c749f01'), ObjectId('5f18ec4635a2278f64f9e6a9'), ObjectId('5f7b66d6f5bb1adde1413dc8'), ObjectId('5f76ea22087161005148eccd'), ObjectId('5f7b8fb5f5bb1adde1413e40'), ObjectId('5f7b9865f5bb1adde1413eb3'), ObjectId('5f645f754c677bfa552c5bd2'), ObjectId('5f76c773087161005148eb81'), ObjectId('5f75b6bb087161005148e9b1'), ObjectId('5f7b902ff5bb1adde1413e45'), ObjectId('5f75983d087161005148e88e'), ObjectId('5f7ba504f5bb1adde1413f5a'), ObjectId('5f758438087161005148e7d2'), ObjectId('5f6835da9d6d5b0536dfd37b'), ObjectId('5f7ba3abf5bb1adde1413f3e'), ObjectId('5f7ba94df5bb1adde1413f7f'), ObjectId('5f19d6df09e1c3c7030256cd'), ObjectId('5f1ed9fe62de5888b3f12f5b'), ObjectId('5f76ba6c087161005148eb16'), ObjectId('5f758107087161005148e7b5'), ObjectId('5f75893f087161005148e800'), ObjectId('5f645f944c677bfa552c5bd4'), ObjectId('5f7b9241f5bb1adde1413e5f'), ObjectId('5f756abd087161005148e6c9'), ObjectId('5f7bb0fdf5bb1adde1413fcd'), ObjectId('5f19c98709e1c3c70302567e'), ObjectId('5f7ba2baf5bb1adde1413f31'), ObjectId('5f183e14464603f10dce0da6'), ObjectId('5f19c8bc09e1c3c70302566c'), ObjectId('5f76bf47087161005148eb40'), ObjectId('5f7b9276f5bb1adde1413e62'), ObjectId('5f19cabe09e1c3c703025698'), ObjectId('5f770a2f087161005148edbd'), ObjectId('5f1ece2062de5888b3f12eeb'), ObjectId('5f70eda40269a3cd9caf5217'), ObjectId('5f19c87c09e1c3c703025666'), ObjectId('5f7ba0eef5bb1adde1413f19'), ObjectId('5f7baae8f5bb1adde1413f8b'), ObjectId('5f7b64aef5bb1adde1413da9'), ObjectId('5f7ba054f5bb1adde1413f12'), ObjectId('5f7570ff087161005148e701'), ObjectId('5f759cc6087161005148e8b6'), ObjectId('5f19d6b209e1c3c7030256c9'), ObjectId('5f7baff0f5bb1adde1413fc3'), ObjectId('5f76e290087161005148ec7e'), ObjectId('5f7b90d3f5bb1adde1413e4e'), ObjectId('5f7ba204f5bb1adde1413f27'), ObjectId('5f7ba6bff5bb1adde1413f6b'), ObjectId('5f758528087161005148e7dc'), ObjectId('5f6437128af3a4af8c749efb'), ObjectId('5f76d59f087161005148ebfc'), ObjectId('5f7b6409f5bb1adde1413da0'), ObjectId('5f7b6465f5bb1adde1413da6'), ObjectId('5f7592f0087161005148e857'), ObjectId('5f6460344c677bfa552c5be7'), ObjectId('5f7b9d59f5bb1adde1413ef4'), ObjectId('5f75ae6b087161005148e958'), ObjectId('5f7b9db8f5bb1adde1413ef8'), ObjectId('5f6835ba9d6d5b0536dfd379'), ObjectId('5f76b784087161005148eb05'), ObjectId('5f7b69b0f5bb1adde1413dea'), ObjectId('5f76aea8087161005148ead3'), ObjectId('5f7b65fef5bb1adde1413dbc'), ObjectId('5f183efd464603f10dce0db8'), ObjectId('5f1ecdec62de5888b3f12ee7'), ObjectId('5f7b8f0bf5bb1adde1413e37'), ObjectId('5f6f4fcb41c09be1b8045811'), ObjectId('5f1ed7ee62de5888b3f12f21'), ObjectId('5f7b930bf5bb1adde1413e6a'), ObjectId('5f19d59a09e1c3c7030256b1'), ObjectId('5f7b8db4f5bb1adde1413e2b'), ObjectId('5f7b6524f5bb1adde1413db1'), ObjectId('5f7b8d46f5bb1adde1413e27'), ObjectId('5f7b9320f5bb1adde1413e6c'), ObjectId('5f70a3ba0269a3cd9caf501e'), ObjectId('5f7b665af5bb1adde1413dc2'), ObjectId('5f7b8a75f5bb1adde1413dfb'), ObjectId('5f75958c087161005148e86c'), ObjectId('5f7ba776f5bb1adde1413f70'), ObjectId('5f76ee87087161005148ecf4'), ObjectId('5f1eadd362de5888b3f12eb3'), ObjectId('5f7b9e83f5bb1adde1413f04'), ObjectId('5f7ba265f5bb1adde1413f2d'), ObjectId('5f7bb5bef5bb1adde1413fff'), ObjectId('5f7b643df5bb1adde1413da3'), ObjectId('5f7b97a5f5bb1adde1413ea9'), ObjectId('5f7ba617f5bb1adde1413f65'), ObjectId('5f19d5af09e1c3c7030256b3'), ObjectId('5f7ba341f5bb1adde1413f37'), ObjectId('5f76d6df087161005148ec08'), ObjectId('5f77086d087161005148edb1'), ObjectId('5f70c86a0269a3cd9caf5063'), ObjectId('5f7b9b6cf5bb1adde1413ed7'), ObjectId('5f1ed90062de5888b3f12f3c'), ObjectId('5f76ff6d087161005148ed75'), ObjectId('5f7b6854f5bb1adde1413ddc'), ObjectId('5f75719c087161005148e707'), ObjectId('5f7b8b50f5bb1adde1413e0f'), ObjectId('5f7ba21af5bb1adde1413f29'), ObjectId('5f7582bc087161005148e7c3'), ObjectId('5f70ca580269a3cd9caf5076'), ObjectId('5f19d78d09e1c3c7030256dd'), ObjectId('5f7b67e3f5bb1adde1413dd6'), ObjectId('5f7b8c4af5bb1adde1413e1b'), ObjectId('5f76adda087161005148eace'), ObjectId('5f709c4e0269a3cd9caf4fd8'), ObjectId('5f75961f087161005148e870'), ObjectId('5f75b9f6087161005148e9c8'), ObjectId('5f7b8bdff5bb1adde1413e16'), ObjectId('5f7b8c1df5bb1adde1413e19'), ObjectId('5f6437528af3a4af8c749eff'), ObjectId('5f7b9a50f5bb1adde1413ec9'), ObjectId('5f1eaef362de5888b3f12ed2'), ObjectId('5f756a60087161005148e6c5'), ObjectId('5f7b96b6f5bb1adde1413e9d'), ObjectId('5f7ba119f5bb1adde1413f1d'), ObjectId('5f7b9465f5bb1adde1413e85'), ObjectId('5f75881d087161005148e7f9'), ObjectId('5f183d9b464603f10dce0d9e'), ObjectId('5f76bd93087161005148eb34'), ObjectId('5f7bac35f5bb1adde1413f9c'), ObjectId('5f7bac60f5bb1adde1413fa0'), ObjectId('5f75aafd087161005148e93b'), ObjectId('5f7ba5c7f5bb1adde1413f62'), ObjectId('5f7bb407f5bb1adde1413feb'), ObjectId('5f19d54209e1c3c7030256a9'), ObjectId('5f76f4b7087161005148ed26'), ObjectId('5f19d65209e1c3c7030256c1'), ObjectId('5f7b9b3ff5bb1adde1413ed5'), ObjectId('5f7b9534f5bb1adde1413e8d'), ObjectId('5f75ad68087161005148e94e'), ObjectId('5f757243087161005148e70d'), ObjectId('5f7b68eef5bb1adde1413de2'), ObjectId('5f76f8be087161005148ed47'), ObjectId('5f7ba53df5bb1adde1413f5d'), ObjectId('5f7b8a01f5bb1adde1413df5'), ObjectId('5f19d58409e1c3c7030256af'), ObjectId('5f7b9f38f5bb1adde1413f0b'), ObjectId('5f1ece0162de5888b3f12ee9'), ObjectId('5f7b978ff5bb1adde1413ea7'), ObjectId('5f7b6697f5bb1adde1413dc5'), ObjectId('5f75b56b087161005148e99e'), ObjectId('5f7b928cf5bb1adde1413e64'), ObjectId('5f76a332087161005148ea9f'), ObjectId('5f7bb4faf5bb1adde1413ff6'), ObjectId('5f76a7ca087161005148eab7'), ObjectId('5f18ece535a2278f64f9e6b6'), ObjectId('5f19ca9409e1c3c703025694'), ObjectId('5f76c486087161005148eb69'), ObjectId('5f7b9ed6f5bb1adde1413f07'), ObjectId('5f7b984ef5bb1adde1413eb1'), ObjectId('5f7b69eef5bb1adde1413dee'), ObjectId('5f7bb093f5bb1adde1413fc8'), ObjectId('5f183e89464603f10dce0dae'), ObjectId('5f1e99ee62de5888b3f12e46'), ObjectId('5f7b9e09f5bb1adde1413efc'), ObjectId('5f1ecf5362de5888b3f12f04'), ObjectId('5f7b9215f5bb1adde1413e5b'), ObjectId('5f7b89c4f5bb1adde1413df2'), ObjectId('5f6de160144e831840676860'), ObjectId('5f75bb46087161005148e9d3'), ObjectId('5f7babdff5bb1adde1413f97'), ObjectId('5f76c5be087161005148eb74'), ObjectId('5f19d70b09e1c3c7030256d1'), ObjectId('5f7b94c8f5bb1adde1413e89'), ObjectId('5f19ca5e09e1c3c703025690'), ObjectId('5f7b960cf5bb1adde1413e98'), ObjectId('5f183dde464603f10dce0da2'), ObjectId('5f7bac4af5bb1adde1413f9e'), ObjectId('5f70d60b0269a3cd9caf5101'), ObjectId('5f7bb593f5bb1adde1413ffd'), ObjectId('5f1ecf8662de5888b3f12f06'), ObjectId('5f709be90269a3cd9caf4fd4'), ObjectId('5f70fa840269a3cd9caf52b5'), ObjectId('5f7b8b9ef5bb1adde1413e13'), ObjectId('5f7ba3ebf5bb1adde1413f43'), ObjectId('5f7b9070f5bb1adde1413e48'), ObjectId('5f18eca435a2278f64f9e6b0'), ObjectId('5f709f0e0269a3cd9caf4ff3'), ObjectId('5f7ba3c1f5bb1adde1413f40'), ObjectId('5f7b8d02f5bb1adde1413e23'), ObjectId('5f18841f35a2278f64f9e5f4'), ObjectId('5f7b6612f5bb1adde1413dbe'), ObjectId('5f7b9a87f5bb1adde1413ecc'), ObjectId('5f76a470087161005148eaa6'), ObjectId('5f7b8e14f5bb1adde1413e2f'), ObjectId('5f7596c5087161005148e877'), ObjectId('5f7b922bf5bb1adde1413e5d'), ObjectId('5f6ddf0b144e831840676837'), ObjectId('5f7ba37ff5bb1adde1413f3b'), ObjectId('5f7ba355f5bb1adde1413f39'), ObjectId('5f758ee4087161005148e836'), ObjectId('5f7b934bf5bb1adde1413e6f'), ObjectId('5f7ba90cf5bb1adde1413f7d'), ObjectId('5f7b980df5bb1adde1413eae'), ObjectId('5f76d174087161005148ebda'), ObjectId('5f19d56f09e1c3c7030256ad'), ObjectId('5f70c65e0269a3cd9caf504d'), ObjectId('5f183e29464603f10dce0da8'), ObjectId('5f75b882087161005148e9bd'), ObjectId('5f1e9cb062de5888b3f12e6d'), ObjectId('5f76c7a4087161005148eb83'), ObjectId('5f7b699cf5bb1adde1413de8'), ObjectId('5f18ec8435a2278f64f9e6ae'), ObjectId('5f7ba85ef5bb1adde1413f77'), ObjectId('5f7bb5f3f5bb1adde1414002'), ObjectId('5f7bab76f5bb1adde1413f92'), ObjectId('5f7b98c6f5bb1adde1413eb8'), ObjectId('5f18750a182dbb7a59a62642'), ObjectId('5f7b9750f5bb1adde1413ea3'), ObjectId('5f7b9f8bf5bb1adde1413f0e'), ObjectId('5f7b692cf5bb1adde1413de5'), ObjectId('5f75684c087161005148e6b3'), ObjectId('5f75b8b5087161005148e9bf'), ObjectId('5f7b95a1f5bb1adde1413e93'), ObjectId('5f7b9abdf5bb1adde1413ecf'), ObjectId('5f7ba190f5bb1adde1413f22'), ObjectId('5f75b696087161005148e9af'), ObjectId('5f7b65a1f5bb1adde1413db8'), ObjectId('5f7b8f95f5bb1adde1413e3e'), ObjectId('5f7572dc087161005148e713'), ObjectId('5f7b9e34f5bb1adde1413eff'), ObjectId('5f7ba73ff5bb1adde1413f6e'), ObjectId('5f75bacd087161005148e9cd'), ObjectId('5f7b8f72f5bb1adde1413e3c'), ObjectId('5f75700e087161005148e6f7'), ObjectId('5f7ba9e0f5bb1adde1413f84'), ObjectId('5f7bab60f5bb1adde1413f90'), ObjectId('5f7bab11f5bb1adde1413f8d'), ObjectId('5f7b8ad9f5bb1adde1413e0a'), ObjectId('5f7b90eaf5bb1adde1413e50'), ObjectId('5f76b82d087161005148eb08'), ObjectId('5f76bf94087161005148eb44'), ObjectId('5f76c4b1087161005148eb6b'), ObjectId('5f7b954df5bb1adde1413e8f'), ObjectId('5f7b9afff5bb1adde1413ed2'), ObjectId('5f1ed8eb62de5888b3f12f3a'), ObjectId('5f7b6503f5bb1adde1413daf'), ObjectId('5f7b90bdf5bb1adde1413e4c'), ObjectId('5f7b8a61f5bb1adde1413df9'), ObjectId('5f7b6754f5bb1adde1413dcf'), ObjectId('5f76d28e087161005148ebe6'), ObjectId('5f75b5ea087161005148e9a5'), ObjectId('5f7b98fdf5bb1adde1413ebc'), ObjectId('5f7ba075f5bb1adde1413f14'), ObjectId('5f1eae8662de5888b3f12ec8'), ObjectId('5f7b6735f5bb1adde1413dcd'), ObjectId('5f7ba66cf5bb1adde1413f68'), ObjectId('5f7ba805f5bb1adde1413f74'), ObjectId('5f7ba4c2f5bb1adde1413f57'), ObjectId('5f7ba104f5bb1adde1413f1b'), ObjectId('5f19ca4a09e1c3c70302568e'), ObjectId('5f7b64c2f5bb1adde1413dab'), ObjectId('5f7b658cf5bb1adde1413db6'), ObjectId('5f7b98dcf5bb1adde1413eba'), ObjectId('5f757e19087161005148e78c'), ObjectId('5f7bb160f5bb1adde1413fd2'), ObjectId('5f7ba40af5bb1adde1413f45'), ObjectId('5f75bbcf087161005148e9d8'), ObjectId('5f75b933087161005148e9c2'), ObjectId('5f7b6820f5bb1adde1413dd9'), ObjectId('5f183ec8464603f10dce0db4'), ObjectId('5f7574de087161005148e72e'), ObjectId('5f682585a7cef498a185c2a6'), ObjectId('5f7bb4c2f5bb1adde1413ff3')]
 # simplified_update(ndis)
 # simplified_export_via_queue()
+
+
+# get_entries_project(ObjectId('5f90f5fe068b083d0db92878'))

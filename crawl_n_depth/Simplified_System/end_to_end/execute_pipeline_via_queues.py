@@ -79,7 +79,7 @@ def query_state_update_via_queue():
             #check_for_the_completion_of_components
             try:
                 associated_entries = data[0]['associated_entries']
-                print('getting associated entries',associated_entries)
+                print('getting associated entries')
                 completed_count = 0
                 for each_entry_res in associated_entries:
                     res_entry = mycol.find({"_id": each_entry_res})
