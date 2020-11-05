@@ -8,13 +8,13 @@ three_up = up(up(up(__file__)))
 sys.path.insert(0, three_up)
 from key_phrase_extractors.wordnet import get_wc_results
 
-file = 'C:/Project_files/armitage/armitage_worker/Armitage_project/crawl_n_depth/Simplified_System/Initial_Crawling/for_listing_websites_NDIS.csv'
+file = 'C:/Project_files/armitage/armitage_worker/Armitage_project/crawl_n_depth/Simplified_System/Initial_Crawling/for_listing_websites_edu.csv'
 
 res_file = pd.read_csv(file)
 columns = res_file.columns
 print(list(columns))
 
-with open('for_listing_websites_NDIS_with_keywords.csv', mode='w', encoding='utf8',
+with open('for_listing_websites_edu_with_keywords.csv', mode='w', encoding='utf8',
           newline='') as results_file:  # store search results in to a csv file
     results_writer = csv.writer(results_file, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
     attributes_a = ['search_text', 'title', 'link', 'description', 'rich_description','keywords_bi','keywords_tri']

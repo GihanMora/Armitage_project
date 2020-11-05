@@ -15,7 +15,7 @@ from Simplified_System.Initial_Crawling.get_n_search_results import getGoogleLin
 
 def search_a_company():
     try:
-        with open('for_listing_websites_NDIS.csv', mode='w', encoding='utf8',
+        with open('for_listing_websites_edu.csv', mode='w', encoding='utf8',
                   newline='') as results_file:  # store search results in to a csv file
             results_writer = csv.writer(results_file, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
             attributes_a = ['search_text', 'title', 'link', 'description', 'rich_description', 'comp_name']

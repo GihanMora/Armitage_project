@@ -292,9 +292,6 @@ if __name__ == '__main__':
                         projects_col.update_one({'_id': project_id},
                                                     {'$set': {'associated_queries': [record_entry.inserted_id]}})
 
-
-
-
                     print("Started on", dateTimeObj)
                     started = time.time()
                     print("***Initial Crawling Phrase***")
@@ -341,8 +338,8 @@ if __name__ == '__main__':
                         add_to_tp_queue(entry_id_list)
                         # print("Adding to Avention extraction queue")
                         # add_to_avention_queue(entry_id_list)
-                        # print("Adding to Crunchbase extraction queue")
-                        # add_to_cb_queue(entry_id_list)
+                        print("Adding to Crunchbase extraction queue")
+                        add_to_cb_queue(entry_id_list)
                         print("Adding to linkedin cp extraction queue")
                         add_to_li_cp_queue(entry_id_list)
                         print("Adding to simplified dump queue")
@@ -354,7 +351,7 @@ if __name__ == '__main__':
                     print("Searching a company")
                     dateTimeObj = datetime.now()
                     query_collection = refer_query_col()
-                    data_q = {'started_time_stamp': dateTimeObj, 'search_query': comp_name,'status':'incomplete'}
+                    data_q = {'started_time_stamp': dateTimeObj, 'search_query': comp_name,'state':'incomplete'}
                     record_entry = query_collection.insert_one(data_q)
                     print("Started on", dateTimeObj)
                     started = time.time()
@@ -395,10 +392,10 @@ if __name__ == '__main__':
                         add_to_dnb_queue([ObjectId(entry_id)])
                         print("Adding to google tp extraction queue")
                         add_to_tp_queue([ObjectId(entry_id)])
-                        print("Adding to Avention extraction queue")
-                        add_to_avention_queue([ObjectId(entry_id)])
-                        # print("Adding to Crunchbase extraction queue")
-                        # add_to_cb_queue([ObjectId(entry_id)])
+                        # print("Adding to Avention extraction queue")
+                        # add_to_avention_queue([ObjectId(entry_id)])
+                        print("Adding to Crunchbase extraction queue")
+                        add_to_cb_queue([ObjectId(entry_id)])
                         print("Adding to linkedin cp extraction queue")
                         add_to_li_cp_queue([ObjectId(entry_id)])
                         print("Adding to simplified dump queue")
