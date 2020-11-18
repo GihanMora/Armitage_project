@@ -28,9 +28,9 @@ for i, each in enumerate(received_links):
             c+=1
     else:
         probs.append(each)
-print(c)
-print(ggs)
-print(probs)
+# print(c)
+# print(ggs)
+# print(probs)
 
 
 

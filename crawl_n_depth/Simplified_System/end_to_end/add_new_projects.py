@@ -26,4 +26,4 @@ def create_and_queue_project(project_name,key_phrases):
     add_to_projects_queue([record_entry.inserted_id])
 
 
-create_and_queue_project('Educational softwares project',['school management', 'educational software'])
+# create_and_queue_project('Educational softwares project',['school management', 'educational software'])

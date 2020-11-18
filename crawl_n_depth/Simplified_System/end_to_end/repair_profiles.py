@@ -39,6 +39,136 @@ from Simplified_System.google_for_data.phone_number_extraction.get_tp_num import
 from Simplified_System.end_to_end.create_projects import get_projects_via_queue
 
 
+def repair_wanted_parts(entry_id_list):
+    profile_col = refer_collection()
+    for k in entry_id_list:
+        print('*****************')
+        prof_data_entry = profile_col.find({"_id": k})
+        # print('proj', proj_data_entry)
+        prof_data = [i for i in prof_data_entry]
+        prof_attribute_keys = list(prof_data[0].keys())
+        if('deep_crawling_state' in prof_attribute_keys):
+            print('yes')
+            if(prof_data[0]['deep_crawling_state']=='Completed'):
+                print('deep_crawling_state_already_done')
+            else:
+                add_to_deep_crawling_queue([k])
+        else:
+            add_to_deep_crawling_queue([k])
+        if ('feature_extraction_state' in prof_attribute_keys):
+            if (prof_data[0]['feature_extraction_state'] == 'Completed'):
+                print('feature_extraction_state_already_done')
+            else:
+                add_to_deep_crawling_queue([k])
+        else:
+            add_to_deep_crawling_queue([k])
+        #
+        if ('classification_state' in prof_attribute_keys):
+            if (prof_data[0]['classification_state'] == 'Completed'):
+                print('classification_state_already_done')
+            else:
+                add_to_deep_crawling_queue([k])
+        else:
+            add_to_deep_crawling_queue([k])
+
+        if ('owler_qa_state' in prof_attribute_keys):
+            if (prof_data[0]['owler_qa_state'] == 'Completed'):
+                print('owler_qa_state_already_done')
+            else:
+                print("Adding to Owler QA extraction queue")
+                add_to_qa_queue([k])
+        else:
+            print("Adding to Owler QA extraction queue")
+            add_to_qa_queue([k])
+
+        if ('google_cp_state' in prof_attribute_keys):
+            if (prof_data[0]['google_cp_state'] == 'Completed'):
+                print('google_cp_state_already_done')
+            else:
+                print("Adding to google contact person extraction queue")
+                add_to_cp_queue([k])
+        else:
+            print("Adding to google contact person extraction queue")
+            add_to_cp_queue([k])
+
+        if ('oc_extraction_state' in prof_attribute_keys):
+            if (prof_data[0]['oc_extraction_state'] == 'Completed'):
+                print('oc_extraction_state_already_done')
+            else:
+                print("Adding to Opencorporates extraction queue")
+                add_to_oc_queue([k])
+        else:
+            print("Adding to Opencorporates extraction queue")
+            add_to_oc_queue([k])
+
+
+        if ('google_address_state' in prof_attribute_keys):
+            if (prof_data[0]['google_address_state'] == 'Completed'):
+                print('google_address_state_already_done')
+            else:
+                print("Adding to google address extraction queue")
+                add_to_ad_queue([k])
+        else:
+            print("Adding to google address extraction queue")
+            add_to_ad_queue([k])
+
+        if ('dnb_extraction_state' in prof_attribute_keys):
+            if (prof_data[0]['dnb_extraction_state'] == 'Completed'):
+                print('dnb_extraction_state_already_done')
+            else:
+                print("Adding to DNB extraction queue")
+                add_to_dnb_queue([k])
+        else:
+            print("Adding to DNB extraction queue")
+            add_to_dnb_queue([k])
+
+        #
+        if ('google_tp_state' in prof_attribute_keys):
+            if (prof_data[0]['google_tp_state'] == 'Completed'):
+                print('google_tp_state_already_done')
+            else:
+                print("Adding to google tp extraction queue")
+                add_to_tp_queue([k])
+        else:
+            print("Adding to google tp extraction queue")
+            add_to_tp_queue([k])
+        #
+        #
+        if ('crunchbase_extraction_state' in prof_attribute_keys):
+            if (prof_data[0]['crunchbase_extraction_state'] == 'Completed'):
+                print('crunchbase_extraction_state_already_done')
+            else:
+                print("Adding to Crunchbase extraction queue")
+                add_to_cb_queue([k])
+        else:
+            print("Adding to Crunchbase extraction queue")
+            add_to_cb_queue([k])
+        #
+        #
+        if ('li_cp_state' in prof_attribute_keys):
+            if (prof_data[0]['li_cp_state'] == 'Completed'):
+                print('li_cp_state_already_done')
+            else:
+                print("Adding to linkedin cp extraction queue")
+                add_to_li_cp_queue([k])
+        else:
+            print("Adding to linkedin cp extraction queue")
+            add_to_li_cp_queue([k])
+        #
+        #
+        #
+        #
+        if ('simplified_dump_state' in prof_attribute_keys):
+            if (prof_data[0]['simplified_dump_state'] == 'Completed'):
+                print('simplified_dump_state already_done')
+            else:
+                print("Adding to simplified dump queue")
+                add_to_simplified_export_queue([k])
+        else:
+            print("Adding to simplified dump queue")
+            add_to_simplified_export_queue([k])
+
+
 
 
 def repair_profiles(entry_id_list):
@@ -56,15 +186,22 @@ def repair_profiles(entry_id_list):
     add_to_dnb_queue(entry_id_list)
     print("Adding to google tp extraction queue")
     add_to_tp_queue(entry_id_list)
-    # print("Adding to Avention extraction queue")
-    # add_to_avention_queue(entry_id_list)
+
     print("Adding to Crunchbase extraction queue")
     add_to_cb_queue(entry_id_list)
     print("Adding to linkedin cp extraction queue")
     add_to_li_cp_queue(entry_id_list)
-    print("Adding to simplified dump queue")
-    add_to_simplified_export_queue(entry_id_list)
+    # print("Adding to simplified dump queue")
+    # add_to_simplified_export_queue(entry_id_list)
 
 
+    # print("Adding to Avention extraction queue")
+    # add_to_avention_queue(entry_id_list)
+# repair_profiles([ObjectId('5fae23aeffaa7d52304bce06'), ObjectId('5fae25edffaa7d52304bce15'), ObjectId('5fae1f47ffaa7d52304bcdec'), ObjectId('5fae2588ffaa7d52304bce11'), ObjectId('5fae1e5cffaa7d52304bcde6'), ObjectId('5fae1a2cffaa7d52304bcdd4'), ObjectId('5fae19e2ffaa7d52304bcdd2'), ObjectId('5fae20d1ffaa7d52304bcdf3'), ObjectId('5fae23f7ffaa7d52304bce08'), ObjectId('5f7b064ccc367eae52280948'), ObjectId('5f7c8d77536aa6fa3903918b'), ObjectId('5fae1dbfffaa7d52304bcde3'), ObjectId('5f7a7dc6b01f5030d514b2de'), ObjectId('5fae21d4ffaa7d52304bcdfa'), ObjectId('5fae215effaa7d52304bcdf6'), ObjectId('5fae24d4ffaa7d52304bce0d'), ObjectId('5f7b3f4e999b5546e9a889b1'), ObjectId('5f7b0fd4c0092b71a2c6dab2'), ObjectId('5fae1c39ffaa7d52304bcddb'), ObjectId('5fae225affaa7d52304bcdfe'), ObjectId('5fae22ddffaa7d52304bce02'), ObjectId('5fae1bc2ffaa7d52304bcdd8'), ObjectId('5f7a5fa70a1b11a515b1e2ea'), ObjectId('5f7b0facc0092b71a2c6daaf'), ObjectId('5f769ffd087161005148ea94'), ObjectId('5f7a82fbb01f5030d514b300'), ObjectId('5fae228fffaa7d52304bce00'), ObjectId('5fae1e92ffaa7d52304bcde8'), ObjectId('5fae1b90ffaa7d52304bcdd6'), ObjectId('5fae25bcffaa7d52304bce13'), ObjectId('5f7a7b33b01f5030d514b2d0'), ObjectId('5fae2220ffaa7d52304bcdfc')])
+# repair_profiles( [ObjectId('5f769a66087161005148ea76'), ObjectId('5f7a60150a1b11a515b1e2ed'), ObjectId('5f769859087161005148ea68'), ObjectId('5f7a63970a1b11a515b1e306'), ObjectId('5f7a61b50a1b11a515b1e2f7'), ObjectId('5f7a5e890a1b11a515b1e2e2'), ObjectId('5f7a61b50a1b11a515b1e2f7'), ObjectId('5f7b1031c0092b71a2c6dab8'), ObjectId('5f7b3ffd999b5546e9a889bc'), ObjectId('5f769a66087161005148ea76'), ObjectId('5f7a5e890a1b11a515b1e2e2'), ObjectId('5f7a60a40a1b11a515b1e2f0'), ObjectId('5f7a63970a1b11a515b1e306'), ObjectId('5fae2436ffaa7d52304bce0a'), ObjectId('5f7b4114999b5546e9a889d0'), ObjectId('5fae19a5ffaa7d52304bcdd0'), ObjectId('5f7b1151c0092b71a2c6dac9'), ObjectId('5f769859087161005148ea68'), ObjectId('5f7b41cd999b5546e9a889dc'), ObjectId('5f7b39994a8281a499ea953d'), ObjectId('5fb0c5bd3ed5000dbe3636bb'), ObjectId('5fb0c6633ed5000dbe3636be'), ObjectId('5fae19a5ffaa7d52304bcdd0')])
 
-# repair_profiles([ObjectId('5f7c8b46536aa6fa39039179'), ObjectId('5f7a7eb3b01f5030d514b2e4'), ObjectId('5f7c8db3536aa6fa3903918f'), ObjectId('5f7a846eb01f5030d514b30a')])
+# to_rep = [ObjectId('5fae1c39ffaa7d52304bcddb'), ObjectId('5f7c8d77536aa6fa3903918b'), ObjectId('5fae225affaa7d52304bcdfe'), ObjectId('5fae215effaa7d52304bcdf6'), ObjectId('5fae228fffaa7d52304bce00'), ObjectId('5fae20d1ffaa7d52304bcdf3'), ObjectId('5fae25bcffaa7d52304bce13'), ObjectId('5fae1e92ffaa7d52304bcde8'), ObjectId('5fae1e5cffaa7d52304bcde6'), ObjectId('5f7b3f4e999b5546e9a889b1'), ObjectId('5fae1bc2ffaa7d52304bcdd8'), ObjectId('5f7a7dc6b01f5030d514b2de'), ObjectId('5fae19e2ffaa7d52304bcdd2'), ObjectId('5fae24d4ffaa7d52304bce0d'), ObjectId('5fae21d4ffaa7d52304bcdfa'), ObjectId('5fae25edffaa7d52304bce15'), ObjectId('5f7b064ccc367eae52280948'), ObjectId('5fae1dbfffaa7d52304bcde3'), ObjectId('5fae22ddffaa7d52304bce02'), ObjectId('5fae23f7ffaa7d52304bce08'), ObjectId('5f7b0fd4c0092b71a2c6dab2'), ObjectId('5f7a5fa70a1b11a515b1e2ea'), ObjectId('5fae1a2cffaa7d52304bcdd4'), ObjectId('5fae2588ffaa7d52304bce11'), ObjectId('5fae23aeffaa7d52304bce06'), ObjectId('5fae1f47ffaa7d52304bcdec'), ObjectId('5f7a7b33b01f5030d514b2d0'), ObjectId('5f769ffd087161005148ea94'), ObjectId('5f7b0facc0092b71a2c6daaf'), ObjectId('5fae2220ffaa7d52304bcdfc'), ObjectId('5fae1b90ffaa7d52304bcdd6'), ObjectId('5f7a82fbb01f5030d514b300')]
+to_l = [ObjectId('5fae1a2cffaa7d52304bcdd4'), ObjectId('5fae22ddffaa7d52304bce02'), ObjectId('5fae2220ffaa7d52304bcdfc'), ObjectId('5fae1bc2ffaa7d52304bcdd8'), ObjectId('5f7a5fa70a1b11a515b1e2ea'), ObjectId('5fae23aeffaa7d52304bce06'), ObjectId('5fae1e5cffaa7d52304bcde6'), ObjectId('5fae20d1ffaa7d52304bcdf3'), ObjectId('5f7b064ccc367eae52280948'), ObjectId('5fae25bcffaa7d52304bce13'), ObjectId('5f7b0facc0092b71a2c6daaf'), ObjectId('5f7a7dc6b01f5030d514b2de'), ObjectId('5f7b0fd4c0092b71a2c6dab2'), ObjectId('5f7a82fbb01f5030d514b300'), ObjectId('5fae21d4ffaa7d52304bcdfa'), ObjectId('5f7a7b33b01f5030d514b2d0'), ObjectId('5fae2588ffaa7d52304bce11'), ObjectId('5fae1b90ffaa7d52304bcdd6'), ObjectId('5fae1f47ffaa7d52304bcdec'), ObjectId('5fae1e92ffaa7d52304bcde8'), ObjectId('5f769ffd087161005148ea94'), ObjectId('5fae225affaa7d52304bcdfe'), ObjectId('5fae19e2ffaa7d52304bcdd2'), ObjectId('5f7b3f4e999b5546e9a889b1'), ObjectId('5fae215effaa7d52304bcdf6'), ObjectId('5fae228fffaa7d52304bce00'), ObjectId('5fae23f7ffaa7d52304bce08'), ObjectId('5fae25edffaa7d52304bce15'), ObjectId('5fae1dbfffaa7d52304bcde3'), ObjectId('5fae24d4ffaa7d52304bce0d'), ObjectId('5f7c8d77536aa6fa3903918b')]
+tt = [ObjectId('5fb2b54e2bb7c6fe10d262a3'), ObjectId('5fb2b9b02bb7c6fe10d262b8'), ObjectId('5fb2b5a12bb7c6fe10d262a5'), ObjectId('5fb2169bc0ceec0a6ef06328'), ObjectId('5fb21470c0ceec0a6ef06318'), ObjectId('5fb214a8c0ceec0a6ef0631a'), ObjectId('5fb2bf9b2bb7c6fe10d262d5'), ObjectId('5fb2157ac0ceec0a6ef0631f'), ObjectId('5fb21662c0ceec0a6ef06326'), ObjectId('5fb216eec0ceec0a6ef0632a'), ObjectId('5fb2ba6e2bb7c6fe10d262bd'), ObjectId('5fb2b72d2bb7c6fe10d262ac'), ObjectId('5fb213c1c0ceec0a6ef06313'), ObjectId('5fb215f4c0ceec0a6ef06322'), ObjectId('5fb2c0e52bb7c6fe10d262db'), ObjectId('5f7b41f6999b5546e9a889df'), ObjectId('5f7b05c0cc367eae52280945'), ObjectId('5fb2143bc0ceec0a6ef06316'), ObjectId('5fae1d82ffaa7d52304bcde1')]
+# print(len(to_l))
+# repair_wanted_parts(tt)

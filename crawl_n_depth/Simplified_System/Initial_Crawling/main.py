@@ -92,7 +92,7 @@ def search_a_company(comp_name, db_collection, query_entry):
         print('rd', received_domains)
         for i, each in enumerate(received_domains):
             # print(each)
-            if (('.gov.' in each) or ('.govt.' in each) or ('.edu.' in each) or ('.uk' in each)):  # filter non wanted websites
+            if (('.gov.' in each) or ('org' in each) or  ('.govt.' in each) or ('.edu.' in each) or ('.uk' in each)):  # filter non wanted websites
                 continue
             if each not in black_list:
                 filtered_sr.append(filtered_sr_a[i])
@@ -189,7 +189,7 @@ def update_a_company(comp_name, db_collection, entry_id):
     print('rd', received_domains)
     for i, each in enumerate(received_domains):
         print(each)
-        if (('.gov.' in each) or ('.govt.' in each) or ('.edu.' in each) or ('.uk' in each)):  # filter non wanted websites
+        if (('.gov.' in each) or ('org' in each) or ('.govt.' in each) or ('.edu.' in each) or ('.uk' in each)):  # filter non wanted websites
             continue
         if each not in black_list:
             filtered_sr.append(filtered_sr_a[i])
@@ -265,7 +265,7 @@ def search_a_query(search_query,number_of_results,db_collection,query_entry):
                 black_list = b_list_file.read().splitlines()
                 if(received_domains[k] in black_list):#filter non wanted websites
                     continue
-                if (('.gov.' in received_domains[k]) or ('.govt.' in received_domains[k]) or ('.edu.' in received_domains[k]) or ('.uk' in received_domains[k]) ):  # filter non wanted websites
+                if (('.gov.' in received_domains[k]) or ('org' in received_domains[k]) or ('.govt.' in received_domains[k]) or ('.edu.' in received_domains[k]) or ('.uk' in received_domains[k]) ):  # filter non wanted websites
                     continue
                 sr = getGoogleLinksForSearchText(received_domains[k], 3, 'initial')
                 if (len(sr) == 0):

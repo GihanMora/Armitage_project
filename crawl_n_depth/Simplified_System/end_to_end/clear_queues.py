@@ -56,4 +56,4 @@ def clear_all_queues():
 
 # clear_all_queues()
 # query_state_update_via_queue()
-project_state_update_via_queue()
+# project_state_update_via_queue()
