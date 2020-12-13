@@ -1,20 +1,14 @@
-import threading
-import time
 
-from azure.storage.queue import QueueClient
 from bson import ObjectId
-#fix this path variable when using in another machine
-# C:\Users\gihan\AppData\Local\Programs\Python\Python37\python.exe execute_pipeline_via_queues.py
-
 import sys
 from os.path import dirname as up
 
 
 
 three_up = up(up(up(__file__)))
-# print('relative',three_up)
+
 sys.path.insert(0, three_up)
-sys.path.insert(0,'C:/Project_files/Armitage_project/crawl_n_depth')
+# sys.path.insert(0,'C:/Project_files/Armitage_project/crawl_n_depth')
 # print(three_up)
 # print(sys.path)
 from fake_useragent import UserAgent
@@ -37,6 +31,75 @@ from Simplified_System.google_for_data.scrape_owler_data.owler_extractor import 
 from Simplified_System.google_for_data.get_li_employees.scrape_linkedin_employees import get_li_emp,add_to_li_cp_queue,get_li_emp_via_queue
 from Simplified_System.google_for_data.phone_number_extraction.get_tp_num import get_tp_from_google,add_to_tp_queue,get_tp_from_google_via_queue
 from Simplified_System.end_to_end.create_projects import get_projects_via_queue
+
+
+def get_entries_project(project_id):
+    completed_count = []
+    incomplete_count = 0
+    incompletes = []
+    problems = []
+    all_entires = []
+    profile_col = refer_collection()
+    projects_col= refer_projects_col()
+    query_collection = refer_query_col()
+    proj_data_entry = projects_col.find({"_id": project_id})
+    print('proj',proj_data_entry)
+    proj_data = [i for i in proj_data_entry]
+    print('data',len(proj_data))
+    proj_attribute_keys = list(proj_data[-1].keys())
+    if ('associated_queries' in proj_attribute_keys):
+        associated_queries = proj_data[-1]['associated_queries']
+        for each_query in associated_queries:
+            query_data_entry = query_collection.find({"_id": ObjectId(each_query)})
+            query_data = [i for i in query_data_entry]
+            print([query_data[0]['search_query'],query_data[0]['state'],query_data[0]['_id']])
+            query_attribute_keys = list(query_data[0].keys())
+            if ('associated_entries' in query_attribute_keys):
+                associated_entries = query_data[0]['associated_entries']
+                # print('kk',associated_entries)
+                obs_ids = [ObjectId(i) for i in associated_entries]
+                all_entires.extend(obs_ids)
+
+                for k in obs_ids:
+                    prof_data_entry = profile_col.find({"_id": k})
+                    # print('proj', proj_data_entry)
+                    prof_data = [i for i in prof_data_entry]
+                    prof_attribute_keys = list(prof_data[0].keys())
+
+                    if ('simplified_dump_state' in prof_attribute_keys):
+                        if(prof_data[0]['simplified_dump_state']=='Completed'):
+                            completed_count.append(k)
+                        # else:print(prof_data[0]['simplified_dump_state'])
+                        elif (prof_data[0]['simplified_dump_state'] == 'Incomplete'):
+                            incomplete_count+= 1
+                            incompletes.append(k)
+                        else:
+                            problems.append(k)
+                    else:
+                        problems.append(k)
+                #
+                # print(['completed',completed_count,'all',len(obs_ids),'incompleted',incomplete_count,incompletes,'prob',problems])
+                # # filt = []
+                # # for k in obs_ids:
+                # #     if(k not in problems):
+                # #         filt.append(k)
+                # # print('filt',filt)
+                # if(completed_count==len(obs_ids)):
+                #     query_collection.update_one({'_id': ObjectId(each_query)}, {'$set': {'state': 'Completed'}})
+
+                # return obs_ids
+
+        print('completed_count',len(list(set(completed_count))))
+        print('incomplete_count',incomplete_count)
+        print('incompletes',list(set(incompletes)))
+        print('problems',list(set(problems)))
+        print('all',all_entires)
+        return {'incompletes':list(set(incompletes)),'problems':list(set(problems))}
+        # all_entires = list(set(all_entires))m
+        # return all_entires
+    else:
+        print("This project do not have any queries yet")
+        return []
 
 
 def repair_wanted_parts(entry_id_list):
@@ -191,17 +254,30 @@ def repair_profiles(entry_id_list):
     add_to_cb_queue(entry_id_list)
     print("Adding to linkedin cp extraction queue")
     add_to_li_cp_queue(entry_id_list)
-    # print("Adding to simplified dump queue")
-    # add_to_simplified_export_queue(entry_id_list)
+    print("Adding to simplified dump queue")
+    add_to_simplified_export_queue(entry_id_list)
 
 
-    # print("Adding to Avention extraction queue")
-    # add_to_avention_queue(entry_id_list)
+    print("Adding to Avention extraction queue")
+    add_to_avention_queue(entry_id_list)
 # repair_profiles([ObjectId('5fae23aeffaa7d52304bce06'), ObjectId('5fae25edffaa7d52304bce15'), ObjectId('5fae1f47ffaa7d52304bcdec'), ObjectId('5fae2588ffaa7d52304bce11'), ObjectId('5fae1e5cffaa7d52304bcde6'), ObjectId('5fae1a2cffaa7d52304bcdd4'), ObjectId('5fae19e2ffaa7d52304bcdd2'), ObjectId('5fae20d1ffaa7d52304bcdf3'), ObjectId('5fae23f7ffaa7d52304bce08'), ObjectId('5f7b064ccc367eae52280948'), ObjectId('5f7c8d77536aa6fa3903918b'), ObjectId('5fae1dbfffaa7d52304bcde3'), ObjectId('5f7a7dc6b01f5030d514b2de'), ObjectId('5fae21d4ffaa7d52304bcdfa'), ObjectId('5fae215effaa7d52304bcdf6'), ObjectId('5fae24d4ffaa7d52304bce0d'), ObjectId('5f7b3f4e999b5546e9a889b1'), ObjectId('5f7b0fd4c0092b71a2c6dab2'), ObjectId('5fae1c39ffaa7d52304bcddb'), ObjectId('5fae225affaa7d52304bcdfe'), ObjectId('5fae22ddffaa7d52304bce02'), ObjectId('5fae1bc2ffaa7d52304bcdd8'), ObjectId('5f7a5fa70a1b11a515b1e2ea'), ObjectId('5f7b0facc0092b71a2c6daaf'), ObjectId('5f769ffd087161005148ea94'), ObjectId('5f7a82fbb01f5030d514b300'), ObjectId('5fae228fffaa7d52304bce00'), ObjectId('5fae1e92ffaa7d52304bcde8'), ObjectId('5fae1b90ffaa7d52304bcdd6'), ObjectId('5fae25bcffaa7d52304bce13'), ObjectId('5f7a7b33b01f5030d514b2d0'), ObjectId('5fae2220ffaa7d52304bcdfc')])
 # repair_profiles( [ObjectId('5f769a66087161005148ea76'), ObjectId('5f7a60150a1b11a515b1e2ed'), ObjectId('5f769859087161005148ea68'), ObjectId('5f7a63970a1b11a515b1e306'), ObjectId('5f7a61b50a1b11a515b1e2f7'), ObjectId('5f7a5e890a1b11a515b1e2e2'), ObjectId('5f7a61b50a1b11a515b1e2f7'), ObjectId('5f7b1031c0092b71a2c6dab8'), ObjectId('5f7b3ffd999b5546e9a889bc'), ObjectId('5f769a66087161005148ea76'), ObjectId('5f7a5e890a1b11a515b1e2e2'), ObjectId('5f7a60a40a1b11a515b1e2f0'), ObjectId('5f7a63970a1b11a515b1e306'), ObjectId('5fae2436ffaa7d52304bce0a'), ObjectId('5f7b4114999b5546e9a889d0'), ObjectId('5fae19a5ffaa7d52304bcdd0'), ObjectId('5f7b1151c0092b71a2c6dac9'), ObjectId('5f769859087161005148ea68'), ObjectId('5f7b41cd999b5546e9a889dc'), ObjectId('5f7b39994a8281a499ea953d'), ObjectId('5fb0c5bd3ed5000dbe3636bb'), ObjectId('5fb0c6633ed5000dbe3636be'), ObjectId('5fae19a5ffaa7d52304bcdd0')])
 
 # to_rep = [ObjectId('5fae1c39ffaa7d52304bcddb'), ObjectId('5f7c8d77536aa6fa3903918b'), ObjectId('5fae225affaa7d52304bcdfe'), ObjectId('5fae215effaa7d52304bcdf6'), ObjectId('5fae228fffaa7d52304bce00'), ObjectId('5fae20d1ffaa7d52304bcdf3'), ObjectId('5fae25bcffaa7d52304bce13'), ObjectId('5fae1e92ffaa7d52304bcde8'), ObjectId('5fae1e5cffaa7d52304bcde6'), ObjectId('5f7b3f4e999b5546e9a889b1'), ObjectId('5fae1bc2ffaa7d52304bcdd8'), ObjectId('5f7a7dc6b01f5030d514b2de'), ObjectId('5fae19e2ffaa7d52304bcdd2'), ObjectId('5fae24d4ffaa7d52304bce0d'), ObjectId('5fae21d4ffaa7d52304bcdfa'), ObjectId('5fae25edffaa7d52304bce15'), ObjectId('5f7b064ccc367eae52280948'), ObjectId('5fae1dbfffaa7d52304bcde3'), ObjectId('5fae22ddffaa7d52304bce02'), ObjectId('5fae23f7ffaa7d52304bce08'), ObjectId('5f7b0fd4c0092b71a2c6dab2'), ObjectId('5f7a5fa70a1b11a515b1e2ea'), ObjectId('5fae1a2cffaa7d52304bcdd4'), ObjectId('5fae2588ffaa7d52304bce11'), ObjectId('5fae23aeffaa7d52304bce06'), ObjectId('5fae1f47ffaa7d52304bcdec'), ObjectId('5f7a7b33b01f5030d514b2d0'), ObjectId('5f769ffd087161005148ea94'), ObjectId('5f7b0facc0092b71a2c6daaf'), ObjectId('5fae2220ffaa7d52304bcdfc'), ObjectId('5fae1b90ffaa7d52304bcdd6'), ObjectId('5f7a82fbb01f5030d514b300')]
 to_l = [ObjectId('5fae1a2cffaa7d52304bcdd4'), ObjectId('5fae22ddffaa7d52304bce02'), ObjectId('5fae2220ffaa7d52304bcdfc'), ObjectId('5fae1bc2ffaa7d52304bcdd8'), ObjectId('5f7a5fa70a1b11a515b1e2ea'), ObjectId('5fae23aeffaa7d52304bce06'), ObjectId('5fae1e5cffaa7d52304bcde6'), ObjectId('5fae20d1ffaa7d52304bcdf3'), ObjectId('5f7b064ccc367eae52280948'), ObjectId('5fae25bcffaa7d52304bce13'), ObjectId('5f7b0facc0092b71a2c6daaf'), ObjectId('5f7a7dc6b01f5030d514b2de'), ObjectId('5f7b0fd4c0092b71a2c6dab2'), ObjectId('5f7a82fbb01f5030d514b300'), ObjectId('5fae21d4ffaa7d52304bcdfa'), ObjectId('5f7a7b33b01f5030d514b2d0'), ObjectId('5fae2588ffaa7d52304bce11'), ObjectId('5fae1b90ffaa7d52304bcdd6'), ObjectId('5fae1f47ffaa7d52304bcdec'), ObjectId('5fae1e92ffaa7d52304bcde8'), ObjectId('5f769ffd087161005148ea94'), ObjectId('5fae225affaa7d52304bcdfe'), ObjectId('5fae19e2ffaa7d52304bcdd2'), ObjectId('5f7b3f4e999b5546e9a889b1'), ObjectId('5fae215effaa7d52304bcdf6'), ObjectId('5fae228fffaa7d52304bce00'), ObjectId('5fae23f7ffaa7d52304bce08'), ObjectId('5fae25edffaa7d52304bce15'), ObjectId('5fae1dbfffaa7d52304bcde3'), ObjectId('5fae24d4ffaa7d52304bce0d'), ObjectId('5f7c8d77536aa6fa3903918b')]
-tt = [ObjectId('5fb2b54e2bb7c6fe10d262a3'), ObjectId('5fb2b9b02bb7c6fe10d262b8'), ObjectId('5fb2b5a12bb7c6fe10d262a5'), ObjectId('5fb2169bc0ceec0a6ef06328'), ObjectId('5fb21470c0ceec0a6ef06318'), ObjectId('5fb214a8c0ceec0a6ef0631a'), ObjectId('5fb2bf9b2bb7c6fe10d262d5'), ObjectId('5fb2157ac0ceec0a6ef0631f'), ObjectId('5fb21662c0ceec0a6ef06326'), ObjectId('5fb216eec0ceec0a6ef0632a'), ObjectId('5fb2ba6e2bb7c6fe10d262bd'), ObjectId('5fb2b72d2bb7c6fe10d262ac'), ObjectId('5fb213c1c0ceec0a6ef06313'), ObjectId('5fb215f4c0ceec0a6ef06322'), ObjectId('5fb2c0e52bb7c6fe10d262db'), ObjectId('5f7b41f6999b5546e9a889df'), ObjectId('5f7b05c0cc367eae52280945'), ObjectId('5fb2143bc0ceec0a6ef06316'), ObjectId('5fae1d82ffaa7d52304bcde1')]
-# print(len(to_l))
+tt = [ObjectId('5fd350da6a3da8afb04a94d1'), ObjectId('5f7b1412c0092b71a2c6daf1'), ObjectId('5fd34de66a3da8afb04a94c3'), ObjectId('5fd34f946a3da8afb04a94cb'), ObjectId('5fd34a026a3da8afb04a94b2'), ObjectId('5fd359796a3da8afb04a9501'), ObjectId('5f769b49087161005148ea7d'), ObjectId('5fd34e696a3da8afb04a94c6'), ObjectId('5fd3508d6a3da8afb04a94cf'), ObjectId('5fd355756a3da8afb04a94eb'), ObjectId('5fd34be86a3da8afb04a94ba'), ObjectId('5fd354126a3da8afb04a94e4'), ObjectId('5f7a8390b01f5030d514b304'), ObjectId('5f7c8a1d536aa6fa3903916a'), ObjectId('5fd358ac6a3da8afb04a94fd'), ObjectId('5fd34b536a3da8afb04a94b7'), ObjectId('5fd355ce6a3da8afb04a94ee'), ObjectId('5fd357fd6a3da8afb04a94f8'), ObjectId('5fd358746a3da8afb04a94fb')]
+
 # repair_wanted_parts(tt)
+# repair_profiles(tt)
+
+def repair_projects_wanted_parts(project_id_list):
+    for each_id in project_id_list:
+        out_dict = get_entries_project(each_id)
+        problematic_profiles = out_dict['problems']
+        repair_wanted_parts(problematic_profiles)
+
+# 5fd3051ab4ceec042b8984be
+# 5fd30530b4ceec042b8984c0
+# 5fd3068ab4ceec042b8984c2
+# 5fd3068db4ceec042b8984c4
+repair_projects_wanted_parts([ObjectId('5fd30530b4ceec042b8984c0')])

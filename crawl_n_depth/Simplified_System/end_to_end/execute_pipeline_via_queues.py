@@ -17,7 +17,7 @@ from os.path import dirname as up
 three_up = up(up(up(__file__)))
 # print('relative',three_up)
 sys.path.insert(0, three_up)
-sys.path.insert(0,'C:/Project_files/Armitage_project/crawl_n_depth')
+sys.path.insert(0,'C:/Project_files/armitage/armitage_worker/crawl_n_depth')
 # print(three_up)
 # print(sys.path)
 from fake_useragent import UserAgent
@@ -53,6 +53,31 @@ def add_to_query_queue(id_list):
     for each_id in id_list:
         print(each_id," added to query queue")
         query_client.send_message([str(each_id)], time_to_live=-1)
+
+def fix_entry_counts():
+    print("Query state updating queue is live")
+    query_collection = refer_query_col()
+    mycol = refer_collection()
+
+    connect_str = os.getenv('AZURE_STORAGE_CONNECTION_STRING')
+    query_client = QueueClient.from_connection_string(connect_str, "query-queue")
+    rows = query_client.receive_messages()
+    for msg in rows:
+        # time.sleep(10)
+
+        row = msg.content
+        print(row)
+        row = ast.literal_eval(row)
+        print('getting_id', row[0])
+        entry_id = ObjectId(row[0])
+        query_data_entry = query_collection.find({"_id": entry_id})
+        data = [i for i in query_data_entry]
+        # check_for_the_completion_of_components
+
+        associated_entries = data[0]['associated_entries']
+        print('getting associated entries')
+        print(len(associated_entries))
+
 
 def query_state_update_via_queue():
     print("Query state updating queue is live")
@@ -408,3 +433,6 @@ if __name__ == '__main__':
 
 
 # project_state_update_via_queue()
+# query_state_update_via_queue()
+
+# fix_entry_counts()

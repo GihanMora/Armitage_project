@@ -195,7 +195,7 @@ def getGoogleLinksForSearchText(searchText,number_of_results,mode):#given a sear
 #     print(searchResult)
 
 #example
-# searchResults = getGoogleLinksForSearchText("caltext australia",3,'initial')
+# searchResults = getGoogleLinksForSearchText("caltext australia",3,'normal')
 # for searchResult in searchResults:
 #     print(searchResult)
 
