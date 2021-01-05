@@ -61,6 +61,7 @@ def run_crawlers_via_queue_chain():
 # add_to_deep_crawling_queue(to_check)
 # run_crawlers_m_via_queue(3,100)
 # run_crawlers_m([ObjectId('5f6df0b0144e831840676929')],3,10)
+# run_crawlers_via_queue_chain()
 
 
 

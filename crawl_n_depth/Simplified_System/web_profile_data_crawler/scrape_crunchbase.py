@@ -340,7 +340,7 @@ def get_cb_data_via_queue():
                     filtered_li = []
                     for p in sr:
                         # print(p['link'])
-                        if ('list-australia' in p['link'] or 'bayer-ag-germany' in p['link']):
+                        if ('list-australia' in p['link'] or 'bayer-ag-germany' in p['link'] or 'facebook' in p['link'] or 'linkedin' in p['link']):
                             continue
                         elif 'www.crunchbase.com/organization' in p['link']:
                             filtered_li.append(p['link'])

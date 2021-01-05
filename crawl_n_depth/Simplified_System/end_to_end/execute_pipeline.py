@@ -208,6 +208,12 @@ def add_to_initial_crawling_queue(name_list):
         print(name)
         ic_client.send_message([str(name)])
 
+# f = open('cleaned_list.txt','r',encoding='utf-8')
+# comps = [k.strip() for k in f.readlines()]
+# for each_c in comps[2000:]:
+#     q = each_c+' --comp'
+#     add_to_initial_crawling_queue([q])
+
 # add_to_initial_crawling_queue(['Educational Systems australia --query'])
 # add_to_initial_crawling_queue(['www.avinet.com.au --comp'])
 

@@ -103,6 +103,10 @@ def search_a_company(comp_name, db_collection, query_entry):
 
             if(len(res_data)):
                 print("Profile "+filtered_sr[0]['link']+" already existing at "+str(res_data[0]['_id']))
+                print('writing data')
+                f = open('results.txt','a+',encoding='utf-8')
+                f.write(str(comp_name)+'_existing_'+str(res_data[0]['_id'])+'\n')
+                f.close()
                 query_collection = refer_query_col()
                 query_collection.update_one({'_id': query_entry},
                                             {'$set': {'associated_entries': [res_data[0]['_id']]}})
@@ -135,6 +139,11 @@ def search_a_company(comp_name, db_collection, query_entry):
             record_entry=db_collection.insert_one(filtered_sr[0])
             print(filtered_sr[0])
             print("search record stored in db: ",record_entry.inserted_id)
+            f = open(
+                'results.txt',
+                'a+', encoding='utf-8')
+            f.write(str(comp_name) + '_new_' + str(record_entry.inserted_id) + '\n')
+            f.close()
             return record_entry.inserted_id
         else:
             print("No results found!")

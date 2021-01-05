@@ -276,8 +276,11 @@ def repair_projects_wanted_parts(project_id_list):
         problematic_profiles = out_dict['problems']
         repair_wanted_parts(problematic_profiles)
 
-# 5fd3051ab4ceec042b8984be
-# 5fd30530b4ceec042b8984c0
-# 5fd3068ab4ceec042b8984c2
-# 5fd3068db4ceec042b8984c4
-repair_projects_wanted_parts([ObjectId('5fd30530b4ceec042b8984c0')])
+# 5fe094ab451c112686f29fd1
+# 5fe094ae451c112686f29fd3
+# 5fe094b1451c112686f29fd5
+# 5fe094b4451c112686f29fd7
+# repair_projects_wanted_parts([ObjectId('5fe094ab451c112686f29fd1')])
+
+
+# repair_wanted_parts([ObjectId('5fe28f8eea432c8f124c61df')])
