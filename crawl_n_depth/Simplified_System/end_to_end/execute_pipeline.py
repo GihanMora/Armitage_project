@@ -210,7 +210,7 @@ def add_to_initial_crawling_queue(name_list):
 
 # f = open('cleaned_list.txt','r',encoding='utf-8')
 # comps = [k.strip() for k in f.readlines()]
-# for each_c in comps[2000:]:
+# for each_c in comps[0:2]:
 #     q = each_c+' --comp'
 #     add_to_initial_crawling_queue([q])
 
@@ -597,3 +597,12 @@ def update_data(entry_id_k):
 # execute_for_a_company_alpha('2and2', 'www.2and2.com.au')
 # execute_for_a_company('www.aie.edu.au')
 
+def add_to_query_queue(id_list):
+
+    connect_str = os.getenv('AZURE_STORAGE_CONNECTION_STRING')
+    query_client = QueueClient.from_connection_string(connect_str, "query-queue")
+    for each_id in id_list:
+        print(each_id," added to query queue")
+        query_client.send_message([str(each_id)], time_to_live=-1)
+
+# add_to_query_queue([ObjectId('602abd9d1a03b37ed3a71e97')])

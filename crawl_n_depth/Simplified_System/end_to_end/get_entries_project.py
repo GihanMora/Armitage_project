@@ -1,37 +1,39 @@
+import urllib.parse
+
 import pymongo
 from bson import ObjectId
 
 def refer_projects_col():
-    myclient = pymongo.MongoClient("mongodb://localhost:27017/")
-    # myclient = pymongo.MongoClient(
-    #     "mongodb+srv://gatekeeper:oMBipAi6zLkme3e9@armitage-i0o8u.mongodb.net/test?retryWrites=true&w=majority")
+    # myclient = pymongo.MongoClient("mongodb://localhost:27017/")
+    myclient = pymongo.MongoClient(
+        "mongodb+srv://user_gihan:" + urllib.parse.quote("Gihan1@uom") + "@armitage.bw3vp.mongodb.net/test?retryWrites=true&w=majority")
     # mydb = myclient["CompanyDatabase"]  # creates a database
     mydb = myclient["miner"]  # creates a database
     mycol = mydb["projects"]  # creates a collection
     return mycol
 
 def refer_simplified_dump_col_min():
-    myclient = pymongo.MongoClient("mongodb://localhost:27017/")
-    # myclient = pymongo.MongoClient(
-    #     "mongodb+srv://gatekeeper:oMBipAi6zLkme3e9@armitage-i0o8u.mongodb.net/test?retryWrites=true&w=majority")
+    # myclient = pymongo.MongoClient("mongodb://localhost:27017/")
+    myclient = pymongo.MongoClient(
+        "mongodb+srv://user_gihan:" + urllib.parse.quote("Gihan1@uom") + "@armitage.bw3vp.mongodb.net/test?retryWrites=true&w=majority")
     # mydb = myclient["CompanyDatabase"]  # creates a database
     mydb = myclient["miner"]  # creates a database
     mycol = mydb["simplified_dump_min"]  # creates a collection
     return mycol
 
 def refer_query_col():
-    myclient = pymongo.MongoClient("mongodb://localhost:27017/")
-    # myclient = pymongo.MongoClient(
-    #     "mongodb+srv://gatekeeper:oMBipAi6zLkme3e9@armitage-i0o8u.mongodb.net/test?retryWrites=true&w=majority")
+    # myclient = pymongo.MongoClient("mongodb://localhost:27017/")
+    myclient = pymongo.MongoClient(
+        "mongodb+srv://user_gihan:" + urllib.parse.quote("Gihan1@uom") + "@armitage.bw3vp.mongodb.net/test?retryWrites=true&w=majority")
     # mydb = myclient["CompanyDatabase"]  # creates a database
     mydb = myclient["miner"]  # creates a database
     mycol = mydb["search_queries"]  # creates a collection
     return mycol
 
 def refer_collection():
-  myclient = pymongo.MongoClient("mongodb://localhost:27017/")
-  # myclient = pymongo.MongoClient(
-  #     "mongodb+srv://gatekeeper:oMBipAi6zLkme3e9@armitage-i0o8u.mongodb.net/test?retryWrites=true&w=majority")
+  # myclient = pymongo.MongoClient("mongodb://localhost:27017/")
+  myclient = pymongo.MongoClient(
+      "mongodb+srv://user_gihan:" + urllib.parse.quote("Gihan1@uom") + "@armitage.bw3vp.mongodb.net/test?retryWrites=true&w=majority")
   # mydb = myclient["CompanyDatabase"]  # creates a database
   mydb = myclient["miner"]  # creates a database
 
@@ -64,8 +66,9 @@ def get_entries_project(project_id):
                 # print('kk',associated_entries)
                 obs_ids = [ObjectId(i) for i in associated_entries]
                 all_entires.extend(obs_ids)
-
+                print(obs_ids)
                 for k in obs_ids:
+                    print(k)
                     prof_data_entry = profile_col.find({"_id": k})
                     # print('proj', proj_data_entry)
                     prof_data = [i for i in prof_data_entry]
@@ -136,5 +139,5 @@ proj_3 = [ObjectId('5f1ecf5362de5888b3f12f04'), ObjectId('5f682585a7cef498a185c2
 # 5fd3068ab4ceec042b8984c2
 # 5fd3068db4ceec042b8984c4
 # check_links(proj_3)
-print(get_entries_project(ObjectId('5fd30530b4ceec042b8984c0')))
+# print(get_entries_project(ObjectId('60064e27d1e86884d532fbe8')))
 # check_simpli(id_list)

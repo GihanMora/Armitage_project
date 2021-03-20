@@ -110,6 +110,7 @@ def scrape_address_from_google(company_name):
         browser.get(searchGoogle)
         time.sleep(5)
         pageSource = browser.page_source
+        # print(pageSource)
         time.sleep(5)
         browser.close()
         browser.quit()
@@ -138,8 +139,8 @@ def scrape_address_from_google(company_name):
             is_captcha_on_page = soup.find("div", id="recaptcha") is not None
 
 
-        result_div = soup.find('div', attrs={'class': 'MWXBS'})
-        result_des = soup.find('div', attrs={'class': 'DoKLEd'})
+        result_div = soup.find('div', attrs={'class': 'BRoiGe'})
+        result_des = soup.find('div', attrs={'class': 'HaiMjb'})
         # print(result_div,result_des)
         if(result_div!=None):
 
@@ -164,7 +165,7 @@ def scrape_address_from_google(company_name):
             browser.close()
             browser.quit()
         return 'error'
-# scrape_address_from_google("2and2")
+# scrape_address_from_google("armitage")
 
 def get_ad_from_google(id_list):
     # mycol = refer_collection()

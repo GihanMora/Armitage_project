@@ -87,9 +87,8 @@ def process_data_m(id_list, mode):
             word_cloud_results = data_o[0]['wordcloud_results_tri']
             word_cloud_tokens = [term[0] for term in word_cloud_results]
             # print(word_cloud_tokens)
-
             text_rank_tokens = data_o[0]["textrank_results"]
-            # print(text_rank_tokens)
+            # print('trt',text_rank_tokens)
 
             title = data_o[0]["title"].split(" ")
 
@@ -104,7 +103,6 @@ def process_data_m(id_list, mode):
             for eac_re in lda_topics:
                 lda_tokens=lda_tokens+lda_topics[eac_re]
             # print(lda_tokens)
-
             kpe_tokens = word_cloud_results = data_o[0]['kpe_results']
             # print(kpe_tokens)
 

@@ -1,5 +1,6 @@
 import csv
 import sys
+import urllib.parse
 from os.path import dirname as up
 
 import pymongo
@@ -12,6 +13,7 @@ from Simplified_System.evaluate_results.address_confidence import get_address_co
 from Simplified_System.evaluate_results.cp_confidence import get_cp_confidence,get_every_cp_confidence,get_contacts_with_sources
 from Simplified_System.evaluate_results.hq_confidence import get_hq_confidence,get_every_hq_confidence,get_hqs_with_sources
 from Simplified_System.evaluate_results.tp_confidence import get_tp_confidence,get_every_tp_confidence,get_tps_with_sources,restructure_tp
+# from Simplified_System.Database.db_connect import refer_collection,refer_simplified_dump_col_min
 
 
 def moderate_confidence(attribute,selected_value,entry_id,confidence):
@@ -69,9 +71,8 @@ def moderate_confidence(attribute,selected_value,entry_id,confidence):
 
 
 def refer_collection():
-  myclient = pymongo.MongoClient("mongodb://localhost:27017/")
-  # myclient = pymongo.MongoClient(
-  #     "mongodb+srv://gatekeeper:oMBipAi6zLkme3e9@armitage-i0o8u.mongodb.net/test?retryWrites=true&w=majority")
+  # myclient = pymongo.MongoClient("mongodb://localhost:27017/")
+  myclient = pymongo.MongoClient("mongodb+srv://user_gihan:" + urllib.parse.quote("Gihan1@uom") + "@armitage.bw3vp.mongodb.net/test?retryWrites=true&w=majority")
   # mydb = myclient["CompanyDatabase"]  # creates a database
   mydb = myclient["miner"]  # creates a database
 
@@ -79,9 +80,9 @@ def refer_collection():
   return mycol
 
 def refer_simplified_dump_col_min():
-    myclient = pymongo.MongoClient("mongodb://localhost:27017/")
-    # myclient = pymongo.MongoClient(
-    #     "mongodb+srv://gatekeeper:oMBipAi6zLkme3e9@armitage-i0o8u.mongodb.net/test?retryWrites=true&w=majority")
+    # myclient = pymongo.MongoClient("mongodb://localhost:27017/")
+    myclient = pymongo.MongoClient(
+        "mongodb+srv://user_gihan:" + urllib.parse.quote("Gihan1@uom") + "@armitage.bw3vp.mongodb.net/test?retryWrites=true&w=majority")
     # mydb = myclient["CompanyDatabase"]  # creates a database
     mydb = myclient["miner"]  # creates a database
     mycol = mydb["simplified_dump_min"]  # creates a collection

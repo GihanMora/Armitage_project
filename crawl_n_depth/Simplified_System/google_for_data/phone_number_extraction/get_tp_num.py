@@ -93,8 +93,8 @@ def scrape_tp_from_google(company_name):
 
 
 
-        result_div = soup.find('div', attrs={'class': 'bBmoPd'})
-        result_des = soup.find('div', attrs={'class': 'r0oySb'})
+        result_div = soup.find('div', attrs={'class': 'X0KC1c'})
+        result_des = soup.find('div', attrs={'class': 'fNuJfc'})
         # print(result_div,result_des)
         if (result_div != None):
             results['phone'] = result_div.get_text()

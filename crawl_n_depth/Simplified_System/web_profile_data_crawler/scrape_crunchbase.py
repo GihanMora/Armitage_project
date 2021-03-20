@@ -2,6 +2,7 @@
 #check chrome driver exeecutable path
 import ast
 import os
+import subprocess
 import time
 import sys
 
@@ -26,6 +27,27 @@ from bs4.element import Tag
 from fake_useragent import UserAgent
 from random import choice
 from Simplified_System.Initial_Crawling.get_n_search_results import getGoogleLinksForSearchText
+
+
+# from Simplified_System.Initial_Crawling.main import search_a_company,search_a_query,search_a_company_alpha,update_a_company
+from Simplified_System.Deep_Crawling.main import deep_crawl,add_to_deep_crawling_queue,run_crawlers_via_queue_chain
+from Simplified_System.Database.db_connect import refer_collection,refer_query_col,simplified_export,simplified_export_via_queue,add_to_simplified_export_queue,refer_projects_col
+from Simplified_System.Feature_Extraction.main import extract_features,extract_features_via_queue_chain
+from Classification.predict_class import predict_class_tags,predict_class_tags_via_queue
+from Simplified_System.web_profile_data_crawler.scrape_dnb import get_dnb_data,add_to_dnb_queue,get_dnb_data_via_queue
+from Simplified_System.web_profile_data_crawler.scrape_oc import get_oc_data,add_to_oc_queue,get_oc_data_via_queue
+from Simplified_System.web_profile_data_crawler.avention_scraper import get_aven_data,add_to_avention_queue,get_aven_data_via_queue
+# from Simplified_System.linkedin_data_crawler.linkedin_crawling import get_li_data
+from Simplified_System.google_for_data.address_extraction.address_from_google import get_ad_from_google,add_to_ad_queue,get_ad_from_google_via_queue
+from Simplified_System.google_for_data.contacts_from_google.get_contacts_google import get_cp_from_google,add_to_cp_queue,get_cp_from_google_via_queue
+from Simplified_System.google_for_data.scrape_owler_data.owler_extractor import get_qa_from_google,add_to_qa_queue,get_qa_from_google_via_queue
+from Simplified_System.google_for_data.get_li_employees.scrape_linkedin_employees import get_li_emp,add_to_li_cp_queue,get_li_emp_via_queue
+from Simplified_System.google_for_data.phone_number_extraction.get_tp_num import get_tp_from_google,add_to_tp_queue,get_tp_from_google_via_queue
+from Simplified_System.end_to_end.create_projects import get_projects_via_queue
+
+
+
+
 #
 # def proxy_generator():
 #     response = requests.get("https://sslproxies.org/")
@@ -34,26 +56,32 @@ from Simplified_System.Initial_Crawling.get_n_search_results import getGoogleLin
 # 	   soup.findAll('td')[::8]), map(lambda x:x.text, soup.findAll('td')[1::8]))))))}
 #     return proxy
 
-# def get_browser():
-#     ua = UserAgent()
-#     PROXY = proxy_generator()
-#     userAgent = ua.random #get a random user agent
-#     options = webdriver.ChromeOptions()  # use headless version of chrome to avoid getting blocked
-#     # options.add_argument('headless')
-#     options.add_argument(f'user-agent={userAgent}')
-#     # options.add_argument("start-maximized")# // open Browser in maximized mode
-#     # options.add_argument("disable-infobars")# // disabling infobars
-#     # options.add_argument("--disable-extensions")# // disabling extensions
-#     # options.add_argument("--disable-gpu")# // applicable to windows os only
-#     # options.add_argument("--disable-dev-shm-usage")# // overcome limited resource problems
-#     # options.add_argument('--proxy-server=%s' % PROXY)
-#     options.add_argument("--incognito")
-#     browser = webdriver.Chrome(chrome_options=options,  # give the path to selenium executable
-#                                    # executable_path='F://Armitage_lead_generation_project//chromedriver.exe'
-#                                    executable_path='F://Armitage_project//crawl_n_depth//utilities//chromedriver.exe',
-#
-#                                    )
-#     return browser
+def get_browser():
+    ua = UserAgent()
+    # PROXY = proxy_generator()
+    for k in range(5):
+        userAgent = ua.random  # get a random user agent
+        if ('Mobile' in userAgent):
+            print("got mobile")
+            continue
+        else:
+            break
+    print(userAgent)
+    options = webdriver.ChromeOptions()  # use headless version of chrome to avoid getting blocked
+    options.add_argument('headless')
+    options.add_argument(f'user-agent={userAgent}')
+    # options.add_argument("start-maximized")# // open Browser in maximized mode
+    # options.add_argument("disable-infobars")# // disabling infobars
+    # options.add_argument("--disable-extensions")# // disabling extensions
+    # options.add_argument("--disable-gpu")# // applicable to windows os only
+    # options.add_argument("--disable-dev-shm-usage")# // overcome limited resource problems
+    # options.add_argument('--proxy-server=%s' % PROXY)
+    browser = webdriver.Chrome(chrome_options=options,  # give the path to selenium executable
+                                   # executable_path='F://Armitage_lead_generation_project//chromedriver.exe'
+                                executable_path=three_up + '//utilities//chromedriver.exe',
+                                    # service_args=["--verbose", "--log-path=D:\\qc1.log"]
+                                   )
+    return browser
 
 def isvalid_hq(loc):
     is_valid = False
@@ -84,21 +112,24 @@ import requests
 from bs4 import BeautifulSoup as BS
 # "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.14; rv:66.0) Gecko/20100101 Firefox/66.0"
 
-def scrape_cb(url):
+def scrape_cb(url,comp_name,cp_name):
     try:
         # print(url)
+        if((url == 'https://www.crunchbase.com/organization/emirates') or (url =='https://www.crunchbase.com/organization/technology-one')):
+            return {}
         data_dict = {}
-        # ua = UserAgent()
-        # # PROXY = proxy_generator()
-        # for k in range(5):
-        #     userAgent = ua.random  # get a random user agent
-        #     if ('Mobile' in userAgent):
-        #         print("got mobile")
-        #         continue
-        #     else:
-        #         break
-        # print(userAgent)
+        ua = UserAgent()
+        # PROXY = proxy_generator()
+        for k in range(5):
+            userAgent = ua.random  # get a random user agent
+            if ('Mobile' in userAgent):
+                print("got mobile")
+                continue
+            else:
+                break
+        print(userAgent)
         headers = {"User-Agent":"Mozilla/5.0 (Macintosh; Intel Mac OS X 10.14; rv:66.0) Gecko/20100101 Firefox/66.0" , "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8", "Accept-Language": "en-US,en;q=0.5", "Accept-Encoding": "gzip, deflate", "DNT": "1", "Connection": "close", "Upgrade-Insecure-Requests": "1"}
+
 
         response = requests.get(url, headers=headers)
         # print('resp',response.text)
@@ -113,12 +144,14 @@ def scrape_cb(url):
 
         # browser = get_browser()
         # browser.get(url)
+        #
+        # time.sleep(5)
         # pageSource = browser.page_source
         # browser.quit()
         # soup = BeautifulSoup(pageSource, 'html.parser')  # bs4
         # if ('captcha' in pageSource):
         #     print("captcha detected!")
-        #     return data_dict
+            # return data_dict
         # print(soup)
         c_name,descrip,head_q = '','',''
         c_name = soup.find("span",attrs={'class' :'profile-name'}).get_text()
@@ -155,9 +188,19 @@ def scrape_cb(url):
                         det_e = each_e_l.find("field-formatter", attrs={'class': "ng-star-inserted"}).get_text()
                         data_dict['IPO_Status_cb'] = det_e
                         # print('state',det_e)
+                    if (icon_path == 'M12,2C8.1,2,5,5.1,5,9c0,5.2,7,13,7,13s7-7.8,7-13C19,5.1,15.9,2,12,2z M12,11.5c-1.4,0-2.5-1.1-2.5-2.5s1.1-2.5,2.5-2.5s2.5,1.1,2.5,2.5S13.4,11.5,12,11.5z'):
+                        det_e = each_e_l.find("field-formatter", attrs={'class': "ng-star-inserted"}).get_text()
+                        data_dict['comp_headquaters_cb'] = det_e
+                    if (icon_path == 'M12.52,10.53c-3-.78-4-1.6-4-2.86,0-1.46,1.35-2.47,3.6-2.47S15.37,6.33,15.45,8H18.4a5.31,5.31,0,0,0-4.28-5.08V0h-4V2.88c-2.59.56-4.67,2.24-4.67,4.81,0,3.08,2.55,4.62,6.27,5.51,3.33.8,4,2,4,3.21,0,.92-.65,2.39-3.6,2.39-2.75,0-3.83-1.23-4-2.8H5.21c.16,2.92,2.35,4.56,4.91,5.11V24h4V21.13c2.6-.49,4.67-2,4.67-4.73C18.79,12.61,15.55,11.32,12.52,10.53Z'):
+                        det_e = each_e_l.find("field-formatter", attrs={'class': "ng-star-inserted"}).get_text()
+                        data_dict['funding_type_cb'] = det_e
+                    if (icon_path == 'M12,2C6.5,2,2,6.5,2,12s4.5,10,10,10s10-4.5,10-10S17.5,2,12,2z M11,19.9c-3.9-0.5-7-3.9-7-7.9c0-0.6,0.1-1.2,0.2-1.8L9,15v1c0,1.1,0.9,2,2,2V19.9z M17.9,17.4c-0.3-0.8-1-1.4-1.9-1.4h-1v-3c0-0.6-0.4-1-1-1H8v-2h2c0.6,0,1-0.4,1-1V7h2c1.1,0,2-0.9,2-2V4.6c2.9,1.2,5,4.1,5,7.4C20,14.1,19.2,16,17.9,17.4z'):
+                        det_e = each_e_l.find("field-formatter", attrs={'class': "ng-star-inserted"}).get_text()
+                        data_dict['comp_website_cb'] = det_e.strip()
                     #
                     # det_e = each_e_l.find("span",attrs={'class': "component--field-formatter"}).get_text()
                     # print(det_e.strip())
+
 
                 elif('label-with-info' in str(each_e_l)):
 
@@ -168,8 +211,9 @@ def scrape_cb(url):
                     tag_e = tag_e.replace(" ","_").strip()
 
                     if('Headquarters_Location' in tag_e):
-                        tag_e = 'comp_headquaters_cb'
-                        data_dict[tag_e] = det_e
+                        if('comp_headquaters_cb' not in data_dict.keys()):
+                            tag_e = 'comp_headquaters_cb'
+                            data_dict[tag_e] = det_e
                     tag_e = tag_e+'_cb'
                     if ('facebook' in det_e.lower()):
                         # print(each_det)
@@ -224,8 +268,23 @@ def scrape_cb(url):
         if('comp_headquaters_cb' in data_dict.keys()):
             head_q = data_dict['comp_headquaters_cb']
         # if (c_name != ''): data_dict['comp_headquaters_cb'] = head_q
+        verified_bool = False
+        if ('comp_website_cb' in data_dict.keys()):
+            if (data_dict['comp_website_cb'] in comp_name):
+                print('cb site verified 100',)
+                verified_bool = True
+            elif(cp_name in data_dict['comp_website_cb']):
+                print('cb site verified 80')
+                verified_bool = True
+            elif('.' in cp_name):
+                if(cp_name.split('.')[1] in data_dict['comp_website_cb']):
+                    print('cb site verified 80')
+                    verified_bool = True
+            else:
+                print('not verified')
+                verified_bool = False
 
-        # print(data_dict)
+        print(data_dict)
 
         if(c_name=='List Australia'):
             print('wrong crunchbase profile found list australia')
@@ -236,7 +295,10 @@ def scrape_cb(url):
         if(len(head_q)):
             if(not isvalid_hq(head_q)):
                 print('wrong crunchbase profile found hq',head_q)
-                return {}
+                if(verified_bool):
+                    return 'verified'
+                else:
+                    return {}
 
         # print(len(tags),len(details))
         # if(len(tags)==len(details)):
@@ -251,7 +313,15 @@ def scrape_cb(url):
     except Exception as e:
         print("Exception Occured!", e)
         return 'error'
-# scrape_cb('https://www.crunchbase.com/organization/scrim-safety-first')
+# scrape_cb('https://www.crunchbase.com/organization/baker-hughes','https://www.bakerhughes.com/','bakerhughes')
+def adding_ig(id_list):
+
+    mycol = refer_collection()
+    for id_a in id_list:
+        entry = mycol.find({"_id": id_a})
+        data = [d for d in entry]
+        print(data[0]['_id'])
+        mycol.update_one({'_id': id_a}, {'$set': {'ignore_flag': '1'}})
 def get_cb_data(id_list):
     mycol = refer_collection()
     for entry_id in id_list:
@@ -259,13 +329,14 @@ def get_cb_data(id_list):
         comp_data_entry = mycol.find({"_id": entry_id})
         data = [i for i in comp_data_entry]
         try:
-            comp_name = data[0]['comp_name']
+            comp_name = data[0]['link']
             print(data[0]['comp_name'])
             sr = getGoogleLinksForSearchText(comp_name + " australia crunchbase", 5, 'normal')
             if(len(sr)==0):
                 sr = getGoogleLinksForSearchText(comp_name + " australia crunchbase", 5, 'normal')
                 if (len(sr) == 0):
                     sr = getGoogleLinksForSearchText(comp_name + " australia crunchbase", 5, 'normal')
+            print(sr)
             if (sr == 'captcha'):
                 print("captcha occured..try again! waiting 2 minutes")
                 time.sleep(120)
@@ -281,7 +352,7 @@ def get_cb_data(id_list):
                         filtered_li.append(p['link'])
                 if (len(filtered_li)):
                     print(filtered_li[0])
-                    data_dict_cb = scrape_cb(filtered_li[0])
+                    data_dict_cb = scrape_cb(filtered_li[0],comp_name,data[0]['comp_name'])
                     if (data_dict_cb == 'error'):
                         print("Error Occured!..Try again")
                     elif (len(data_dict_cb.keys())):
@@ -315,9 +386,10 @@ def get_cb_data_via_queue():
             entry_id = ObjectId(row[0])
 
             comp_data_entry = mycol.find({"_id": entry_id})
-            data = [i for i in comp_data_entry]
+
             try:
-                comp_name = data[0]['comp_name']
+                data = [i for i in comp_data_entry]
+                comp_name = data[0]['link']
                 print(data[0]['comp_name'])
                 sr = getGoogleLinksForSearchText(comp_name + " australia crunchbase", 5, 'normal')
                 if (len(sr) == 0):
@@ -336,11 +408,14 @@ def get_cb_data_via_queue():
                     # time.sleep(120)
                 elif (sr == 'error'):
                     print("Browser error occured at getting links..try again!")
+
+
                 else:
+                    entry_id_list = [entry_id]
                     filtered_li = []
                     for p in sr:
                         # print(p['link'])
-                        if ('list-australia' in p['link'] or 'bayer-ag-germany' in p['link'] or 'facebook' in p['link'] or 'linkedin' in p['link']):
+                        if ('list-australia' in p['link'] or 'technology-one' in p['link'] or 'bayer-ag-germany' in p['link'] or 'facebook' in p['link'] or 'linkedin' in p['link'] or '/people' in p['link']):
                             continue
                         elif 'www.crunchbase.com/organization' in p['link']:
                             filtered_li.append(p['link'])
@@ -354,9 +429,18 @@ def get_cb_data_via_queue():
                             filtered_li[0] = filtered_li[0].split('/timeline')[0]
                         if ('/company_overview' in filtered_li[0]):
                             filtered_li[0] = filtered_li[0].split('/company_overview')[0]
-                        data_dict_cb = scrape_cb(filtered_li[0])
+                        data_dict_cb = scrape_cb(filtered_li[0],comp_name,data[0]['comp_name'])
                         if (data_dict_cb == 'error'):
                             print("Error Occured!..Try again")
+                        elif (data_dict_cb == 'verified'):
+                            print("This is a Offshore company..Will not continue for deep crawling!")
+                            print("Set ignore flag")
+                            adding_ig([entry_id])
+                            print("Successfully extended the data entry with crunchbase profile information", entry_id)
+                            cb_client.delete_message(msg)
+                            mycol.update_one({'_id': entry_id},
+                                             {'$set': {'crunchbase_extraction_state': 'Completed'}})
+
                         elif (len(data_dict_cb.keys())):
                             mycol.update_one({'_id': entry_id},
                                              {'$set': data_dict_cb})
@@ -364,21 +448,124 @@ def get_cb_data_via_queue():
                             cb_client.delete_message(msg)
                             mycol.update_one({'_id': entry_id},
                                              {'$set': {'crunchbase_extraction_state': 'Completed'}})
+
+                            print("Adding to deep_crawling_chain(deep_crawling,feature_extraction,classification_model)")
+
+                            add_to_deep_crawling_queue(entry_id_list)
+                            print("Adding to Owler QA extraction queue")
+                            add_to_qa_queue(entry_id_list)
+                            print("Adding to google contact person extraction queue")
+                            add_to_cp_queue(entry_id_list)
+                            print("Adding to Opencorporates extraction queue")
+                            add_to_oc_queue(entry_id_list)
+                            print("Adding to google address extraction queue")
+                            add_to_ad_queue(entry_id_list)
+                            print("Adding to DNB extraction queue")
+                            add_to_dnb_queue(entry_id_list)
+                            print("Adding to google tp extraction queue")
+                            add_to_tp_queue(entry_id_list)
+                            # print("Adding to Avention extraction queue")
+                            # add_to_avention_queue(entry_id_list)
+
+                            print("Adding to linkedin cp extraction queue")
+                            add_to_li_cp_queue(entry_id_list)
+                            print("Adding to simplified dump queue")
+                            add_to_simplified_export_queue(entry_id_list)
+
+
+
+
                         else:
-                            print("No crunchbase profile found! dict is empty")
+                            print("Wrong crunchbase profile found and not verified! dict is empty")
                             cb_client.delete_message(msg)
                             mycol.update_one({'_id': entry_id},
                                              {'$set': {'crunchbase_extraction_state': 'Completed'}})
+
+                            print(
+                                "Adding to deep_crawling_chain(deep_crawling,feature_extraction,classification_model)")
+                            add_to_deep_crawling_queue(entry_id_list)
+                            print("Adding to Owler QA extraction queue")
+                            add_to_qa_queue(entry_id_list)
+                            print("Adding to google contact person extraction queue")
+                            add_to_cp_queue(entry_id_list)
+                            print("Adding to Opencorporates extraction queue")
+                            add_to_oc_queue(entry_id_list)
+                            print("Adding to google address extraction queue")
+                            add_to_ad_queue(entry_id_list)
+                            print("Adding to DNB extraction queue")
+                            add_to_dnb_queue(entry_id_list)
+                            print("Adding to google tp extraction queue")
+                            add_to_tp_queue(entry_id_list)
+                            # print("Adding to Avention extraction queue")
+                            # add_to_avention_queue(entry_id_list)
+
+                            print("Adding to linkedin cp extraction queue")
+                            add_to_li_cp_queue(entry_id_list)
+                            print("Adding to simplified dump queue")
+                            add_to_simplified_export_queue(entry_id_list)
+
+
+
+
 
                     else:
                         print("No crunchbase links found!")
                         cb_client.delete_message(msg)
                         mycol.update_one({'_id': entry_id},
                                          {'$set': {'crunchbase_extraction_state': 'Completed'}})
+
+                        print(
+                            "Adding to deep_crawling_chain(deep_crawling,feature_extraction,classification_model)")
+                        add_to_deep_crawling_queue(entry_id_list)
+                        print("Adding to Owler QA extraction queue")
+                        add_to_qa_queue(entry_id_list)
+                        print("Adding to google contact person extraction queue")
+                        add_to_cp_queue(entry_id_list)
+                        print("Adding to Opencorporates extraction queue")
+                        add_to_oc_queue(entry_id_list)
+                        print("Adding to google address extraction queue")
+                        add_to_ad_queue(entry_id_list)
+                        print("Adding to DNB extraction queue")
+                        add_to_dnb_queue(entry_id_list)
+                        print("Adding to google tp extraction queue")
+                        add_to_tp_queue(entry_id_list)
+                        # print("Adding to Avention extraction queue")
+                        # add_to_avention_queue(entry_id_list)
+
+                        print("Adding to linkedin cp extraction queue")
+                        add_to_li_cp_queue(entry_id_list)
+                        print("Adding to simplified dump queue")
+                        add_to_simplified_export_queue(entry_id_list)
+
+
+
+
+
+            except pymongo.errors.ServerSelectionTimeoutError:
+
+
+                serviceName = "MongoDB"
+
+
+                # start the service
+                args = ['sc', 'start', serviceName]
+                result = subprocess.run(args)
+                # stop the service
+                # args[1] = 'stop'
+                # result = subprocess.run(args)
+                print("pymongo error")
+            except KeyError as e:
+                print('Project is not yet ready',e)
+            except IndexError as e:
+                print('Yet project entry not available')
+            except Exception as e:
+                print("Exception Occured during dumping ",e)
             except IndexError:
                 print("No crunchbase profile found! index error")
             except KeyError:
                 print("No crunchbase profile found! key error")
+
+
 
 def add_to_cb_queue(id_list):
     mycol = refer_collection()

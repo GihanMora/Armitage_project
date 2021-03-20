@@ -4,6 +4,7 @@ import sys
 import threading
 import time
 
+import pymongo
 from azure.storage.queue import QueueClient
 from bson import ObjectId
 #fix this path variable when using in another machine
@@ -26,7 +27,7 @@ from datetime import datetime
 from multiprocessing import Process
 from Simplified_System.Initial_Crawling.main import search_a_company,search_a_query,search_a_company_alpha,update_a_company
 from Simplified_System.Deep_Crawling.main import deep_crawl,add_to_deep_crawling_queue,run_crawlers_via_queue_chain
-from Simplified_System.Database.db_connect import refer_collection,refer_query_col,simplified_export,simplified_export_via_queue,add_to_simplified_export_queue,refer_projects_col
+from Simplified_System.Database.db_connect import refer_collection,refer_query_col,simplified_export,simplified_export_via_queue,add_to_simplified_export_queue,refer_projects_col,simplified_export_with_sources_and_confidence_via_queue,is_query_exist
 from Simplified_System.Feature_Extraction.main import extract_features,extract_features_via_queue_chain
 from Classification.predict_class import predict_class_tags,predict_class_tags_via_queue
 from Simplified_System.web_profile_data_crawler.scrape_dnb import get_dnb_data,add_to_dnb_queue,get_dnb_data_via_queue
@@ -40,7 +41,7 @@ from Simplified_System.google_for_data.scrape_owler_data.owler_extractor import 
 from Simplified_System.google_for_data.get_li_employees.scrape_linkedin_employees import get_li_emp,add_to_li_cp_queue,get_li_emp_via_queue
 from Simplified_System.google_for_data.phone_number_extraction.get_tp_num import get_tp_from_google,add_to_tp_queue,get_tp_from_google_via_queue
 from Simplified_System.end_to_end.create_projects import get_projects_via_queue
-
+import subprocess
 
 
 
@@ -100,28 +101,49 @@ def query_state_update_via_queue():
             print('getting_id',row[0])
             entry_id = ObjectId(row[0])
             query_data_entry = query_collection.find({"_id": entry_id})
-            data = [i for i in query_data_entry]
+            all_entries = []
             #check_for_the_completion_of_components
             try:
+                data = [i for i in query_data_entry]
                 associated_entries = data[0]['associated_entries']
                 print('getting associated entries')
+
                 completed_count = 0
                 for each_entry_res in associated_entries:
                     res_entry = mycol.find({"_id": each_entry_res})
-                    # print("profile",each_entry_res)
                     data_res = [i for i in res_entry]
-                    if(data_res[0]['simplified_dump_state']=='Completed'):
-                        completed_count+=1
+                    if ('ignore_flag' in data_res[0].keys()):
+                        if (data_res[0]['ignore_flag'] == '0'):
+                            all_entries.append(each_entry_res)
+                            if('simplified_dump_state' in data_res[0].keys()):
+                                print(["profile", each_entry_res, data_res[0]['simplified_dump_state']])
 
+                                if(data_res[0]['simplified_dump_state']=='Completed'):
+                                    completed_count+=1
+                entry_count = len(all_entries)
                 print('completed_count',completed_count)
-                print('entry_count',data[0]['entry_count'])
+                # print('entry_count',data[0]['entry_count'])
+                print('entry_count', entry_count)
 
-                if(completed_count==data[0]['entry_count']):
+                # if(completed_count==data[0]['entry_count']):
+                if (completed_count == entry_count):
                     print("All the entries are completed for the query",completed_count)
                     query_collection.update_one({'_id': entry_id},
                                                {'$set': {'state':'Completed'}})
                     query_client.delete_message(msg)
+            except pymongo.errors.ServerSelectionTimeoutError:
 
+
+                serviceName = "MongoDB"
+
+
+                # start the service
+                args = ['sc', 'start', serviceName]
+                result = subprocess.run(args)
+                # stop the service
+                # args[1] = 'stop'
+                # result = subprocess.run(args)
+                print("pymongo error")
             except KeyError as e:
                 print('Query is not yet ready',e)
             except IndexError as e:
@@ -143,7 +165,7 @@ def project_state_update_via_queue():
 
     while (True):
         # print('*')
-        time.sleep(600)
+        time.sleep(300)
         rows = project_comp_client.receive_messages()
         for msg in rows:
             time.sleep(10)
@@ -152,23 +174,33 @@ def project_state_update_via_queue():
             print(row[0])
             entry_id = ObjectId(row[0])
             project_data_entry = proj_collection.find({"_id": entry_id})
-            data = [i for i in project_data_entry]
+
             #check_for_the_completion_of_components
             try:
+                data = [i for i in project_data_entry]
                 associated_queries = data[0]['associated_queries']
                 completed_count = 0
                 for each_query_res in associated_queries:
                     que_entry = query_collection.find({"_id": each_query_res})
                     data_res = [i for i in que_entry]
+                    # print(['query',each_query_res,data_res[0]['state']])
                     if(data_res[0]['state']=='Completed'):
                         completed_count+=1
                 print(['comp',completed_count,data[0]['query_count']])
-                if(completed_count==data[0]['query_count']):
+                if(completed_count>=data[0]['query_count']):
                     print("All the queries are completed for the project",completed_count)
                     proj_collection.update_one({'_id': entry_id},
                                                {'$set': {'state':'Completed'}})
                     project_comp_client.delete_message(msg)
-
+            except pymongo.errors.ServerSelectionTimeoutError:
+                serviceName = "MongoDB"
+                # start the service
+                args = ['sc', 'start', serviceName]
+                result = subprocess.run(args)
+                # stop the service
+                # args[1] = 'stop'
+                # result = subprocess.run(args)
+                print("pymongo error")
             except KeyError as e:
                 print('Project is not yet ready',e)
             except IndexError as e:
@@ -213,6 +245,8 @@ if __name__ == '__main__':
     p15.start()
     p16 = Process(target=query_state_update_via_queue)
     p16.start()
+    p17 = Process(target=simplified_export_with_sources_and_confidence_via_queue)
+    p17.start()
 
 
     connect_str = os.getenv('AZURE_STORAGE_CONNECTION_STRING')
@@ -220,9 +254,10 @@ if __name__ == '__main__':
     mycol = refer_collection()
     projects_col = refer_projects_col()
     while (True):
+        time.sleep(10)
         rows = ic_client.receive_messages()
         for msg in rows:
-            # time.sleep(120)
+            time.sleep(10)
             row = msg.content
             row = ast.literal_eval(row)
             print(row[0])
@@ -300,31 +335,44 @@ if __name__ == '__main__':
                 if mode == 'project':
                     id_split = s_text.strip().split("++")
                     project_id = ObjectId(id_split[1].strip())
-                    query = id_split[0].strip()
+                    query = id_split[0].strip().replace('”','').replace('“','')
+                    # print('QQQ',query)
+                    
                     print("Searching a query")
                     dateTimeObj = datetime.now()
                     query_collection = refer_query_col()
                     data_q = {'started_time_stamp': dateTimeObj, 'search_query': query, 'state':'incomplete'}
-                    record_entry = query_collection.insert_one(data_q)
-                    add_to_query_queue([record_entry.inserted_id])
+                    #check if query is already existing
+
+                    res_data = is_query_exist(query)
+                    if (len(res_data)):
+                        print("Query already existing at " + str(res_data[0]['_id']))
+                        query_id = ObjectId(res_data[0]['_id'])
+                    else:
+                        print("Query not existing")
+
+                        record_entry = query_collection.insert_one(data_q)
+                        add_to_query_queue([record_entry.inserted_id])
+                        query_id= record_entry.inserted_id
                     proj_data_entry = projects_col.find({"_id": project_id})
                     proj_data = [i for i in proj_data_entry]
                     proj_attribute_keys = list(proj_data[0].keys())
                     if ('associated_queries' in proj_attribute_keys):
-                        projects_col.update_one({'_id': project_id},
-                                                    {'$set': {'associated_queries': proj_data[0]['associated_queries'] + [record_entry.inserted_id]}})
+                        if(query_id not in proj_data[0]['associated_queries']):
+                            projects_col.update_one({'_id': project_id},
+                                                        {'$set': {'associated_queries': proj_data[0]['associated_queries'] + [query_id]}})
                     else:
                         projects_col.update_one({'_id': project_id},
-                                                    {'$set': {'associated_queries': [record_entry.inserted_id]}})
+                                                        {'$set': {'associated_queries': [query_id]}})
 
                     print("Started on", dateTimeObj)
                     started = time.time()
                     print("***Initial Crawling Phrase***")
-                    entry_id_list = search_a_query(query, 100, mycol, record_entry.inserted_id)
+                    entry_id_list = search_a_query(query, 100, mycol, query_id)
                     if (entry_id_list == None):
                         for i in range(3):
                             print("Initial crawling incomplete..retrying", i)
-                            entry_id_list = search_a_query(query, 100, mycol, record_entry.inserted_id)
+                            entry_id_list = search_a_query(query, 100, mycol, query_id)
                             time.sleep(5)
                             if (entry_id_list != None): break
                     if (entry_id_list == None):
@@ -334,41 +382,46 @@ if __name__ == '__main__':
                     else:
                         entry_id_list = [ObjectId(k) for k in entry_id_list]
 
-                        qq_data_entry = query_collection.find({"_id": record_entry.inserted_id})
+                        qq_data_entry = query_collection.find({"_id": query_id})
                         qq_data = [i for i in qq_data_entry]
                         qq_attribute_keys = list(qq_data[0].keys())
                         if ('associated_entries' in qq_attribute_keys):
-                            query_collection.update_one({'_id': record_entry.inserted_id},
+                            query_collection.update_one({'_id': query_id},
                                                         {'$set': {'associated_entries': qq_data[0]['associated_entries']+entry_id_list}})
                         else:
-                            query_collection.update_one({'_id': record_entry.inserted_id},
+                            query_collection.update_one({'_id': query_id},
                                                         {'$set': {'associated_entries': entry_id_list}})
 
                         print("Initial crawling successful")
                         print("Dequeue message from initial crawling queue")
                         ic_client.delete_message(msg)
-                        print("Adding to deep_crawling_chain(deep_crawling,feature_extraction,classification_model)")
-                        add_to_deep_crawling_queue(entry_id_list)
-                        print("Adding to Owler QA extraction queue")
-                        add_to_qa_queue(entry_id_list)
-                        print("Adding to google contact person extraction queue")
-                        add_to_cp_queue(entry_id_list)
-                        print("Adding to Opencorporates extraction queue")
-                        add_to_oc_queue(entry_id_list)
-                        print("Adding to google address extraction queue")
-                        add_to_ad_queue(entry_id_list)
-                        print("Adding to DNB extraction queue")
-                        add_to_dnb_queue(entry_id_list)
-                        print("Adding to google tp extraction queue")
-                        add_to_tp_queue(entry_id_list)
-                        # print("Adding to Avention extraction queue")
-                        # add_to_avention_queue(entry_id_list)
-                        print("Adding to Crunchbase extraction queue")
-                        add_to_cb_queue(entry_id_list)
-                        print("Adding to linkedin cp extraction queue")
-                        add_to_li_cp_queue(entry_id_list)
-                        print("Adding to simplified dump queue")
-                        add_to_simplified_export_queue(entry_id_list)
+
+                        # print("Adding to Crunchbase extraction queue")
+                        # add_to_cb_queue(entry_id_list)
+
+
+
+                        # print("Adding to deep_crawling_chain(deep_crawling,feature_extraction,classification_model)")
+                        # add_to_deep_crawling_queue(entry_id_list)
+                        # print("Adding to Owler QA extraction queue")
+                        # add_to_qa_queue(entry_id_list)
+                        # print("Adding to google contact person extraction queue")
+                        # add_to_cp_queue(entry_id_list)
+                        # print("Adding to Opencorporates extraction queue")
+                        # add_to_oc_queue(entry_id_list)
+                        # print("Adding to google address extraction queue")
+                        # add_to_ad_queue(entry_id_list)
+                        # print("Adding to DNB extraction queue")
+                        # add_to_dnb_queue(entry_id_list)
+                        # print("Adding to google tp extraction queue")
+                        # add_to_tp_queue(entry_id_list)
+                        # # print("Adding to Avention extraction queue")
+                        # # add_to_avention_queue(entry_id_list)
+                        #
+                        # print("Adding to linkedin cp extraction queue")
+                        # add_to_li_cp_queue(entry_id_list)
+                        # print("Adding to simplified dump queue")
+                        # add_to_simplified_export_queue(entry_id_list)
 
                 elif mode == 'comp':
 
@@ -403,31 +456,44 @@ if __name__ == '__main__':
                         print("Initial crawling successful")
                         print("Dequeue message from initial crawling queue")
                         ic_client.delete_message(msg)
-                        print("Adding to deep_crawling_chain(deep_crawling,feature_extraction,classification_model)")
-                        add_to_deep_crawling_queue([ObjectId(entry_id)])
-                        print("Adding to Owler QA extraction queue")
-                        add_to_qa_queue([ObjectId(entry_id)])
-                        print("Adding to google contact person extraction queue")
-                        add_to_cp_queue([ObjectId(entry_id)])
-                        print("Adding to Opencorporates extraction queue")
-                        add_to_oc_queue([ObjectId(entry_id)])
-                        print("Adding to google address extraction queue")
-                        add_to_ad_queue([ObjectId(entry_id)])
-                        print("Adding to DNB extraction queue")
-                        add_to_dnb_queue([ObjectId(entry_id)])
-                        print("Adding to google tp extraction queue")
-                        add_to_tp_queue([ObjectId(entry_id)])
+                        # print("Adding to deep_crawling_chain(deep_crawling,feature_extraction,classification_model)")
+                        # add_to_deep_crawling_queue([ObjectId(entry_id)])
+                        # print("Adding to Owler QA extraction queue")
+                        # add_to_qa_queue([ObjectId(entry_id)])
+                        # print("Adding to google contact person extraction queue")
+                        # add_to_cp_queue([ObjectId(entry_id)])
+                        # print("Adding to Opencorporates extraction queue")
+                        # add_to_oc_queue([ObjectId(entry_id)])
+                        # print("Adding to google address extraction queue")
+                        # add_to_ad_queue([ObjectId(entry_id)])
+                        # print("Adding to DNB extraction queue")
+                        # add_to_dnb_queue([ObjectId(entry_id)])
+                        # print("Adding to google tp extraction queue")
+                        # add_to_tp_queue([ObjectId(entry_id)])
                         # print("Adding to Avention extraction queue")
                         # add_to_avention_queue([ObjectId(entry_id)])
                         print("Adding to Crunchbase extraction queue")
                         add_to_cb_queue([ObjectId(entry_id)])
-                        print("Adding to linkedin cp extraction queue")
-                        add_to_li_cp_queue([ObjectId(entry_id)])
-                        print("Adding to simplified dump queue")
-                        add_to_simplified_export_queue([ObjectId(entry_id)])
+                        # print("Adding to linkedin cp extraction queue")
+                        # add_to_li_cp_queue([ObjectId(entry_id)])
+                        # print("Adding to simplified dump queue")
+                        # add_to_simplified_export_queue([ObjectId(entry_id)])
 
                 else:
                     print("Mode did not recognized!")
+            except pymongo.errors.ServerSelectionTimeoutError:
+
+
+                serviceName = "MongoDB"
+
+
+                # start the service
+                args = ['sc', 'start', serviceName]
+                result = subprocess.run(args)
+                # stop the service
+                # args[1] = 'stop'
+                # result = subprocess.run(args)
+                print("pymongo error")
             except IndexError:
                 print("Query is not in required format")
 

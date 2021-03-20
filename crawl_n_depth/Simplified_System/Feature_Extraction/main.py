@@ -57,6 +57,12 @@ def extract_features_via_queue():
             row = ast.literal_eval(row)
             print(row[0])
             each_entry = ObjectId(row[0])
+            if(row[0]=='6007bb783814a82c06aaf7b0'):
+                print('skip this')
+                f_e_client.delete_message(msg)
+                my_col.update_one({'_id': each_entry},
+                                  {'$set': {'feature_extraction_state': 'Completed'}})
+
             try:
                 #run_lda_model(id of data entry,number_of_topics)
                 run_lda_model(each_entry,10)#run LDA
@@ -144,4 +150,4 @@ left_set = [item for item in all_ids_fixed if item not in edu_set]
 # inc [ObjectId('5f6b55b276b9c3d24f773d28')]
 # add_to_f_e_queue([ObjectId('5f6b55b276b9c3d24f773d28')])
 # extract_features_via_queue()
-# extract_features([ObjectId('5ea804ee5b0e26df3ca14848')])
+# extract_features([ObjectId('6007bb783814a82c06aaf7b0')])

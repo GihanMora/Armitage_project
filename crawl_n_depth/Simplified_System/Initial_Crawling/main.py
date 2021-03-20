@@ -8,13 +8,14 @@ from os.path import dirname as up
 three_up = up(up(up(__file__)))
 sys.path.insert(0, three_up)
 from Simplified_System.Initial_Crawling.get_n_search_results import getGoogleLinksForSearchText
+from Simplified_System.web_profile_data_crawler.scrape_crunchbase import add_to_cb_queue
 
 import csv
 import json
 import os
 import time
 import pymongo
-from Simplified_System.Database.db_connect import refer_collection,is_profile_exist,refer_query_col
+from Simplified_System.Database.db_connect import refer_collection,is_profile_exist,refer_query_col,is_profile_exist_by_domain
 # from ..Database.db_connect import refer_collection
 
 def search_a_company_alpha(comp_name, db_collection, query_entry,c_name):
@@ -104,7 +105,7 @@ def search_a_company(comp_name, db_collection, query_entry):
             if(len(res_data)):
                 print("Profile "+filtered_sr[0]['link']+" already existing at "+str(res_data[0]['_id']))
                 print('writing data')
-                f = open('results.txt','a+',encoding='utf-8')
+                f = open('results_new_run.txt','a+',encoding='utf-8')
                 f.write(str(comp_name)+'_existing_'+str(res_data[0]['_id'])+'\n')
                 f.close()
                 query_collection = refer_query_col()
@@ -140,7 +141,7 @@ def search_a_company(comp_name, db_collection, query_entry):
             print(filtered_sr[0])
             print("search record stored in db: ",record_entry.inserted_id)
             f = open(
-                'results.txt',
+                'results_new_run.txt',
                 'a+', encoding='utf-8')
             f.write(str(comp_name) + '_new_' + str(record_entry.inserted_id) + '\n')
             f.close()
@@ -276,6 +277,35 @@ def search_a_query(search_query,number_of_results,db_collection,query_entry):
                     continue
                 if (('.gov.' in received_domains[k]) or ('org' in received_domains[k]) or ('.govt.' in received_domains[k]) or ('.edu.' in received_domains[k]) or ('.uk' in received_domains[k]) ):  # filter non wanted websites
                     continue
+
+                print([k,'out of',len(received_domains)])
+                #try to filter in earlier level to minimize the time
+                checked_doms = is_profile_exist_by_domain(received_domains[k])
+                if (len(checked_doms)):
+                    print("Profile " + received_domains[k] + " already existing at " + str(checked_doms[0]['_id'])+ ' checked by domain')
+                    already_existing_count += 1
+                    # updating associates
+
+                    qq_data_entry = query_collection.find({"_id": query_entry})
+                    qq_data = [i for i in qq_data_entry]
+                    qq_attribute_keys = list(qq_data[0].keys())
+                    if ('associated_entries' in qq_attribute_keys):
+                        print('in main', )
+                        query_collection.update_one({'_id': query_entry},
+                                                    {'$set': {
+                                                        'associated_entries': qq_data[0]['associated_entries'] +
+                                                                              [checked_doms[0]['_id']]}})
+                    else:
+                        query_collection.update_one({'_id': query_entry},
+                                                    {'$set': {'associated_entries': [checked_doms[0]['_id']]}})
+                    continue
+
+
+
+
+
+
+
                 sr = getGoogleLinksForSearchText(received_domains[k], 3, 'initial')
                 if (len(sr) == 0):
                     sr = getGoogleLinksForSearchText(received_domains[k], 3, 'initial')
@@ -326,6 +356,10 @@ def search_a_query(search_query,number_of_results,db_collection,query_entry):
 
                     record_entry = db_collection.insert_one(sr[0])
                     print("search record stored in db: ", record_entry.inserted_id)
+
+                    #also adding to the crunchbase
+                    print("Adding to the crunchbase queue")
+                    add_to_cb_queue([ObjectId(record_entry.inserted_id)])
                     ids_list.append(record_entry.inserted_id)
                 else:
                     print("Cannot find results, skipping company")

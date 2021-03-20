@@ -1,5 +1,6 @@
 
 import sys
+import urllib.parse
 
 from os.path import dirname as up
 
@@ -15,9 +16,9 @@ sys.path.insert(0, three_up)
 #     link_list.append(k.strip())
 
 def refer_collection():
-  myclient = pymongo.MongoClient("mongodb://localhost:27017/")
-  # myclient = pymongo.MongoClient(
-  #     "mongodb+srv://gatekeeper:oMBipAi6zLkme3e9@armitage-i0o8u.mongodb.net/test?retryWrites=true&w=majority")
+  # myclient = pymongo.MongoClient("mongodb://localhost:27017/")
+  myclient = pymongo.MongoClient(
+      "mongodb+srv://user_gihan:" + urllib.parse.quote("Gihan1@uom") + "@armitage.bw3vp.mongodb.net/test?retryWrites=true&w=majority")
   # mydb = myclient["CompanyDatabase"]  # creates a database
   mydb = myclient["miner"]  # creates a database
 

@@ -17,7 +17,7 @@ from datetime import datetime
 from multiprocessing import Process
 from Simplified_System.Initial_Crawling.main import search_a_company,search_a_query,search_a_company_alpha,update_a_company
 from Simplified_System.Deep_Crawling.main import deep_crawl,add_to_deep_crawling_queue,run_crawlers_via_queue_chain
-from Simplified_System.Database.db_connect import refer_collection,refer_query_col,simplified_export,simplified_export_via_queue,add_to_simplified_export_queue,refer_projects_col
+from Simplified_System.Database.db_connect import refer_collection,refer_query_col,simplified_export,simplified_export_via_queue,add_to_simplified_export_queue,refer_projects_col,simplified_export_with_sources_and_confidence
 from Simplified_System.Feature_Extraction.main import extract_features,extract_features_via_queue_chain
 from Classification.predict_class import predict_class_tags,predict_class_tags_via_queue
 from Simplified_System.web_profile_data_crawler.scrape_dnb import get_dnb_data,add_to_dnb_queue,get_dnb_data_via_queue
@@ -58,13 +58,15 @@ def get_entries_project(project_id):
                 associated_entries = query_data[0]['associated_entries']
                 # print('kk',associated_entries)
                 obs_ids = [ObjectId(i) for i in associated_entries]
-                all_entires.extend(obs_ids)
+
 
                 for k in obs_ids:
                     prof_data_entry = profile_col.find({"_id": k})
                     # print('proj', proj_data_entry)
                     prof_data = [i for i in prof_data_entry]
                     prof_attribute_keys = list(prof_data[0].keys())
+                    if(prof_data[0]['ignore_flag']=='1'):continue
+                    all_entires.extend([k])
 
                     if ('simplified_dump_state' in prof_attribute_keys):
                         if(prof_data[0]['simplified_dump_state']=='Completed'):
@@ -93,7 +95,7 @@ def get_entries_project(project_id):
         print('incomplete_count',incomplete_count)
         print('incompletes',list(set(incompletes)))
         print('problems',list(set(problems)))
-        print('all',all_entires)
+        print('all',list(set(all_entires)))
         return {'incompletes':list(set(incompletes)),'problems':list(set(problems))}
         # all_entires = list(set(all_entires))m
         # return all_entires
@@ -232,6 +234,145 @@ def repair_wanted_parts(entry_id_list):
             add_to_simplified_export_queue([k])
 
 
+def repair_wanted_parts_updated(entry_id_list):
+    profile_col = refer_collection()
+    for k in entry_id_list:
+        print('*****************')
+        prof_data_entry = profile_col.find({"_id": k})
+        # print('proj', proj_data_entry)
+        prof_data = [i for i in prof_data_entry]
+        prof_attribute_keys = list(prof_data[0].keys())
+
+        if ('crunchbase_extraction_state' in prof_attribute_keys):
+            if (prof_data[0]['crunchbase_extraction_state'] == 'Completed'):
+                print('crunchbase_extraction_state_already_done')
+                if ('deep_crawling_state' in prof_attribute_keys):
+                    print('yes')
+                    if (prof_data[0]['deep_crawling_state'] == 'Completed'):
+                        print('deep_crawling_state_already_done')
+                    else:
+                        add_to_deep_crawling_queue([k])
+                else:
+                    add_to_deep_crawling_queue([k])
+                if ('feature_extraction_state' in prof_attribute_keys):
+                    if (prof_data[0]['feature_extraction_state'] == 'Completed'):
+                        print('feature_extraction_state_already_done')
+                    else:
+                        add_to_deep_crawling_queue([k])
+                else:
+                    add_to_deep_crawling_queue([k])
+                    #
+                if ('classification_state' in prof_attribute_keys):
+                    if (prof_data[0]['classification_state'] == 'Completed'):
+                        print('classification_state_already_done')
+                    else:
+                        add_to_deep_crawling_queue([k])
+                else:
+                    add_to_deep_crawling_queue([k])
+
+                if ('owler_qa_state' in prof_attribute_keys):
+                    if (prof_data[0]['owler_qa_state'] == 'Completed'):
+                        print('owler_qa_state_already_done')
+                    else:
+                        print("Adding to Owler QA extraction queue")
+                        add_to_qa_queue([k])
+                else:
+                    print("Adding to Owler QA extraction queue")
+                    add_to_qa_queue([k])
+
+                if ('google_cp_state' in prof_attribute_keys):
+                    if (prof_data[0]['google_cp_state'] == 'Completed'):
+                        print('google_cp_state_already_done')
+                    else:
+                        print("Adding to google contact person extraction queue")
+                        add_to_cp_queue([k])
+                else:
+                    print("Adding to google contact person extraction queue")
+                    add_to_cp_queue([k])
+
+                if ('oc_extraction_state' in prof_attribute_keys):
+                    if (prof_data[0]['oc_extraction_state'] == 'Completed'):
+                        print('oc_extraction_state_already_done')
+                    else:
+                        print("Adding to Opencorporates extraction queue")
+                        add_to_oc_queue([k])
+                else:
+                    print("Adding to Opencorporates extraction queue")
+                    add_to_oc_queue([k])
+
+                if ('google_address_state' in prof_attribute_keys):
+                    if (prof_data[0]['google_address_state'] == 'Completed'):
+                        print('google_address_state_already_done')
+                    else:
+                        print("Adding to google address extraction queue")
+                        add_to_ad_queue([k])
+                else:
+                    print("Adding to google address extraction queue")
+                    add_to_ad_queue([k])
+
+                if ('dnb_extraction_state' in prof_attribute_keys):
+                    if (prof_data[0]['dnb_extraction_state'] == 'Completed'):
+                        print('dnb_extraction_state_already_done')
+                    else:
+                        print("Adding to DNB extraction queue")
+                        add_to_dnb_queue([k])
+                else:
+                    print("Adding to DNB extraction queue")
+                    add_to_dnb_queue([k])
+
+                    #
+                if ('google_tp_state' in prof_attribute_keys):
+                    if (prof_data[0]['google_tp_state'] == 'Completed'):
+                        print('google_tp_state_already_done')
+                    else:
+                        print("Adding to google tp extraction queue")
+                        add_to_tp_queue([k])
+                else:
+                    print("Adding to google tp extraction queue")
+                    add_to_tp_queue([k])
+                    #
+                    #
+
+                    #
+                    #
+                if ('li_cp_state' in prof_attribute_keys):
+                    if (prof_data[0]['li_cp_state'] == 'Completed'):
+                        print('li_cp_state_already_done')
+                    else:
+                        print("Adding to linkedin cp extraction queue")
+                        add_to_li_cp_queue([k])
+                else:
+                    print("Adding to linkedin cp extraction queue")
+                    add_to_li_cp_queue([k])
+                    #
+                    #
+                    #
+                    #
+                if ('simplified_dump_state' in prof_attribute_keys):
+                    if (prof_data[0]['simplified_dump_state'] == 'Completed'):
+                        print('simplified_dump_state already_done')
+                    else:
+                        print("Adding to simplified dump queue")
+                        add_to_simplified_export_queue([k])
+                else:
+                    print("Adding to simplified dump queue")
+                    add_to_simplified_export_queue([k])
+
+
+
+
+
+
+
+            else:
+                print("Adding to Crunchbase extraction queue")
+                add_to_cb_queue([k])
+        else:
+            print("Adding to Crunchbase extraction queue")
+            add_to_cb_queue([k])
+
+
+
 
 
 def repair_profiles(entry_id_list):
@@ -273,14 +414,11 @@ tt = [ObjectId('5fd350da6a3da8afb04a94d1'), ObjectId('5f7b1412c0092b71a2c6daf1')
 def repair_projects_wanted_parts(project_id_list):
     for each_id in project_id_list:
         out_dict = get_entries_project(each_id)
-        problematic_profiles = out_dict['problems']
-        repair_wanted_parts(problematic_profiles)
-
-# 5fe094ab451c112686f29fd1
-# 5fe094ae451c112686f29fd3
-# 5fe094b1451c112686f29fd5
-# 5fe094b4451c112686f29fd7
-# repair_projects_wanted_parts([ObjectId('5fe094ab451c112686f29fd1')])
+        # problematic_profiles = out_dict['problems']
+        # repair_wanted_parts_updated(problematic_profiles)
 
 
-# repair_wanted_parts([ObjectId('5fe28f8eea432c8f124c61df')])
+# repair_projects_wanted_parts([ObjectId('604e4854edb24f74a2dc6c31')])
+# get_entries_project(ObjectId('602a9761b480ee114d7db900'))
+# repair_wanted_parts_updated([ObjectId('604ee3b78cbff43562f567d3'), ObjectId('604ee26b8cbff43562f567c2'), ObjectId('604ee3808cbff43562f567d0'), ObjectId('604ee3498cbff43562f567cd'), ObjectId('604ee2b88cbff43562f567c5'), ObjectId('602f9b7b7ba8308c59e0f51b'), ObjectId('604f0d5c43bf215786725d61')]
+# )

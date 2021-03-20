@@ -31,7 +31,7 @@ def use_chrome():
     userAgent = ua.random #get a random user agent
     options = webdriver.ChromeOptions()  # use headless version of chrome to avoid getting blocked
     options.add_argument('headless')
-    options.add_argument(f'user-agent={userAgent}')
+    # options.add_argument(f'user-agent={userAgent}')
     options.add_argument('--no-sandbox')
     # options.add_argument("start-maximized")# // open Browser in maximized mode
     # options.add_argument("disable-infobars")# // disabling infobars
@@ -80,6 +80,7 @@ def getGoogleLinksForSearchText(searchText,number_of_results,mode):#given a sear
         browser.get(searchGoogle)
         time.sleep(5)
         pageSource = browser.page_source
+        # print(pageSource)
         browser.quit()
 
         soup = BeautifulSoup(pageSource, 'html.parser')#bs4
@@ -95,8 +96,9 @@ def getGoogleLinksForSearchText(searchText,number_of_results,mode):#given a sear
             time.sleep(count * 120)
             browser = use_chrome()#get a chrome instance
             browser.get(searchGoogle)
-            time.sleep(5)
+
             pageSource = browser.page_source
+            time.sleep(5)
             browser.quit()
             soup = BeautifulSoup(pageSource, 'html.parser')#bs4
             is_captcha_on_page = soup.find("div", id="recaptcha") is not None

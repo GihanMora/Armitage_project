@@ -68,6 +68,7 @@ def scrape_cp_from_google(company_name,role):
         browser.get(searchGoogle)
         time.sleep(5)
         pageSource = browser.page_source
+        # print(pageSource)
         time.sleep(5)
         browser.close()
         browser.quit()
@@ -79,10 +80,11 @@ def scrape_cp_from_google(company_name,role):
         print(searchGoogle)
 
         panels = soup.find_all('div', attrs={'class': 'kp-blk c2xzTb Wnoohf OJXvsb'})
+        print(panels)
         for each_pan in panels:
             descriptions = each_pan.find_all('div', attrs={'class': 'LGOjhe'})
             cp_names = each_pan.find_all('div',attrs={'class':"Z0LcW XcVN5d AZCkJd"})
-            sources_r = each_pan.find('div', attrs={'class': 'rc'})
+            sources_r = each_pan.find('div', attrs={'class': 'yuRUbf'})
             print(descriptions,cp_names,sources_r)
             print('des',descriptions)
             print('cp_names',cp_names)
@@ -200,7 +202,7 @@ def get_cp_from_google_via_queue():
         time.sleep(10)
         rows = cp_client.receive_messages()
         for msg in rows:
-            time.sleep(120)
+            # time.sleep(60)
             row = msg.content
             row = ast.literal_eval(row)
             print(row[0],'google cp')
@@ -258,3 +260,5 @@ left_set = [item for item in all_ids_fixed if item not in edu_set]
 
 # add_to_cp_queue(left_set[:2])
 # get_cp_from_google_via_queue()
+
+# print(scrape_cp_from_google('canva','CEO'))

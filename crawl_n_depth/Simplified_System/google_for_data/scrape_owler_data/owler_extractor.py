@@ -179,7 +179,7 @@ def scrape_qa_from_google(company_name):
             browser.close()
             browser.quit()
         return 'error'
-# print(scrape_qa_from_google('coles'))
+# print(scrape_qa_from_google('reb'))
 
 def get_qa_from_google(id_list):
     # mycol = refer_collection()

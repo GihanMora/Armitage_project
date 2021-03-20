@@ -3,24 +3,25 @@
 #check mongo client string
 #dump csv path
 import csv
+import urllib.parse
 
 import pymongo
 from bson import ObjectId
 
 
+
 def refer_simplified_dump_col_min():
-    myclient = pymongo.MongoClient("mongodb://localhost:27017/")
-    # myclient = pymongo.MongoClient(
-    #     "mongodb+srv://gatekeeper:oMBipAi6zLkme3e9@armitage-i0o8u.mongodb.net/test?retryWrites=true&w=majority")
+    # myclient = pymongo.MongoClient("mongodb://localhost:27017/")
+    myclient = pymongo.MongoClient(
+        "mongodb+srv://user_gihan:" + urllib.parse.quote("Gihan1@uom") + "@armitage.bw3vp.mongodb.net/test?retryWrites=true&w=majority")
     # mydb = myclient["CompanyDatabase"]  # creates a database
     mydb = myclient["miner"]  # creates a database
     mycol = mydb["simplified_dump_min"]  # creates a collection
     return mycol
-
+#
 def refer_collection():
-  myclient = pymongo.MongoClient("mongodb://localhost:27017/")
-  # myclient = pymongo.MongoClient(
-  #     "mongodb+srv://gatekeeper:oMBipAi6zLkme3e9@armitage-i0o8u.mongodb.net/test?retryWrites=true&w=majority")
+  # myclient = pymongo.MongoClient("mongodb://localhost:27017/")
+  myclient = pymongo.MongoClient("mongodb+srv://user_gihan:" + urllib.parse.quote("Gihan1@uom") + "@armitage.bw3vp.mongodb.net/test?retryWrites=true&w=majority")
   # mydb = myclient["CompanyDatabase"]  # creates a database
   mydb = myclient["miner"]  # creates a database
 
