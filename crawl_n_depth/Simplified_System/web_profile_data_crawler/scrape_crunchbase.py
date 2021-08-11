@@ -115,7 +115,7 @@ from bs4 import BeautifulSoup as BS
 def scrape_cb(url,comp_name,cp_name):
     try:
         # print(url)
-        if((url == 'https://www.crunchbase.com/organization/emirates') or (url =='https://www.crunchbase.com/organization/technology-one')):
+        if((url == 'https://www.crunchbase.com/organization/kuka-robotics') or (url == 'https://www.crunchbase.com/organization/oo-com-au') or (url == 'https://www.crunchbase.com/organization/emirates') or (url =='https://www.crunchbase.com/organization/technology-one')):
             return {}
         data_dict = {}
         ua = UserAgent()
@@ -154,7 +154,8 @@ def scrape_cb(url,comp_name,cp_name):
             # return data_dict
         # print(soup)
         c_name,descrip,head_q = '','',''
-        c_name = soup.find("span",attrs={'class' :'profile-name'}).get_text()
+        # c_name = soup.find("span",attrs={'class' :'profile-name'}).get_text()
+        c_name = soup.find("h1", attrs={'class': 'profile-name'}).get_text()
         descrip = soup.find("description-card",attrs={'class' :'ng-star-inserted'}).get_text()
 
         # fields = soup.find("fields-card",attrs={'class' :'ng-star-inserted'})
@@ -308,11 +309,11 @@ def scrape_cb(url,comp_name,cp_name):
         # print('ss')
         print(data_dict)
         return data_dict
-    # except SyntaxError as e:
-    #     print('synt')
-    except Exception as e:
-        print("Exception Occured!", e)
-        return 'error'
+    except SyntaxError as e:
+        print('synt')
+    # except Exception as e:
+    #     print("Exception Occured!", e)
+    #     return 'error'
 # scrape_cb('https://www.crunchbase.com/organization/baker-hughes','https://www.bakerhughes.com/','bakerhughes')
 def adding_ig(id_list):
 
@@ -415,7 +416,7 @@ def get_cb_data_via_queue():
                     filtered_li = []
                     for p in sr:
                         # print(p['link'])
-                        if ('list-australia' in p['link'] or 'technology-one' in p['link'] or 'bayer-ag-germany' in p['link'] or 'facebook' in p['link'] or 'linkedin' in p['link'] or '/people' in p['link']):
+                        if ('list-australia' in p['link'] or 'technology-networks' in p['link'] or 'technology-one' in p['link'] or 'bayer-ag-germany' in p['link'] or 'facebook' in p['link'] or 'linkedin' in p['link'] or '/people' in p['link']):
                             continue
                         elif 'www.crunchbase.com/organization' in p['link']:
                             filtered_li.append(p['link'])
@@ -464,8 +465,8 @@ def get_cb_data_via_queue():
                             add_to_dnb_queue(entry_id_list)
                             print("Adding to google tp extraction queue")
                             add_to_tp_queue(entry_id_list)
-                            # print("Adding to Avention extraction queue")
-                            # add_to_avention_queue(entry_id_list)
+                            print("Adding to Avention extraction queue")
+                            add_to_avention_queue(entry_id_list)
 
                             print("Adding to linkedin cp extraction queue")
                             add_to_li_cp_queue(entry_id_list)
@@ -496,8 +497,8 @@ def get_cb_data_via_queue():
                             add_to_dnb_queue(entry_id_list)
                             print("Adding to google tp extraction queue")
                             add_to_tp_queue(entry_id_list)
-                            # print("Adding to Avention extraction queue")
-                            # add_to_avention_queue(entry_id_list)
+                            print("Adding to Avention extraction queue")
+                            add_to_avention_queue(entry_id_list)
 
                             print("Adding to linkedin cp extraction queue")
                             add_to_li_cp_queue(entry_id_list)
@@ -529,8 +530,8 @@ def get_cb_data_via_queue():
                         add_to_dnb_queue(entry_id_list)
                         print("Adding to google tp extraction queue")
                         add_to_tp_queue(entry_id_list)
-                        # print("Adding to Avention extraction queue")
-                        # add_to_avention_queue(entry_id_list)
+                        print("Adding to Avention extraction queue")
+                        add_to_avention_queue(entry_id_list)
 
                         print("Adding to linkedin cp extraction queue")
                         add_to_li_cp_queue(entry_id_list)
@@ -540,7 +541,8 @@ def get_cb_data_via_queue():
 
 
 
-
+            # except SyntaxError as e:
+            #     print('synt')
             except pymongo.errors.ServerSelectionTimeoutError:
 
 
@@ -586,3 +588,4 @@ ndis = [ObjectId('5f759112087161005148e847'), ObjectId('5f759644087161005148e872
 
 # add_to_cb_queue(assets+ndis)
 # get_cb_data_via_queue()
+

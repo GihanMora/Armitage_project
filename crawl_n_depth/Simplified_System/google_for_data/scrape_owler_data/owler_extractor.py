@@ -219,7 +219,7 @@ def get_qa_from_google_via_queue():
         time.sleep(10)
         rows = qa_client.receive_messages()
         for msg in rows:
-            time.sleep(120)
+            # time.sleep(120)
             row = msg.content
             row = ast.literal_eval(row)
             print(row[0])

@@ -125,7 +125,7 @@ def run_wordcloud_model(entry_id,mode):  # this will extract paragraph and heade
                      {'$set': {'wordcloud_results_'+mode: word_cloud_results}})
     print("Successfully extended the data entry with wordcloud results", entry_id)
 
-# run_wordcloud_model("F://Armitage_project//crawl_n_depth//extracted_json_files//3_www.hydroterra.com.au_data.json")
+# run_wordcloud_model("F://Armitage_project_v1//crawl_n_depth//extracted_json_files//3_www.hydroterra.com.au_data.json")
 
 def get_wc_results(text,mode):
     try:

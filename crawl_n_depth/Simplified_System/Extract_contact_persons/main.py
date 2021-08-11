@@ -3,7 +3,7 @@
 import time
 import sys
 from bson import ObjectId
-sys.path.insert(0, 'F:/Armitage_project/crawl_n_depth/')
+sys.path.insert(0, 'F:/Armitage_project_v1/crawl_n_depth/')
 from bson import ObjectId
 from Simplified_System.Extract_contact_persons.scrape_comp_profiles import get_cp_dnb,get_cp_oc
 from Simplified_System.Extract_contact_persons.scrape_linkedin_employees import get_li_emp

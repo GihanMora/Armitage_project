@@ -5,7 +5,7 @@ import sys
 
 from Simplified_System.Database.db_connect import refer_collection
 
-sys.path.insert(0, 'F:/Armitage_project/')
+sys.path.insert(0, 'F:/Armitage_project_v1/')
 import pymongo
 from selenium.common.exceptions import TimeoutException
 import requests
@@ -41,7 +41,7 @@ def get_browser():
     # options.add_argument('--proxy-server=%s' % PROXY)
     browser = webdriver.Chrome(chrome_options=options,  # give the path to selenium executable
                                    # executable_path='F://Armitage_lead_generation_project//chromedriver.exe'
-                                   executable_path='F://Armitage_project//crawl_n_depth//utilities//chromedriver.exe',
+                                   executable_path='F://Armitage_project_v1//crawl_n_depth//utilities//chromedriver.exe',
                                     service_args=["--verbose", "--log-path=D:\\qc1.log"]
                                    )
     return browser

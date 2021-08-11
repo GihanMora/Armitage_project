@@ -8,7 +8,7 @@ three_up = up(up(up(__file__)))
 sys.path.insert(0, three_up)
 from key_phrase_extractors.wordnet import get_wc_results
 
-file = 'C:/Project_files/armitage/armitage_worker/Armitage_project/crawl_n_depth/Simplified_System/Initial_Crawling/for_listing_websites_edu.csv'
+file = 'C:/Project_files/armitage/armitage_worker/Armitage_project_v1/crawl_n_depth/Simplified_System/Initial_Crawling/for_listing_websites_edu.csv'
 
 res_file = pd.read_csv(file)
 columns = res_file.columns

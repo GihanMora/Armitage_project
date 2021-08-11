@@ -42,4 +42,4 @@ def run_rake_model(entry_id,rake_limit):
         print("vocabulary is empty")
 
 
-# run_rake_model("F://Armitage_project/crawl_n_depth/extracted_json_files/www.axcelerate.com.au_0_data.json",50)
+# run_rake_model("F://Armitage_project_v1/crawl_n_depth/extracted_json_files/www.axcelerate.com.au_0_data.json",50)

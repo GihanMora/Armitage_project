@@ -236,6 +236,7 @@ def update_a_company(comp_name, db_collection, entry_id):
 # search_a_company('https://courselink.uoguelph.ca/','col','121')
 
 def search_a_query(search_query,number_of_results,db_collection,query_entry):
+    # print('Hi')
     try:
         sr = getGoogleLinksForSearchText(search_query, number_of_results, 'normal')
         print('came',len(sr))
@@ -391,6 +392,6 @@ def search_a_query(search_query,number_of_results,db_collection,query_entry):
 
 
 # mycol = refer_collection()
-# search_a_company('TOOHEYS PTY LIMITED',mycol)
+# # search_a_company('TOOHEYS PTY LIMITED',mycol)
 # search_a_company('CALTEX PETROLEUM PTY LTD',mycol)
-# search_a_query('Digital advertisement and marketing analytics services company',5,mycol)
+# # search_a_query('Digital advertisement and marketing analytics services company',5,mycol)

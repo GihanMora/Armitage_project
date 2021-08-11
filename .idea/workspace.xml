@@ -1,0 +1,594 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="BranchesTreeState">
+    <expand>
+      <path>
+        <item name="ROOT" type="e8cecc67:BranchNodeDescriptor" />
+        <item name="LOCAL_ROOT" type="e8cecc67:BranchNodeDescriptor" />
+      </path>
+      <path>
+        <item name="ROOT" type="e8cecc67:BranchNodeDescriptor" />
+        <item name="REMOTE_ROOT" type="e8cecc67:BranchNodeDescriptor" />
+      </path>
+      <path>
+        <item name="ROOT" type="e8cecc67:BranchNodeDescriptor" />
+        <item name="REMOTE_ROOT" type="e8cecc67:BranchNodeDescriptor" />
+        <item name="GROUP_NODE:origin" type="e8cecc67:BranchNodeDescriptor" />
+      </path>
+      <path>
+        <item name="ROOT" type="e8cecc67:BranchNodeDescriptor" />
+        <item name="REMOTE_ROOT" type="e8cecc67:BranchNodeDescriptor" />
+        <item name="GROUP_NODE:origin" type="e8cecc67:BranchNodeDescriptor" />
+        <item name="GROUP_NODE:dependabot" type="e8cecc67:BranchNodeDescriptor" />
+      </path>
+      <path>
+        <item name="ROOT" type="e8cecc67:BranchNodeDescriptor" />
+        <item name="REMOTE_ROOT" type="e8cecc67:BranchNodeDescriptor" />
+        <item name="GROUP_NODE:origin" type="e8cecc67:BranchNodeDescriptor" />
+        <item name="GROUP_NODE:dependabot" type="e8cecc67:BranchNodeDescriptor" />
+        <item name="GROUP_NODE:maven" type="e8cecc67:BranchNodeDescriptor" />
+      </path>
+      <path>
+        <item name="ROOT" type="e8cecc67:BranchNodeDescriptor" />
+        <item name="REMOTE_ROOT" type="e8cecc67:BranchNodeDescriptor" />
+        <item name="GROUP_NODE:origin" type="e8cecc67:BranchNodeDescriptor" />
+        <item name="GROUP_NODE:dependabot" type="e8cecc67:BranchNodeDescriptor" />
+        <item name="GROUP_NODE:maven" type="e8cecc67:BranchNodeDescriptor" />
+        <item name="GROUP_NODE:crawl_n_depth" type="e8cecc67:BranchNodeDescriptor" />
+      </path>
+      <path>
+        <item name="ROOT" type="e8cecc67:BranchNodeDescriptor" />
+        <item name="REMOTE_ROOT" type="e8cecc67:BranchNodeDescriptor" />
+        <item name="GROUP_NODE:origin" type="e8cecc67:BranchNodeDescriptor" />
+        <item name="GROUP_NODE:dependabot" type="e8cecc67:BranchNodeDescriptor" />
+        <item name="GROUP_NODE:maven" type="e8cecc67:BranchNodeDescriptor" />
+        <item name="GROUP_NODE:crawl_n_depth" type="e8cecc67:BranchNodeDescriptor" />
+        <item name="GROUP_NODE:utilities" type="e8cecc67:BranchNodeDescriptor" />
+      </path>
+      <path>
+        <item name="ROOT" type="e8cecc67:BranchNodeDescriptor" />
+        <item name="REMOTE_ROOT" type="e8cecc67:BranchNodeDescriptor" />
+        <item name="GROUP_NODE:origin" type="e8cecc67:BranchNodeDescriptor" />
+        <item name="GROUP_NODE:dependabot" type="e8cecc67:BranchNodeDescriptor" />
+        <item name="GROUP_NODE:maven" type="e8cecc67:BranchNodeDescriptor" />
+        <item name="GROUP_NODE:crawl_n_depth" type="e8cecc67:BranchNodeDescriptor" />
+        <item name="GROUP_NODE:utilities" type="e8cecc67:BranchNodeDescriptor" />
+        <item name="GROUP_NODE:new_mallet" type="e8cecc67:BranchNodeDescriptor" />
+      </path>
+      <path>
+        <item name="ROOT" type="e8cecc67:BranchNodeDescriptor" />
+        <item name="REMOTE_ROOT" type="e8cecc67:BranchNodeDescriptor" />
+        <item name="GROUP_NODE:origin" type="e8cecc67:BranchNodeDescriptor" />
+        <item name="GROUP_NODE:dependabot" type="e8cecc67:BranchNodeDescriptor" />
+        <item name="GROUP_NODE:maven" type="e8cecc67:BranchNodeDescriptor" />
+        <item name="GROUP_NODE:crawl_n_depth" type="e8cecc67:BranchNodeDescriptor" />
+        <item name="GROUP_NODE:utilities" type="e8cecc67:BranchNodeDescriptor" />
+        <item name="GROUP_NODE:new_mallet" type="e8cecc67:BranchNodeDescriptor" />
+        <item name="GROUP_NODE:mallet-2.0.8" type="e8cecc67:BranchNodeDescriptor" />
+      </path>
+      <path>
+        <item name="ROOT" type="e8cecc67:BranchNodeDescriptor" />
+        <item name="REMOTE_ROOT" type="e8cecc67:BranchNodeDescriptor" />
+        <item name="GROUP_NODE:origin" type="e8cecc67:BranchNodeDescriptor" />
+        <item name="GROUP_NODE:dependabot" type="e8cecc67:BranchNodeDescriptor" />
+        <item name="GROUP_NODE:pip" type="e8cecc67:BranchNodeDescriptor" />
+      </path>
+    </expand>
+    <select />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="818de679-434d-473b-88da-1392fcfe327a" name="Default Changelist" comment="Updating mail">
+      <change afterPath="$PROJECT_DIR$/crawl_n_depth/Simplified_System/Excluding_profiles/set_ig_flag.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/crawl_n_depth/Simplified_System/Excluding_profiles/set_ig_flag_news.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/crawl_n_depth/Simplified_System/end_to_end/check_cb.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/crawl_n_depth/Simplified_System/end_to_end/project_exporting_queues.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/crawl_n_depth/Simplified_System/end_to_end/send_emails.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/crawl_n_depth/Simplified_System/google_for_data/news_classifier_zeroshot/news_classifier.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/crawl_n_depth/Simplified_System/Database/db_connect.py" beforeDir="false" afterPath="$PROJECT_DIR$/crawl_n_depth/Simplified_System/Database/db_connect.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/crawl_n_depth/Simplified_System/Database/links_fm.txt" beforeDir="false" afterPath="$PROJECT_DIR$/crawl_n_depth/Simplified_System/Database/links_fm.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/crawl_n_depth/Simplified_System/Database/set_ig_flag.py" beforeDir="false" afterPath="$PROJECT_DIR$/crawl_n_depth/Simplified_System/Database/set_ig_flag.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/crawl_n_depth/Simplified_System/Initial_Crawling/black_list.txt" beforeDir="false" afterPath="$PROJECT_DIR$/crawl_n_depth/Simplified_System/Initial_Crawling/black_list.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/crawl_n_depth/Simplified_System/Initial_Crawling/get_n_search_results.py" beforeDir="false" afterPath="$PROJECT_DIR$/crawl_n_depth/Simplified_System/Initial_Crawling/get_n_search_results.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/crawl_n_depth/Simplified_System/Initial_Crawling/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/crawl_n_depth/Simplified_System/Initial_Crawling/main.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/crawl_n_depth/Simplified_System/end_to_end/execute_pipeline_via_queues.py" beforeDir="false" afterPath="$PROJECT_DIR$/crawl_n_depth/Simplified_System/end_to_end/execute_pipeline_via_queues.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/crawl_n_depth/Simplified_System/end_to_end/repair_profiles.py" beforeDir="false" afterPath="$PROJECT_DIR$/crawl_n_depth/Simplified_System/end_to_end/repair_profiles.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/crawl_n_depth/Simplified_System/end_to_end/temp_text.txt" beforeDir="false" afterPath="$PROJECT_DIR$/crawl_n_depth/Simplified_System/end_to_end/temp_text.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/crawl_n_depth/Simplified_System/google_for_data/scrape_owler_data/owler_extractor.py" beforeDir="false" afterPath="$PROJECT_DIR$/crawl_n_depth/Simplified_System/google_for_data/scrape_owler_data/owler_extractor.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/crawl_n_depth/Simplified_System/web_profile_data_crawler/avention_scraper.py" beforeDir="false" afterPath="$PROJECT_DIR$/crawl_n_depth/Simplified_System/web_profile_data_crawler/avention_scraper.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/crawl_n_depth/Simplified_System/web_profile_data_crawler/scrape_crunchbase.py" beforeDir="false" afterPath="$PROJECT_DIR$/crawl_n_depth/Simplified_System/web_profile_data_crawler/scrape_crunchbase.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/crawl_n_depth/utilities/chromedriver.exe" beforeDir="false" afterPath="$PROJECT_DIR$/crawl_n_depth/utilities/chromedriver.exe" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Python Script" />
+      </list>
+    </option>
+  </component>
+  <component name="FlaskConsoleOptions" custom-start-script="import sys&#10;sys.path.extend([WORKING_DIR_AND_PYTHON_PATHS])&#10;from flask.cli import ScriptInfo&#10;locals().update(ScriptInfo(create_app=None).load_app().make_shell_context())&#10;print(&quot;Python %s on %s\nApp: %s [%s]\nInstance: %s&quot; % (sys.version, sys.platform, app.import_name, app.env, app.instance_path))">
+    <envs>
+      <env key="FLASK_APP" value="app" />
+    </envs>
+    <option name="myCustomStartScript" value="import sys&#10;sys.path.extend([WORKING_DIR_AND_PYTHON_PATHS])&#10;from flask.cli import ScriptInfo&#10;locals().update(ScriptInfo(create_app=None).load_app().make_shell_context())&#10;print(&quot;Python %s on %s\nApp: %s [%s]\nInstance: %s&quot; % (sys.version, sys.platform, app.import_name, app.env, app.instance_path))" />
+    <option name="myEnvs">
+      <map>
+        <entry key="FLASK_APP" value="app" />
+      </map>
+    </option>
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="JupyterTrust" id="caa21805-7e7a-4696-80df-7cb2d8abb143" />
+  <component name="ProjectId" id="1ir8bdW0d49BJDOQXzL5NA8TjL3" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent">
+    <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
+    <property name="WebServerToolWindowFactoryState" value="false" />
+    <property name="database.data.extractors.current.export.id" value="CSV-Groovy.csv.groovy" />
+    <property name="database.data.extractors.current.id" value="CSV-Groovy.csv.groovy" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/../../../../armitage_admin_july/armitage" />
+    <property name="settings.editor.selected.configurable" value="com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable" />
+  </component>
+  <component name="RecentsManager">
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="C:\Project_files\armitage\armitage_worker\Armitage_project\crawl_n_depth\Simplified_System\end_to_end" />
+    </key>
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="C:\Project_files\armitage\armitage_worker\Armitage_project\crawl_n_depth\Simplified_System\Excluding_profiles" />
+      <recent name="C:\Project_files\armitage\armitage_worker\Armitage_project\crawl_n_depth\Simplified_System\end_to_end" />
+      <recent name="C:\Project_files\armitage\armitage_worker\Armitage_project\crawl_n_depth\Simplified_System\linkedin_profile_picker" />
+      <recent name="C:\Project_files\armitage\armitage_worker\Armitage_project\crawl_n_depth\Simplified_System\Database" />
+    </key>
+  </component>
+  <component name="RunManager" selected="Python.get_n_search_results">
+    <configuration name="address_from_google" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+      <module name="Armitage_project" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/crawl_n_depth/Simplified_System/google_for_data/address_extraction" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/crawl_n_depth/Simplified_System/google_for_data/address_extraction/address_from_google.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <configuration name="get_n_search_results" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+      <module name="Armitage_project" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/crawl_n_depth/Simplified_System/Initial_Crawling" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/crawl_n_depth/Simplified_System/Initial_Crawling/get_n_search_results.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <configuration name="repair_profiles" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+      <module name="Armitage_project" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/crawl_n_depth/Simplified_System/end_to_end" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/crawl_n_depth/Simplified_System/end_to_end/repair_profiles.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <configuration name="scrape_crunchbase" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+      <module name="Armitage_project" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/crawl_n_depth/Simplified_System/web_profile_data_crawler" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/crawl_n_depth/Simplified_System/web_profile_data_crawler/scrape_crunchbase.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <configuration name="set_ig_flag" type="PythonConfigurationType" factoryName="Python" singleton="false" temporary="true" nameIsGenerated="true">
+      <module name="Armitage_project" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/crawl_n_depth/Simplified_System/Database" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/crawl_n_depth/Simplified_System/Database/set_ig_flag.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <list>
+      <item itemvalue="Python.address_from_google" />
+      <item itemvalue="Python.get_n_search_results" />
+      <item itemvalue="Python.repair_profiles" />
+      <item itemvalue="Python.scrape_crunchbase" />
+      <item itemvalue="Python.set_ig_flag" />
+    </list>
+    <recent_temporary>
+      <list>
+        <item itemvalue="Python.get_n_search_results" />
+        <item itemvalue="Python.repair_profiles" />
+        <item itemvalue="Python.address_from_google" />
+        <item itemvalue="Python.scrape_crunchbase" />
+        <item itemvalue="Python.set_ig_flag" />
+      </list>
+    </recent_temporary>
+  </component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="818de679-434d-473b-88da-1392fcfe327a" name="Default Changelist" comment="" />
+      <created>1602654422825</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1602654422825</updated>
+      <workItem from="1602654423919" duration="5172000" />
+      <workItem from="1602733658259" duration="11643000" />
+      <workItem from="1603335028870" duration="448000" />
+      <workItem from="1603430920231" duration="853000" />
+      <workItem from="1603432066040" duration="4384000" />
+      <workItem from="1603633191441" duration="4279000" />
+      <workItem from="1604203678019" duration="2542000" />
+      <workItem from="1604459890854" duration="8213000" />
+      <workItem from="1604488150775" duration="11488000" />
+      <workItem from="1605240518681" duration="1043000" />
+      <workItem from="1605581254712" duration="3513000" />
+      <workItem from="1605590516807" duration="2321000" />
+      <workItem from="1605603677064" duration="8713000" />
+      <workItem from="1605620637184" duration="2374000" />
+      <workItem from="1605639892345" duration="778000" />
+      <workItem from="1605670011895" duration="796000" />
+      <workItem from="1605848912656" duration="1219000" />
+      <workItem from="1605850148150" duration="2487000" />
+      <workItem from="1606312621553" duration="187000" />
+      <workItem from="1606312897219" duration="1782000" />
+      <workItem from="1606314698055" duration="1366000" />
+      <workItem from="1606316287995" duration="1346000" />
+      <workItem from="1606470892323" duration="85000" />
+      <workItem from="1606471348762" duration="367000" />
+      <workItem from="1606484331786" duration="2414000" />
+      <workItem from="1606654079935" duration="410000" />
+      <workItem from="1606787285143" duration="66000" />
+      <workItem from="1606803924000" duration="2471000" />
+      <workItem from="1606877089508" duration="2393000" />
+      <workItem from="1607483013612" duration="1223000" />
+      <workItem from="1607497731732" duration="287000" />
+      <workItem from="1607831741061" duration="3010000" />
+      <workItem from="1607863015791" duration="814000" />
+      <workItem from="1608774224537" duration="345000" />
+      <workItem from="1608774714420" duration="193000" />
+      <workItem from="1608793103393" duration="456000" />
+      <workItem from="1609078769628" duration="597000" />
+      <workItem from="1609160929032" duration="5155000" />
+      <workItem from="1609211513997" duration="1357000" />
+      <workItem from="1609217942273" duration="1966000" />
+      <workItem from="1609314358560" duration="1064000" />
+      <workItem from="1609316659154" duration="4336000" />
+      <workItem from="1609322176191" duration="1400000" />
+      <workItem from="1609560614651" duration="443000" />
+      <workItem from="1609834099112" duration="8163000" />
+      <workItem from="1610814130240" duration="1106000" />
+      <workItem from="1610868042185" duration="643000" />
+      <workItem from="1611026579446" duration="3911000" />
+      <workItem from="1611158258207" duration="1324000" />
+      <workItem from="1611165299667" duration="759000" />
+      <workItem from="1611193681251" duration="7609000" />
+      <workItem from="1611506594114" duration="124000" />
+      <workItem from="1611580484577" duration="1862000" />
+      <workItem from="1611729853465" duration="604000" />
+      <workItem from="1611734658431" duration="689000" />
+      <workItem from="1611826387212" duration="5000" />
+      <workItem from="1611826412821" duration="806000" />
+      <workItem from="1611890053134" duration="1065000" />
+      <workItem from="1611932046937" duration="5328000" />
+      <workItem from="1611939693972" duration="65000" />
+      <workItem from="1611940323175" duration="248000" />
+      <workItem from="1611940711686" duration="25000" />
+      <workItem from="1612000279208" duration="409000" />
+      <workItem from="1612110521696" duration="641000" />
+      <workItem from="1612137435757" duration="71000" />
+      <workItem from="1612159645546" duration="3847000" />
+      <workItem from="1612164488724" duration="29000" />
+      <workItem from="1612511359016" duration="12594000" />
+      <workItem from="1612588753865" duration="1368000" />
+      <workItem from="1612591497624" duration="2556000" />
+      <workItem from="1612595795918" duration="8313000" />
+      <workItem from="1612843256232" duration="693000" />
+      <workItem from="1612845159723" duration="773000" />
+      <workItem from="1612846181789" duration="195000" />
+      <workItem from="1613041704135" duration="10907000" />
+      <workItem from="1613140373960" duration="387000" />
+      <workItem from="1613147411675" duration="179000" />
+      <workItem from="1613148365800" duration="1196000" />
+      <workItem from="1613149951435" duration="2527000" />
+      <workItem from="1613188248836" duration="11035000" />
+      <workItem from="1613240460337" duration="1740000" />
+      <workItem from="1613375631605" duration="11833000" />
+      <workItem from="1613398926766" duration="1897000" />
+      <workItem from="1613401787126" duration="1620000" />
+      <workItem from="1613574686114" duration="3586000" />
+      <workItem from="1613813483707" duration="2286000" />
+      <workItem from="1613979784002" duration="16493000" />
+      <workItem from="1614049672017" duration="4160000" />
+      <workItem from="1614225561222" duration="1108000" />
+      <workItem from="1614227680693" duration="1815000" />
+      <workItem from="1614245652521" duration="11991000" />
+      <workItem from="1614914158985" duration="10000" />
+      <workItem from="1614998173625" duration="752000" />
+      <workItem from="1615044997296" duration="834000" />
+      <workItem from="1615088483761" duration="1095000" />
+      <workItem from="1615089651710" duration="3461000" />
+      <workItem from="1615093776800" duration="427000" />
+      <workItem from="1615107233536" duration="814000" />
+      <workItem from="1615110610222" duration="10000" />
+      <workItem from="1615782180603" duration="2252000" />
+      <workItem from="1615805605379" duration="1957000" />
+      <workItem from="1615892828465" duration="2193000" />
+      <workItem from="1615900334300" duration="1538000" />
+      <workItem from="1616207322649" duration="1368000" />
+      <workItem from="1616208935367" duration="3937000" />
+      <workItem from="1616379568133" duration="2137000" />
+      <workItem from="1616743845393" duration="3047000" />
+      <workItem from="1616747167330" duration="4199000" />
+      <workItem from="1617025950322" duration="3242000" />
+      <workItem from="1617077969767" duration="3272000" />
+      <workItem from="1617591380357" duration="1649000" />
+      <workItem from="1617674707502" duration="6448000" />
+      <workItem from="1617720288139" duration="779000" />
+      <workItem from="1617730784882" duration="12000" />
+      <workItem from="1617731000952" duration="23000" />
+      <workItem from="1617762886772" duration="6430000" />
+      <workItem from="1618565771024" duration="211000" />
+      <workItem from="1618628563296" duration="542000" />
+      <workItem from="1618799349562" duration="2372000" />
+      <workItem from="1618840349734" duration="471000" />
+      <workItem from="1619858763682" duration="2001000" />
+      <workItem from="1619955472265" duration="3306000" />
+      <workItem from="1620016149669" duration="1552000" />
+      <workItem from="1620138458077" duration="821000" />
+      <workItem from="1620547566103" duration="5881000" />
+      <workItem from="1620619179909" duration="5191000" />
+      <workItem from="1620788152257" duration="3370000" />
+      <workItem from="1622086255108" duration="555000" />
+      <workItem from="1622086831450" duration="13840000" />
+      <workItem from="1622203306881" duration="627000" />
+      <workItem from="1622204737393" duration="81000" />
+      <workItem from="1622204866673" duration="785000" />
+      <workItem from="1622218401029" duration="6061000" />
+      <workItem from="1622528042201" duration="681000" />
+      <workItem from="1622784532920" duration="84000" />
+      <workItem from="1622784731936" duration="564000" />
+      <workItem from="1622947039553" duration="1721000" />
+      <workItem from="1622958413038" duration="1259000" />
+      <workItem from="1624199210753" duration="6176000" />
+      <workItem from="1624345977125" duration="683000" />
+      <workItem from="1624351873854" duration="725000" />
+      <workItem from="1624380028344" duration="629000" />
+      <workItem from="1624455869232" duration="5898000" />
+      <workItem from="1624599043716" duration="3746000" />
+      <workItem from="1625465431415" duration="6963000" />
+      <workItem from="1625630662566" duration="2672000" />
+      <workItem from="1625641035413" duration="780000" />
+      <workItem from="1625752091071" duration="6431000" />
+      <workItem from="1626697380271" duration="2203000" />
+      <workItem from="1626746096858" duration="49000" />
+      <workItem from="1626956506717" duration="2104000" />
+      <workItem from="1627301569134" duration="251000" />
+      <workItem from="1627302895879" duration="804000" />
+      <workItem from="1627303773634" duration="599000" />
+      <workItem from="1628162383421" duration="1762000" />
+      <workItem from="1628306648637" duration="1620000" />
+      <workItem from="1628354310535" duration="7000" />
+      <workItem from="1628359434546" duration="317000" />
+      <workItem from="1628491190720" duration="1345000" />
+    </task>
+    <task id="LOCAL-00001" summary="Evaluating the rich descriptions for non listing websites">
+      <created>1602733909345</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1602733909345</updated>
+    </task>
+    <task id="LOCAL-00002" summary="Updated flag setting functionality.">
+      <created>1603636587782</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1603636587782</updated>
+    </task>
+    <task id="LOCAL-00003" summary="Reorgaized Evaluation Scripts">
+      <created>1604581497443</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1604581497443</updated>
+    </task>
+    <task id="LOCAL-00004" summary="Built a project repairing component which help to recover profiles due to mongodb/server crashing/memory overflow problems.">
+      <created>1607833341608</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1607833341609</updated>
+    </task>
+    <task id="LOCAL-00005" summary="Built a project repairing component which help to recover profiles due to mongodb/server crashing/memory overflow problems.">
+      <created>1609849201106</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1609849201106</updated>
+    </task>
+    <option name="localTasksCounter" value="6" />
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State />
+          </value>
+        </entry>
+      </map>
+    </option>
+    <option name="oldMeFiltersMigrated" value="true" />
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="Evaluating the rich descriptions for non listing websites" />
+    <MESSAGE value="Updated flag setting functionality." />
+    <MESSAGE value="Reorgaized Evaluation Scripts" />
+    <MESSAGE value="Built a project repairing component which help to recover profiles due to mongodb/server crashing/memory overflow problems." />
+    <option name="LAST_COMMIT_MESSAGE" value="Built a project repairing component which help to recover profiles due to mongodb/server crashing/memory overflow problems." />
+  </component>
+  <component name="WindowStateProjectService">
+    <state x="223" y="67" key="#com.intellij.execution.impl.EditConfigurationsDialog" timestamp="1625467333795">
+      <screen x="0" y="0" width="1536" height="824" />
+    </state>
+    <state x="223" y="67" key="#com.intellij.execution.impl.EditConfigurationsDialog/0.0.1536.824@0.0.1536.824" timestamp="1625467333795" />
+    <state x="549" y="167" key="FileChooserDialogImpl" timestamp="1627301817455">
+      <screen x="0" y="0" width="1536" height="824" />
+    </state>
+    <state x="549" y="167" key="FileChooserDialogImpl/0.0.1536.824@0.0.1536.824" timestamp="1627301817455" />
+    <state width="1637" height="354" key="GridCell.Tab.0.bottom" timestamp="1628320589832">
+      <screen x="0" y="0" width="1680" height="1010" />
+    </state>
+    <state width="1326" height="322" key="GridCell.Tab.0.bottom/0.0.1368.872@0.0.1368.872" timestamp="1624601588223" />
+    <state width="1493" height="276" key="GridCell.Tab.0.bottom/0.0.1536.824@0.0.1536.824" timestamp="1627303700081" />
+    <state width="1637" height="354" key="GridCell.Tab.0.bottom/0.0.1680.1010@0.0.1680.1010" timestamp="1628320589832" />
+    <state width="1637" height="354" key="GridCell.Tab.0.center" timestamp="1628320589832">
+      <screen x="0" y="0" width="1680" height="1010" />
+    </state>
+    <state width="1326" height="322" key="GridCell.Tab.0.center/0.0.1368.872@0.0.1368.872" timestamp="1624601588223" />
+    <state width="1493" height="276" key="GridCell.Tab.0.center/0.0.1536.824@0.0.1536.824" timestamp="1627303700081" />
+    <state width="1637" height="354" key="GridCell.Tab.0.center/0.0.1680.1010@0.0.1680.1010" timestamp="1628320589832" />
+    <state width="1637" height="354" key="GridCell.Tab.0.left" timestamp="1628320589832">
+      <screen x="0" y="0" width="1680" height="1010" />
+    </state>
+    <state width="1326" height="322" key="GridCell.Tab.0.left/0.0.1368.872@0.0.1368.872" timestamp="1624601588223" />
+    <state width="1493" height="276" key="GridCell.Tab.0.left/0.0.1536.824@0.0.1536.824" timestamp="1627303700081" />
+    <state width="1637" height="354" key="GridCell.Tab.0.left/0.0.1680.1010@0.0.1680.1010" timestamp="1628320589832" />
+    <state width="1637" height="354" key="GridCell.Tab.0.right" timestamp="1628320589832">
+      <screen x="0" y="0" width="1680" height="1010" />
+    </state>
+    <state width="1326" height="322" key="GridCell.Tab.0.right/0.0.1368.872@0.0.1368.872" timestamp="1624601588223" />
+    <state width="1493" height="276" key="GridCell.Tab.0.right/0.0.1536.824@0.0.1536.824" timestamp="1627303700081" />
+    <state width="1637" height="354" key="GridCell.Tab.0.right/0.0.1680.1010@0.0.1680.1010" timestamp="1628320589832" />
+    <state x="341" y="149" key="SettingsEditor" timestamp="1628306816620">
+      <screen x="0" y="0" width="1680" height="1010" />
+    </state>
+    <state x="341" y="149" key="SettingsEditor/0.0.1680.1010@0.0.1680.1010" timestamp="1628306816620" />
+    <state x="361" y="145" key="Vcs.Push.Dialog.v2" timestamp="1622315652506">
+      <screen x="0" y="0" width="1536" height="824" />
+    </state>
+    <state x="361" y="145" key="Vcs.Push.Dialog.v2/0.0.1536.824@0.0.1536.824" timestamp="1622315652506" />
+    <state x="347" y="184" width="672" height="678" key="search.everywhere.popup" timestamp="1624600664651">
+      <screen x="0" y="0" width="1368" height="872" />
+    </state>
+    <state x="347" y="184" width="672" height="678" key="search.everywhere.popup/0.0.1368.872@0.0.1368.872" timestamp="1624600664651" />
+  </component>
+  <component name="com.intellij.coverage.CoverageDataManagerImpl">
+    <SUITE FILE_PATH="coverage/Armitage_project$get_tp_num.coverage" NAME="get_tp_num Coverage Results" MODIFIED="1611938531082" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/crawl_n_depth/Simplified_System/google_for_data/phone_number_extraction" />
+    <SUITE FILE_PATH="coverage/Armitage_project$get_cb_hq.coverage" NAME="get_cb_hq Coverage Results" MODIFIED="1612845924092" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/crawl_n_depth/Simplified_System/Excluding_profiles" />
+    <SUITE FILE_PATH="coverage/Armitage_project$execute_pipeline.coverage" NAME="execute_pipeline Coverage Results" MODIFIED="1614253282480" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/crawl_n_depth/Simplified_System/end_to_end" />
+    <SUITE FILE_PATH="coverage/Armitage_project$get_n_search_results.coverage" NAME="get_n_search_results Coverage Results" MODIFIED="1628307057607" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/crawl_n_depth/Simplified_System/Initial_Crawling" />
+    <SUITE FILE_PATH="coverage/Armitage_project$wordnet.coverage" NAME="wordnet Coverage Results" MODIFIED="1602733770564" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/crawl_n_depth/key_phrase_extractors" />
+    <SUITE FILE_PATH="coverage/Armitage_project$project_exporting_queues.coverage" NAME="project_exporting_queues Coverage Results" MODIFIED="1622320524165" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/crawl_n_depth/Simplified_System/end_to_end" />
+    <SUITE FILE_PATH="coverage/Armitage_project$import.coverage" NAME="import Coverage Results" MODIFIED="1613395520044" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/crawl_n_depth/Simplified_System/Database" />
+    <SUITE FILE_PATH="coverage/Armitage_project$avention_scraper.coverage" NAME="avention_scraper Coverage Results" MODIFIED="1620617740638" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/crawl_n_depth/Simplified_System/web_profile_data_crawler" />
+    <SUITE FILE_PATH="coverage/Armitage_project$deep_keyword_export.coverage" NAME="deep_keyword_export Coverage Results" MODIFIED="1604580879351" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/crawl_n_depth/Simplified_System/Evaluations" />
+    <SUITE FILE_PATH="coverage/Armitage_project$dump_results_of_a_project.coverage" NAME="dump_results_of_a_project Coverage Results" MODIFIED="1609836869386" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/crawl_n_depth/Simplified_System/end_to_end" />
+    <SUITE FILE_PATH="coverage/Armitage_project$scrape_oc.coverage" NAME="scrape_oc Coverage Results" MODIFIED="1624341642491" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/crawl_n_depth/Simplified_System/web_profile_data_crawler" />
+    <SUITE FILE_PATH="coverage/Armitage_project$predict_class.coverage" NAME="predict_class Coverage Results" MODIFIED="1611215336686" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/crawl_n_depth/Classification" />
+    <SUITE FILE_PATH="coverage/Armitage_project$Export_all.coverage" NAME="Export_all Coverage Results" MODIFIED="1613402718594" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/crawl_n_depth/Simplified_System/Database" />
+    <SUITE FILE_PATH="coverage/Armitage_project$check_cb.coverage" NAME="check_cb Coverage Results" MODIFIED="1617078060212" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/crawl_n_depth/Simplified_System/end_to_end" />
+    <SUITE FILE_PATH="coverage/Armitage_project$get_n_search_results__1_.coverage" NAME="get_n_search_results (1) Coverage Results" MODIFIED="1606313754377" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/crawl_n_depth/Simplified_System/Initial_Crawling" />
+    <SUITE FILE_PATH="coverage/Armitage_project$linkedin_profile_picker.coverage" NAME="linkedin_profile_picker Coverage Results" MODIFIED="1605850619081" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/crawl_n_depth/Simplified_System/linkedin_profile_picker" />
+    <SUITE FILE_PATH="coverage/Armitage_project$connect_cluster.coverage" NAME="connect_cluster Coverage Results" MODIFIED="1613149540387" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/crawl_n_depth/Simplified_System/Database" />
+    <SUITE FILE_PATH="coverage/Armitage_project$db_connect.coverage" NAME="db_connect Coverage Results" MODIFIED="1619962099697" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/crawl_n_depth/Simplified_System/Database" />
+    <SUITE FILE_PATH="coverage/Armitage_project$scrape_crunchbase.coverage" NAME="scrape_crunchbase Coverage Results" MODIFIED="1625849612983" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/crawl_n_depth/Simplified_System/web_profile_data_crawler" />
+    <SUITE FILE_PATH="coverage/Armitage_project$main.coverage" NAME="main Coverage Results" MODIFIED="1611938707251" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/crawl_n_depth/Simplified_System/Initial_Crawling" />
+    <SUITE FILE_PATH="coverage/Armitage_project$get_contacts_google.coverage" NAME="get_contacts_google Coverage Results" MODIFIED="1611939488072" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/crawl_n_depth/Simplified_System/google_for_data/contacts_from_google" />
+    <SUITE FILE_PATH="coverage/Armitage_project$address_confidence.coverage" NAME="address_confidence Coverage Results" MODIFIED="1614226061137" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/crawl_n_depth/Simplified_System/evaluate_results" />
+    <SUITE FILE_PATH="coverage/Armitage_project$set_ig_flag.coverage" NAME="set_ig_flag Coverage Results" MODIFIED="1625631247541" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/crawl_n_depth/Simplified_System/Database" />
+    <SUITE FILE_PATH="coverage/Armitage_project$evaluate_rich_descriptions.coverage" NAME="evaluate_rich_descriptions Coverage Results" MODIFIED="1604208137008" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/crawl_n_depth/Simplified_System/Initial_Crawling" />
+    <SUITE FILE_PATH="coverage/Armitage_project$cp_confidence.coverage" NAME="cp_confidence Coverage Results" MODIFIED="1614226209036" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/crawl_n_depth/Simplified_System/evaluate_results" />
+    <SUITE FILE_PATH="coverage/Armitage_project$set_ig_flag_news.coverage" NAME="set_ig_flag_news Coverage Results" MODIFIED="1624601588134" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/crawl_n_depth/Simplified_System/Excluding_profiles" />
+    <SUITE FILE_PATH="coverage/Armitage_project$get_entries_project.coverage" NAME="get_entries_project Coverage Results" MODIFIED="1613401060698" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/crawl_n_depth/Simplified_System/end_to_end" />
+    <SUITE FILE_PATH="coverage/Armitage_project$owler_extractor.coverage" NAME="owler_extractor Coverage Results" MODIFIED="1624380050761" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/crawl_n_depth/Simplified_System/google_for_data/scrape_owler_data" />
+    <SUITE FILE_PATH="coverage/Armitage_project$testing_mong.coverage" NAME="testing_mong Coverage Results" MODIFIED="1613150104155" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/crawl_n_depth/Simplified_System/Database" />
+    <SUITE FILE_PATH="coverage/Armitage_project$rich_crawling.coverage" NAME="rich_crawling Coverage Results" MODIFIED="1604204681934" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/crawl_n_depth/Simplified_System/Initial_Crawling" />
+    <SUITE FILE_PATH="coverage/Armitage_project$try.coverage" NAME="try Coverage Results" MODIFIED="1609318131282" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/crawl_n_depth/Simplified_System" />
+    <SUITE FILE_PATH="coverage/Armitage_project$dump_external_lists.coverage" NAME="dump_external_lists Coverage Results" MODIFIED="1613185586778" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/crawl_n_depth/Simplified_System/end_to_end" />
+    <SUITE FILE_PATH="coverage/Armitage_project$execute_pipeline_via_queues.coverage" NAME="execute_pipeline_via_queues Coverage Results" MODIFIED="1624202616128" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/crawl_n_depth/Simplified_System/end_to_end" />
+    <SUITE FILE_PATH="coverage/Armitage_project$address_from_google.coverage" NAME="address_from_google Coverage Results" MODIFIED="1626697487951" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/crawl_n_depth/Simplified_System/google_for_data/address_extraction" />
+    <SUITE FILE_PATH="coverage/Armitage_project$search_profiles.coverage" NAME="search_profiles Coverage Results" MODIFIED="1620794033282" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/crawl_n_depth/Simplified_System/end_to_end" />
+    <SUITE FILE_PATH="coverage/Armitage_project$checker.coverage" NAME="checker Coverage Results" MODIFIED="1606490323790" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/crawl_n_depth/Simplified_System/end_to_end" />
+    <SUITE FILE_PATH="coverage/Armitage_project$send_emails.coverage" NAME="send_emails Coverage Results" MODIFIED="1622321028696" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/crawl_n_depth/Simplified_System/end_to_end" />
+    <SUITE FILE_PATH="coverage/Armitage_project$repair_profiles.coverage" NAME="repair_profiles Coverage Results" MODIFIED="1628178559434" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/crawl_n_depth/Simplified_System/end_to_end" />
+  </component>
+</project>

@@ -36,4 +36,4 @@ for id_v in id_list:
 
 
 
-# simplified_export_with_sources_and_confidence(filered_l,'C:\Project_files\\armitage\\armitage_worker\Armitage_project\crawl_n_depth\Simplified_System\end_to_end\comp_export.csv')
+# simplified_export_with_sources_and_confidence(filered_l,'C:\Project_files\\armitage\\armitage_worker\Armitage_project_v1\crawl_n_depth\Simplified_System\end_to_end\comp_export.csv')

@@ -11,12 +11,16 @@ three_up = up(up(up(__file__)))
 sys.path.insert(0, three_up)
 
 
+#Requests Users
+
+
+# print(result)
 import requests
 from selenium.webdriver.firefox.options import Options
 from selenium import webdriver
 from bs4 import BeautifulSoup
 from bs4.element import Tag
-from fake_useragent import UserAgent
+# from fake_useragent import UserAgent
 from random import choice
 
 def proxy_generator():
@@ -27,8 +31,8 @@ def proxy_generator():
     return proxy
 
 def use_chrome():
-    ua = UserAgent()
-    userAgent = ua.random #get a random user agent
+    # ua = UserAgent()
+    # userAgent = ua.random #get a random user agent
     options = webdriver.ChromeOptions()  # use headless version of chrome to avoid getting blocked
     options.add_argument('headless')
     # options.add_argument(f'user-agent={userAgent}')
@@ -76,6 +80,8 @@ def getGoogleLinksForSearchText(searchText,number_of_results,mode):#given a sear
     searchGoogle = URL = f"https://google.com/search?q={searchText}"+"&num=" + str(number_of_results)
 
     try:
+
+        #our scraper
         browser = use_chrome()#get a chrome instance
         browser.get(searchGoogle)
         time.sleep(5)
@@ -104,25 +110,41 @@ def getGoogleLinksForSearchText(searchText,number_of_results,mode):#given a sear
             is_captcha_on_page = soup.find("div", id="recaptcha") is not None
 
 
+        #scraper_API
+        # from scraper_api import ScraperAPIClient
+        # client = ScraperAPIClient('71e54dccbd8d60be19191bbfded3c7b2')
+        # pageSource = client.get(url='https://www.google.com/search?q=caltex+australia', render=True).text
+        # soup = BeautifulSoup(pageSource, 'html.parser')  # bs4
+
+
+
+
+
+
         results = []
         result_div = soup.find_all('div', attrs={'class': 'g'})
         print('len_res',len(result_div))
+        # print(result_div)
         for r in result_div:
+            # print('vvv',r)
             # Checks if each element is present, else, raise exception
             try:
                 link = r.find('a', href=True)['href']#extracting the link
+                print('link',link)
                 title = None
                 title = r.find('h3')
 
                 if isinstance(title,Tag):#extracting the title of the link
                     title = title.get_text()
-
+                print('title', title)
                 description = None
-                description = r.find('span', attrs={'class': 'aCOpRe'})#extracting the description
-
+                description = r.find('div', attrs={'class': 'VwiC3b yXK7lf MUxGbd yDYNvb lyLwlc lEBKkf'})#extracting the description
+                if(description==None):#VwiC3b yXK7lf MUxGbd yDYNvb lyLwlc lEBKkf
+                    description = r.find('div', attrs={'class' :'LGOjhe'})
+                # print('ddd',description)
                 if isinstance(description, Tag):
                     description = description.get_text()
-
+                print('des',description)
                 # Check to make sure everything is present before appending
                 if (link not in ['',None]) and (title not in ['',None]) and (description not in ['',None]):#remove links if information is not available
                     rich_description = []

@@ -8,7 +8,7 @@ from os.path import dirname as up
 
 three_up = up(up(up(__file__)))
 # sys.path.insert(0, three_up)
-sys.path.insert(0,'F:/from git/Armitage_project/crawl_n_depth')
+sys.path.insert(0,'F:/from git/Armitage_project_v1/crawl_n_depth')
 from Simplified_System.end_to_end.execute_pipeline_via_queues import query_state_update_via_queue
 from Simplified_System.end_to_end.execute_pipeline_via_queues import project_state_update_via_queue
 

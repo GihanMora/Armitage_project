@@ -13,8 +13,8 @@ import sys
 
 from Simplified_System.Database.db_connect import refer_collection
 
-sys.path.insert(0, 'F:/Armitage_project/')
-os.environ.update({'MALLET_HOME': r'F:/Armitage_project/crawl_n_depth/utilities/new_mallet/mallet-2.0.8/'})
+sys.path.insert(0, 'F:/Armitage_project_v1/')
+os.environ.update({'MALLET_HOME': r'F:/Armitage_project_v1/crawl_n_depth/utilities/new_mallet/mallet-2.0.8/'})
 # Enable logging for gensim
 import logging
 logging.basicConfig(format='%(asctime)s : %(levelname)s : %(message)s', level=logging.ERROR)
@@ -81,7 +81,7 @@ def run_mallet_model(entry_id,number_of_topics):#this will extract paragraph and
         print('corpus is created')#(word,frequency of occuring)
         topics = []
         mallet_list = []
-        mallet_path = 'F:/Armitage_project/crawl_n_depth/utilities/new_mallet/mallet-2.0.8/bin/mallet'  # update this path
+        mallet_path = 'F:/Armitage_project_v1/crawl_n_depth/utilities/new_mallet/mallet-2.0.8/bin/mallet'  # update this path
         ldamallet = gensim.models.wrappers.LdaMallet(mallet_path, corpus=corpus, num_topics=number_of_topics, id2word=id2word)
         print('topics are extracting')
         mallet_list = {'Topic_' + str(i): [word for word, prob in ldamallet.show_topic(i, topn=10)] for i in

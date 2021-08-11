@@ -53,4 +53,4 @@ def run_textrank_model(entry_id,phrase_limit):  # this will extract paragraph an
         print("vocabulary is empty")
 
 
-# run_textrank_model("F://Armitage_project//crawl_n_depth//extracted_json_files//0_www.sureway.com.au_data.json",50,5)
+# run_textrank_model("F://Armitage_project_v1//crawl_n_depth//extracted_json_files//0_www.sureway.com.au_data.json",50,5)

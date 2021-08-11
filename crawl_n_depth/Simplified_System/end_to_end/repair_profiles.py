@@ -8,7 +8,7 @@ from os.path import dirname as up
 three_up = up(up(up(__file__)))
 
 sys.path.insert(0, three_up)
-# sys.path.insert(0,'C:/Project_files/Armitage_project/crawl_n_depth')
+# sys.path.insert(0,'C:/Project_files/Armitage_project_v1/crawl_n_depth')
 # print(three_up)
 # print(sys.path)
 from fake_useragent import UserAgent
@@ -61,24 +61,32 @@ def get_entries_project(project_id):
 
 
                 for k in obs_ids:
-                    prof_data_entry = profile_col.find({"_id": k})
-                    # print('proj', proj_data_entry)
-                    prof_data = [i for i in prof_data_entry]
-                    prof_attribute_keys = list(prof_data[0].keys())
-                    if(prof_data[0]['ignore_flag']=='1'):continue
-                    all_entires.extend([k])
+                    try:
+                        prof_data_entry = profile_col.find({"_id": k})
+                        # print('proj', proj_data_entry)
+                        prof_data = [i for i in prof_data_entry]
+                        prof_attribute_keys = list(prof_data[0].keys())
+                        if(prof_data[0]['ignore_flag']=='1'):continue
+                        all_entires.extend([k])
 
-                    if ('simplified_dump_state' in prof_attribute_keys):
-                        if(prof_data[0]['simplified_dump_state']=='Completed'):
-                            completed_count.append(k)
-                        # else:print(prof_data[0]['simplified_dump_state'])
-                        elif (prof_data[0]['simplified_dump_state'] == 'Incomplete'):
-                            incomplete_count+= 1
-                            incompletes.append(k)
+                        if ('simplified_dump_state' in prof_attribute_keys):
+                            if(prof_data[0]['simplified_dump_state']=='Completed'):
+                                completed_count.append(k)
+                            # else:print(prof_data[0]['simplified_dump_state'])
+                            elif (prof_data[0]['simplified_dump_state'] == 'Incomplete'):
+                                incomplete_count+= 1
+                                incompletes.append(k)
+                            else:
+                                problems.append(k)
                         else:
                             problems.append(k)
-                    else:
-                        problems.append(k)
+                    except Exception:
+                        print(k)
+                        print('error')
+                        ddt = {'_id': k,'ignore_flag': '1'}
+
+                        profile_col.insert_one(ddt)
+                        continue
                 #
                 # print(['completed',completed_count,'all',len(obs_ids),'incompleted',incomplete_count,incompletes,'prob',problems])
                 # # filt = []
@@ -239,8 +247,9 @@ def repair_wanted_parts_updated(entry_id_list):
     for k in entry_id_list:
         print('*****************')
         prof_data_entry = profile_col.find({"_id": k})
-        # print('proj', proj_data_entry)
+        print('proj', prof_data_entry)
         prof_data = [i for i in prof_data_entry]
+        print(prof_data)
         prof_attribute_keys = list(prof_data[0].keys())
 
         if ('crunchbase_extraction_state' in prof_attribute_keys):
@@ -359,6 +368,17 @@ def repair_wanted_parts_updated(entry_id_list):
                     add_to_simplified_export_queue([k])
 
 
+                if ('avention_extraction_state' in prof_attribute_keys):
+                    if (prof_data[0]['avention_extraction_state'] == 'Completed'):
+                        print('avention_extraction_state already_done')
+                    else:
+                        print("Adding to Avention dump queue")
+                        add_to_avention_queue([k])
+                else:
+                    print("Adding to Avention extraction queue")
+                    add_to_avention_queue([k])
+
+
 
 
 
@@ -414,11 +434,12 @@ tt = [ObjectId('5fd350da6a3da8afb04a94d1'), ObjectId('5f7b1412c0092b71a2c6daf1')
 def repair_projects_wanted_parts(project_id_list):
     for each_id in project_id_list:
         out_dict = get_entries_project(each_id)
-        # problematic_profiles = out_dict['problems']
-        # repair_wanted_parts_updated(problematic_profiles)
+        problematic_profiles = out_dict['problems']
+        repair_wanted_parts_updated(problematic_profiles)
 
-
-# repair_projects_wanted_parts([ObjectId('604e4854edb24f74a2dc6c31')])
-# get_entries_project(ObjectId('602a9761b480ee114d7db900'))
-# repair_wanted_parts_updated([ObjectId('604ee3b78cbff43562f567d3'), ObjectId('604ee26b8cbff43562f567c2'), ObjectId('604ee3808cbff43562f567d0'), ObjectId('604ee3498cbff43562f567cd'), ObjectId('604ee2b88cbff43562f567c5'), ObjectId('602f9b7b7ba8308c59e0f51b'), ObjectId('604f0d5c43bf215786725d61')]
-# )
+# 6094f13f09f4bbe84fdec9c2
+# repair_projects_wanted_parts([ObjectId('60e5272db2a8cfb5818ad0d7')])
+# get_entries_project(ObjectId('60795ce143d20d5336c52abe'))
+# repair_wanted_parts_updated([ObjectId('607b594e74b7ff6a8cea112a'), ObjectId('607c2cd974b7ff6a8cea1976'), ObjectId('607c2d2e74b7ff6a8cea197a'), ObjectId('607c2f1974b7ff6a8cea1990'), ObjectId('607c310774b7ff6a8cea19a1'), ObjectId('607bf1aa74b7ff6a8cea1766'), ObjectId('607c2a3e74b7ff6a8cea1960'),ObjectId('607b56e274b7ff6a8cea110d'), ObjectId('607b286374b7ff6a8cea0ebe'), ObjectId('60421339a63926c1684515b4'), ObjectId('602f9b2c7ba8308c59e0f519'), ObjectId('607aafe38158085fe9be350f'), ObjectId('604332fcdbc71f46487e3c4e'), ObjectId('607afdee74b7ff6a8cea0ccc')])
+# repair_wanted_parts_updated([ObjectId('60b9b7341626f0a10618cd7b')])
+# 60e5272db2a8cfb5818ad0d7

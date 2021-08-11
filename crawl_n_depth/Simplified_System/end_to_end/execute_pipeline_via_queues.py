@@ -14,7 +14,6 @@ from bson import ObjectId
 from os.path import dirname as up
 
 
-
 three_up = up(up(up(__file__)))
 # print('relative',three_up)
 sys.path.insert(0, three_up)
@@ -25,6 +24,7 @@ from fake_useragent import UserAgent
 from selenium import webdriver
 from datetime import datetime
 from multiprocessing import Process
+from Simplified_System.end_to_end.project_exporting_queues import export_projects_via_queue
 from Simplified_System.Initial_Crawling.main import search_a_company,search_a_query,search_a_company_alpha,update_a_company
 from Simplified_System.Deep_Crawling.main import deep_crawl,add_to_deep_crawling_queue,run_crawlers_via_queue_chain
 from Simplified_System.Database.db_connect import refer_collection,refer_query_col,simplified_export,simplified_export_via_queue,add_to_simplified_export_queue,refer_projects_col,simplified_export_with_sources_and_confidence_via_queue,is_query_exist
@@ -183,7 +183,7 @@ def project_state_update_via_queue():
                 for each_query_res in associated_queries:
                     que_entry = query_collection.find({"_id": each_query_res})
                     data_res = [i for i in que_entry]
-                    # print(['query',each_query_res,data_res[0]['state']])
+                    print(['query',each_query_res,data_res[0]['state']])
                     if(data_res[0]['state']=='Completed'):
                         completed_count+=1
                 print(['comp',completed_count,data[0]['query_count']])
@@ -212,6 +212,8 @@ if __name__ == '__main__':
 
     # f = open("test_out.txt", 'w')
     # sys.stdout = f
+
+
     print("Pipeline execution started via queues")
     p1 = Process(target=run_crawlers_via_queue_chain)
     p1.start()
@@ -227,8 +229,10 @@ if __name__ == '__main__':
     p6.start()
     p7 = Process(target=get_oc_data_via_queue)
     p7.start()
-    # p8 = Process(target=get_aven_data_via_queue)
-    # p8.start()
+
+
+    p8 = Process(target=get_aven_data_via_queue)
+    p8.start()
     p9 = Process(target=get_ad_from_google_via_queue)
     p9.start()
     p10 = Process(target=get_dnb_data_via_queue)
@@ -247,6 +251,9 @@ if __name__ == '__main__':
     p16.start()
     p17 = Process(target=simplified_export_with_sources_and_confidence_via_queue)
     p17.start()
+    # p18 = Process(target=export_projects_via_queue)
+    # p18.start()
+
 
 
     connect_str = os.getenv('AZURE_STORAGE_CONNECTION_STRING')
